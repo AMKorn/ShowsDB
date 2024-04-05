@@ -9,9 +9,5 @@ create table `show` (
     `name` varchar(255) not null,
     `episodes` int
 );
-
-create table `actor` (
-    `id` bigint primary key auto_increment,
-    `name` varchar(255) not null,
-    `birthDate` date
-);
+insert into `show`(`name`, `episodes`) values ("What We Do in the Shadows", 10);
+insert into `show`(`name`, `episodes`) values ("The Good Place", 40);

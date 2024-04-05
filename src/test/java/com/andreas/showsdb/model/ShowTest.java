@@ -30,8 +30,10 @@ class ShowTest {
         Show show1 = new Show(0L, "What We Do in the Shadows", 10);
         Show show2 = new Show(0L, "What We Do in the Shadows", 10);
         Show show3 = new Show(1L, "The Good Place", 40);
+        Show show4 = new Show("What We Do in the Shadows", 10);
 
         assertEquals(show1, show2);
         assertNotEquals(show1, show3);
+        assertNotEquals(show1, show4);
     }
 }
