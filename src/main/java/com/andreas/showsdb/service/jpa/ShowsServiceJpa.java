@@ -26,8 +26,8 @@ public class ShowsServiceJpa implements ShowsService {
     }
 
     @Override
-    public void save(Show show) {
-        showsRepository.save(show);
+    public Show save(Show show) {
+        return showsRepository.save(show);
     }
 
     @Override

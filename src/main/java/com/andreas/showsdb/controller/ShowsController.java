@@ -26,13 +26,11 @@ public class ShowsController {
 
     @PostMapping("/shows")
     public Show createShow(@RequestBody Show show) {
-        showsService.save(show);
-        return show;
+        return showsService.save(show);
     }
 
     @PutMapping("/shows")
     public Show modifyShow(@RequestBody Show show) {
-        showsService.save(show);
-        return show;
+        return showsService.save(show);
     }
 }

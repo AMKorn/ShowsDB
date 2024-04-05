@@ -10,7 +10,7 @@ public interface ShowsService {
 
     Optional<Show> findById(long id);
 
-    void save(Show show);
+    Show save(Show show);
 
     void deleteById(long id);
 }
