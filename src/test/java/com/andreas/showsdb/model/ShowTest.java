@@ -12,7 +12,7 @@ class ShowTest {
         assertNotNull(show);
         assertEquals(0L, show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals(10, show.getEpisodes());
+        assertEquals(10, show.getRelease());
     }
 
     @Test
@@ -22,7 +22,7 @@ class ShowTest {
         assertNotNull(show);
         assertNull(show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals(10, show.getEpisodes());
+        assertEquals(10, show.getRelease());
     }
 
     @Test

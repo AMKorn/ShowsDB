@@ -1,8 +1,6 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.service.ShowsService;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +50,8 @@ class ShowsControllerTest {
         assertEquals(2L, shows.get(1).getId());
         assertEquals("What We Do in the Shadows", shows.get(0).getName());
         assertEquals("The Good Place", shows.get(1).getName());
-        assertEquals(10, shows.get(0).getEpisodes());
-        assertEquals(40, shows.get(1).getEpisodes());
+        assertEquals(10, shows.get(0).getRelease());
+        assertEquals(40, shows.get(1).getRelease());
 
     }
 
@@ -69,7 +67,7 @@ class ShowsControllerTest {
         assertNotNull(show);
         assertEquals(1L, show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals(10, show.getEpisodes());
+        assertEquals(10, show.getRelease());
     }
 
     @Test
@@ -97,7 +95,7 @@ class ShowsControllerTest {
         assertNotNull(show1);
         assertEquals(3, show1.getId());
         assertEquals("Bojack Horseman", show1.getName());
-        assertEquals(60, show1.getEpisodes());
+        assertEquals(60, show1.getRelease());
     }
 
     @Test
@@ -107,7 +105,7 @@ class ShowsControllerTest {
         Show show = response.getBody();
 
         assertNotNull(show);
-        show.setEpisodes(50);
+        show.setRelease(50);
 
         client.put(createUri("/api/shows"), show);
 
@@ -118,7 +116,7 @@ class ShowsControllerTest {
 
         show = response.getBody();
         assertNotNull(show);
-        assertEquals(50, show.getEpisodes());
+        assertEquals(50, show.getRelease());
     }
 
     @Test

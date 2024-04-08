@@ -1,10 +1,6 @@
 package com.andreas.showsdb.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,11 +15,10 @@ public class Show {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Integer episodes;
+    private Integer release;
 
-    public Show(String name, Integer episodes) {
+    public Show(String name, Integer release) {
         this.name = name;
-        this.episodes = episodes;
+        this.release = release;
     }
-
 }

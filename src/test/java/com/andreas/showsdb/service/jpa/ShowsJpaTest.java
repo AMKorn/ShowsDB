@@ -58,11 +58,11 @@ class ShowsJpaTest {
     @Test
     void testUpdateShow() {
         Show show = showsRepository.findById(1L).orElseThrow();
-        show.setEpisodes(100);
+        show.setRelease(100);
         showsRepository.save(show);
 
         show = showsRepository.findById(1L).orElseThrow();
-        assertEquals(100, show.getEpisodes());
+        assertEquals(100, show.getRelease());
     }
 
     @Test
