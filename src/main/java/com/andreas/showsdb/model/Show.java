@@ -21,7 +21,7 @@ public class Show {
     private String name;
     private Integer episodes;
 
-    public Show(String name, Integer episodes){
+    public Show(String name, Integer episodes) {
         this.name = name;
         this.episodes = episodes;
     }
