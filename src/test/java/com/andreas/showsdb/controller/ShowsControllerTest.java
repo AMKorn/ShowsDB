@@ -1,9 +1,6 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.service.ShowsService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,15 +23,8 @@ class ShowsControllerTest {
     @Autowired
     private TestRestTemplate client;
 
-    private ObjectMapper objectMapper;
-
     @LocalServerPort
     private int port;
-
-    @BeforeEach
-    void setUp() {
-        objectMapper = new ObjectMapper();
-    }
 
     @Test
     @Order(1)
@@ -52,8 +42,6 @@ class ShowsControllerTest {
         assertEquals(2L, shows.get(1).getId());
         assertEquals("What We Do in the Shadows", shows.get(0).getName());
         assertEquals("The Good Place", shows.get(1).getName());
-        assertEquals(10, shows.get(0).getEpisodes());
-        assertEquals(40, shows.get(1).getEpisodes());
 
     }
 
@@ -69,7 +57,6 @@ class ShowsControllerTest {
         assertNotNull(show);
         assertEquals(1L, show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals(10, show.getEpisodes());
     }
 
     @Test
@@ -86,7 +73,7 @@ class ShowsControllerTest {
     @Test
     @Order(4)
     void testAddShow() {
-        Show show = new Show("Bojack Horseman", 60);
+        Show show = new Show("Bojack Horseman");
 
         ResponseEntity<Show> response = client.postForEntity(createUri("/api/shows"), show, Show.class);
 
@@ -97,7 +84,6 @@ class ShowsControllerTest {
         assertNotNull(show1);
         assertEquals(3, show1.getId());
         assertEquals("Bojack Horseman", show1.getName());
-        assertEquals(60, show1.getEpisodes());
     }
 
     @Test
@@ -107,7 +93,6 @@ class ShowsControllerTest {
         Show show = response.getBody();
 
         assertNotNull(show);
-        show.setEpisodes(50);
 
         client.put(createUri("/api/shows"), show);
 
@@ -118,7 +103,6 @@ class ShowsControllerTest {
 
         show = response.getBody();
         assertNotNull(show);
-        assertEquals(50, show.getEpisodes());
     }
 
     @Test

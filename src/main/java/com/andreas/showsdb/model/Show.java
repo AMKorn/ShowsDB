@@ -19,11 +19,9 @@ public class Show {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Integer episodes;
 
-    public Show(String name, Integer episodes) {
+    public Show(String name) {
         this.name = name;
-        this.episodes = episodes;
     }
 
 }

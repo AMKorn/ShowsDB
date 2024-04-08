@@ -35,7 +35,7 @@ class ShowsJpaTest {
 
     @Test
     void testInsertShow() {
-        Show show = new Show("Bojack Horseman", 60);
+        Show show = new Show("Bojack Horseman");
 
         Show savedShow = showsRepository.save(show);
 
@@ -58,11 +58,9 @@ class ShowsJpaTest {
     @Test
     void testUpdateShow() {
         Show show = showsRepository.findById(1L).orElseThrow();
-        show.setEpisodes(100);
         showsRepository.save(show);
 
         show = showsRepository.findById(1L).orElseThrow();
-        assertEquals(100, show.getEpisodes());
     }
 
     @Test

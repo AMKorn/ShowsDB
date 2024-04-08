@@ -7,7 +7,8 @@ use showsdb;
 create table `show` (
     `id` bigint primary key auto_increment,
     `name` varchar(255) not null,
-    `episodes` int
+    `releaseYear` int
 );
-insert into `show`(`name`, `episodes`) values ("What We Do in the Shadows", 50);
-insert into `show`(`name`, `episodes`) values ("The Good Place", 40);
+insert into `show`(`name`, `releaseYear`) values ('What We Do in the Shadows', 2019);
+insert into `show`(`name`, `releaseYear`) values ('The Good Place', 2017);
+
