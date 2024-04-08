@@ -42,8 +42,8 @@ class ShowsControllerTest {
         assertEquals(2L, shows.get(1).getId());
         assertEquals("What We Do in the Shadows", shows.get(0).getName());
         assertEquals("The Good Place", shows.get(1).getName());
-        assertEquals(10, shows.get(0).getRelease());
-        assertEquals(40, shows.get(1).getRelease());
+        assertEquals(2019, shows.get(0).getRelease());
+        assertEquals(2017, shows.get(1).getRelease());
 
     }
 
@@ -59,7 +59,7 @@ class ShowsControllerTest {
         assertNotNull(show);
         assertEquals(1L, show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals(10, show.getRelease());
+        assertEquals(2019, show.getRelease());
     }
 
     @Test
@@ -76,7 +76,7 @@ class ShowsControllerTest {
     @Test
     @Order(4)
     void testAddShow() {
-        Show show = new Show("Bojack Horseman", 10);
+        Show show = new Show("Bojack Horseman", 60);
 
         ResponseEntity<Show> response = client.postForEntity(createUri("/api/shows"), show, Show.class);
 

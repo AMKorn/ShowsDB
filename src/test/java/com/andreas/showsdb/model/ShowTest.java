@@ -22,7 +22,7 @@ class ShowTest {
         assertNotNull(show);
         assertNull(show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals(10, show.getRelease());
+        assertEquals(2019, show.getRelease());
     }
 
     @Test
