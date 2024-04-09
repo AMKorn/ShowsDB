@@ -35,7 +35,7 @@ class ShowsJpaTest {
 
     @Test
     void testInsertShow() {
-        Show show = new Show("Bojack Horseman", 10);
+        Show show = new Show("Bojack Horseman", "United States");
 
         Show savedShow = showsRepository.save(show);
 
@@ -58,11 +58,11 @@ class ShowsJpaTest {
     @Test
     void testUpdateShow() {
         Show show = showsRepository.findById(1L).orElseThrow();
-        show.setRelease(100);
+        show.setCountry("Canada");
         showsRepository.save(show);
 
         show = showsRepository.findById(1L).orElseThrow();
-        assertEquals(100, show.getRelease());
+        assertEquals("Canada", show.getCountry());
     }
 
     @Test

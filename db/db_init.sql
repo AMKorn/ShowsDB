@@ -1,17 +1,16 @@
-drop database if exists showsdb;
+drop database if exists `showsDB`;
 
-create database showsdb;
+create database `showsDB`;
 
-use showsdb;
+use `showsDB`;
 
 create table `show` (
     `id` bigint primary key auto_increment,
     `name` varchar(255) not null,
-    `country` varchar(255),
-    `releaseYear` int
+    `country` varchar(255)
 );
-insert into `show`(`name`, `releaseYear`) values ('What We Do in the Shadows', 2019);
-insert into `show`(`name`, `releaseYear`) values ('The Good Place', 2017);
+insert into `show`(`name`, `country`) values ('What We Do in the Shadows', 'United States');
+insert into `show`(`name`, `country`) values ('The Good Place', 'United States');
 
 create table `season` (
     `id` bigint primary key auto_increment,

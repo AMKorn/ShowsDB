@@ -15,10 +15,10 @@ public class Show {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private Integer release;
+    private String country;
 
-    public Show(String name, Integer release) {
+    public Show(String name, String country) {
         this.name = name;
-        this.release = release;
+        this.country = country;
     }
 }
