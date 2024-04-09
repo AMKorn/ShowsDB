@@ -1,25 +1,35 @@
-drop database if exists `showsDB`;
+--liquibase formatted sql
 
-create database `showsDB`;
-
-use `showsDB`;
-
+--changeset andreas:1 labels:shows
+--comment: creation of shows
 create table `show` (
     `id` bigint primary key auto_increment,
     `name` varchar(255) not null,
     `country` varchar(255)
 );
+--rollback DROP TABLE `show`;
+
+--changeset andreas:2 labels:shows
+--comment: shows insertion
 insert into `show`(`name`, `country`) values ('What We Do in the Shadows', 'United States');
 insert into `show`(`name`, `country`) values ('The Good Place', 'United States');
+--rollback DELETE FROM `show` WHERE `id` BETWEEN 1 AND 2
 
+--changeset andreas:3 labels:seasons
+--comment: season creation
 create table `season` (
     `id` bigint primary key auto_increment,
     `show` int references `show`,
     `seasonNumber` int not null,
     unique (`show`, `seasonNumber`)
 );
-insert into `season`(`show`, `seasonNumber`) values (1, 1), (1, 2), (2, 1);
+--rollback DROP TABLE `season`
 
+--changeset andreas:4 labels:seasons
+insert into `season`(`show`, `seasonNumber`) values (1, 1), (1, 2), (2, 1);
+--rollback DELETE FROM `season` where `id` between 1 and 3
+
+--changeset andreas:5 labels:episodes
 create table `episode` (
     `id` bigint primary key auto_increment,
     `season` bigint references `season`,
@@ -28,28 +38,47 @@ create table `episode` (
     `relDate` date,
 	unique (`season`, `episodeNumber`)
 );
-insert into `episode`(`season`, `episodeNumber`, `name`, `relDate`) values (1, 1, 'Pilot', '2019-03-28'), (1, 2, 'City Council', '2019-04-04');
+--rollback drop table `episode`
 
+--changeset andreas:6 labels:episodes
+insert into `episode`(`season`, `episodeNumber`, `name`, `relDate`) values (1, 1, 'Pilot', '2019-03-28'), (1, 2, 'City Council', '2019-04-04');
+--rollback delete from `episodes` where `id` = 1 or `id`=2
+
+--changeset andreas:7 labels:actors
 create table `actor` (
     `id` bigint primary key auto_increment,
     `name` varchar(255) not null,
     `country` varchar(255),
     `birthDate` date
 );
-insert into `actor`(`name`, `country`, `birthDate`) values ('Kayvan Novak', 'United Kingdom', '1978-11-23'), ('Kristen Bell', 'United States', '1980-07-18'), ('Kristen Schaal', 'United States', '1978-01-24');
+--rollback drop table `actor`
 
+--changeset andreas:8 labels:actors
+insert into `actor`(`name`, `country`, `birthDate`) values ('Kayvan Novak', 'United Kingdom', '1978-11-23'), ('Kristen Bell', 'United States', '1980-07-18'), ('Kristen Schaal', 'United States', '1978-01-24');
+--rollback delete from `actor` where `id` between 1 and 3
+
+--changeset andreas:9 labels:actors,shows
 create table `main_cast` (
     `idActor` bigint references `actor`,
     `idShow` bigint references `show`,
     `character` varchar(255),
     primary key (`idActor`, `idShow`)
 );
-insert into `main_cast` values (1, 1, 'Nandor The Relentless'), (2, 2, 'Eleanor Shellstrop');
+--rollback drop table `main_cast
 
+--changeset andreas:10 labels:actors,shows
+insert into `main_cast` values (1, 1, 'Nandor The Relentless'), (2, 2, 'Eleanor Shellstrop');
+--rollback delete from `main_cast` where (`idActor`, `idShow`) = (1,1) or (`idActor`, `idShow`) = (2,2)
+
+--changeset andreas:11 labels:actors,episodes
 create table `featured_actor` (
     `idActor` bigint references `actor`,
     `episode` int references `episode`,
     `character` varchar(255),
     primary key (`idActor`, `episode`)
 );
+--rollback drop table `featured_actor`
+
+--changeset andreas:12 labels:actors,episodes
 insert into `featured_actor` values (3, 1, 'The Guide');
+--rollback delete from `featured_actor` where (`idActor`, `episode`) = (3,1)
