@@ -1,7 +1,7 @@
-package com.andreas.showsdb.service.jpa;
+package com.andreas.showsdb.repository;
 
+import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.repository.ShowsRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -16,6 +16,8 @@ class ShowsJpaTest {
 
     @Autowired
     ShowsRepository showsRepository;
+    @Autowired
+    SeasonRepository seasonRepository;
 
     @Test
     void testFindAllShows() {
@@ -75,5 +77,13 @@ class ShowsJpaTest {
         shows = showsRepository.findAll();
         assertEquals(1L, shows.size());
         assertEquals(0, showsRepository.findByName("What We Do in the Shadows").size());
+    }
+
+    @Test
+    void testFindAllShowSeasons() {
+        Show show = showsRepository.findById(1L).orElseThrow();
+        List<Season> seasons = seasonRepository.findByShow(show);
+
+        assertEquals(2, seasons.size());
     }
 }
