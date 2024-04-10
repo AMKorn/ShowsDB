@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "season")
+@Table(name = "season",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"show", "seasonNumber"}))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

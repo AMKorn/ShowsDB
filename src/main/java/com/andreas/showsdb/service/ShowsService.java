@@ -15,11 +15,11 @@ public interface ShowsService {
 
     void deleteById(long id);
 
-    List<Season> getSeasons(Show show);
+    List<Season> getShowSeasons(Show show);
 
 //    Optional<Season> getShowSeason(Show show, Integer seasonNumber);
 
-    void saveSeason(Season season);
+    Season saveSeason(Season season);
 
     Season addShowSeason(Show show);
 

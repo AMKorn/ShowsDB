@@ -2,16 +2,14 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api")
@@ -19,8 +17,6 @@ public class ShowsController {
 
     @Autowired
     private ShowsService showsService;
-    @Autowired
-    private SeasonsRepository seasonsRepository;
 
     @GetMapping("/shows")
     public List<Show> searchAll() {
@@ -58,18 +54,29 @@ public class ShowsController {
         if (show.isEmpty())
             return ResponseEntity.notFound().build();
 
-        List<Season> season = seasonsRepository.findByShow(show.get());
+        List<Season> season = showsService.getShowSeasons(show.get());
         return ResponseEntity.ok(season);
     }
 
     @PostMapping("/shows/{id}/seasons")
-    public ResponseEntity<?> addShowSeason(@PathVariable("id") long id, @RequestBody Season season){
+    public ResponseEntity<?> addShowSeason(@PathVariable("id") long id, @RequestBody Season season) {
         Optional<Show> show = showsService.findById(id);
         if (show.isEmpty())
             return ResponseEntity.notFound().build();
 
         season.setShow(show.orElseThrow());
-        Season savedSeason = seasonsRepository.save(season);
-        return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
+        try {
+            Season savedSeason = showsService.saveSeason(season);
+            return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            Map<String, Object> response = new HashMap<>();
+            Optional<Season> optionalSeason = showsService.getShowSeasons(show.get()).stream()
+                    .filter(s -> s.getSeasonNumber().equals(season.getSeasonNumber()))
+                    .findFirst();
+            response.put("message",
+                    "Show '" + show.get().getName() + "' already has a Season " + season.getSeasonNumber());
+            response.put("season", optionalSeason.orElseThrow());
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
     }
 }

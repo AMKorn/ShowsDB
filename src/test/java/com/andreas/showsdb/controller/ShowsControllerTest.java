@@ -2,6 +2,9 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ShowsControllerTest {
     @Autowired
     private TestRestTemplate client;
-
     @LocalServerPort
     private int port;
 
@@ -149,6 +151,23 @@ class ShowsControllerTest {
 
     @Test
     @Order(8)
+    void testAddSeasonToShowAlreadyExists() throws JsonProcessingException {
+        Season season = new Season();
+        season.setSeasonNumber(1);
+        ResponseEntity<String> response = client.postForEntity(createUri("/api/shows/1/seasons"), season, String.class);
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Show 'What We Do in the Shadows' already has a Season 1",
+                json.path("message").asText());
+
+    }
+
+    @Test
+    @Order(9)
     void testGetShowSeasons() {
         ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
 
@@ -157,6 +176,12 @@ class ShowsControllerTest {
 
         List<Season> seasons = Arrays.asList(Objects.requireNonNull(response.getBody()));
         assertEquals(1, seasons.size());
+    }
+
+    @Test
+    @Order(10)
+    void testGetShowSeasonByNumber() {
+        ResponseEntity<Season> response = client.getForEntity(createUri("/api/shows/1/seasons/1"), Season.class);
     }
 
     private String createUri(String uri) {
