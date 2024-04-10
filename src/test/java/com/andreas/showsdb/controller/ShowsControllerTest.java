@@ -202,8 +202,17 @@ class ShowsControllerTest {
 
     @Test
     @Order(11)
-    void testAddSeasonToShowThatDoesNotExist() {
+    void testAddSeasonToShowThatDoesNotExist() throws JsonProcessingException {
         Season season = new Season();
+        ResponseEntity<String> response = client.postForEntity(createUri("/api/shows/99/seasons"), season, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Show does not exist",
+                json.path("message").asText());
     }
 
 
@@ -223,6 +232,14 @@ class ShowsControllerTest {
     @Order(13)
     void testGetShowSeasonByNumber() {
         ResponseEntity<Season> response = client.getForEntity(createUri("/api/shows/1/seasons/1"), Season.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        Season season = response.getBody();
+        assertNotNull(season);
+        assertEquals(1, season.getShow().getId());
+        assertEquals(1, season.getSeasonNumber());
     }
 
     private String createUri(String uri) {

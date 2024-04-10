@@ -17,7 +17,7 @@ public interface ShowsService {
 
     List<Season> getShowSeasons(Show show);
 
-//    Optional<Season> getShowSeason(Show show, Integer seasonNumber);
+    Optional<Season> getShowSeason(Show show, Integer seasonNumber);
 
     Season saveSeason(Season season);
 

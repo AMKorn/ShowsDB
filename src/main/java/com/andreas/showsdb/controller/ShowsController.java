@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/shows")
 public class ShowsController {
 
     @Autowired
     private ShowsService showsService;
 
-    @GetMapping("/shows")
+    @GetMapping("")
     public List<Show> searchAll() {
         return showsService.findAll();
     }
 
-    @GetMapping("/shows/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<?> getShow(@PathVariable("id") long id) {
         try {
             return ResponseEntity.ok(showsService.findById(id).orElseThrow());
@@ -32,23 +32,23 @@ public class ShowsController {
         }
     }
 
-    @PostMapping("/shows")
+    @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public Show createShow(@RequestBody Show show) {
         return showsService.save(show);
     }
 
-    @PutMapping("/shows")
+    @PutMapping("")
     public Show modifyShow(@RequestBody Show show) {
         return showsService.save(show);
     }
 
-    @DeleteMapping("/shows/{id}")
+    @DeleteMapping("/{id}")
     public void deleteShow(@PathVariable("id") long id) {
         showsService.deleteById(id);
     }
 
-    @GetMapping("/shows/{id}/seasons")
+    @GetMapping("/{id}/seasons")
     public ResponseEntity<?> findShowSeasons(@PathVariable("id") long id) {
         Optional<Show> show = showsService.findById(id);
         if (show.isEmpty())
@@ -58,32 +58,55 @@ public class ShowsController {
         return ResponseEntity.ok(season);
     }
 
-    @PostMapping("/shows/{id}/seasons")
+    @PostMapping("/{id}/seasons")
     public ResponseEntity<?> addShowSeason(@PathVariable("id") long id, @RequestBody(required = false) Season season) {
-        Optional<Show> show = showsService.findById(id);
-        if (show.isEmpty())
-            return ResponseEntity.notFound().build();
-
-        int numberOfSeasons = showsService.getShowSeasons(show.get()).size();
+        Optional<Show> optionalShow = showsService.findById(id);
+        if (optionalShow.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Show does not exist");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        Show show = optionalShow.get();
 
         if (season == null || season.getSeasonNumber() == null) {
-            Season savedSeason = showsService.addShowSeason(show.get());
+            Season savedSeason = showsService.addShowSeason(show);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         }
 
-        season.setShow(show.get());
+        season.setShow(show);
         try {
             Season savedSeason = showsService.saveSeason(season);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             Map<String, Object> response = new HashMap<>();
-            Optional<Season> optionalSeason = showsService.getShowSeasons(show.get()).stream()
+            Optional<Season> optionalSeason = showsService.getShowSeasons(show).stream()
                     .filter(s -> s.getSeasonNumber().equals(season.getSeasonNumber()))
                     .findFirst();
             response.put("message",
-                    "Show '" + show.get().getName() + "' already has a Season " + season.getSeasonNumber());
+                    "Show '" + show.getName() + "' already has a Season " + season.getSeasonNumber());
             response.put("season", optionalSeason.orElseThrow());
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
+    }
+
+    @GetMapping("/{showId}/seasons/{seasonNumber}")
+    public ResponseEntity<?> getSeason(@PathVariable("showId") Long showId,
+                                       @PathVariable("seasonNumber") int seasonNumber) {
+        Optional<Show> optionalShow = showsService.findById(showId);
+        if (optionalShow.isEmpty()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Show does not exist");
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        Show show = optionalShow.get();
+
+        Optional<Season> optionalSeason = showsService.getShowSeason(show, seasonNumber);
+        try {
+            Season season = optionalSeason.orElseThrow();
+            return new ResponseEntity<>(season, HttpStatus.OK);
+        } catch (NoSuchElementException e){
+            return ResponseEntity.notFound().build();
+        }
+
     }
 }

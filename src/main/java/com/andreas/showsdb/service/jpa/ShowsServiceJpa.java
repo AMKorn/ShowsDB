@@ -46,6 +46,11 @@ public class ShowsServiceJpa implements ShowsService {
     }
 
     @Override
+    public Optional<Season> getShowSeason(Show show, Integer seasonNumber) {
+        return seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber);
+    }
+
+    @Override
     public Season saveSeason(Season season) {
         seasonsRepository.save(season);
         return season;
