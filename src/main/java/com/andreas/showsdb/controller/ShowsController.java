@@ -59,12 +59,19 @@ public class ShowsController {
     }
 
     @PostMapping("/shows/{id}/seasons")
-    public ResponseEntity<?> addShowSeason(@PathVariable("id") long id, @RequestBody Season season) {
+    public ResponseEntity<?> addShowSeason(@PathVariable("id") long id, @RequestBody(required = false) Season season) {
         Optional<Show> show = showsService.findById(id);
         if (show.isEmpty())
             return ResponseEntity.notFound().build();
 
-        season.setShow(show.orElseThrow());
+        int numberOfSeasons = showsService.getShowSeasons(show.get()).size();
+
+        if (season == null || season.getSeasonNumber() == null) {
+            Season savedSeason = showsService.addShowSeason(show.get());
+            return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
+        }
+
+        season.setShow(show.get());
         try {
             Season savedSeason = showsService.saveSeason(season);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);

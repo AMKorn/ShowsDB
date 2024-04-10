@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -151,6 +152,39 @@ class ShowsControllerTest {
 
     @Test
     @Order(8)
+    void testAddSecondSeasonToShow() {
+        Season season = new Season();
+        season.setSeasonNumber(2);
+        ResponseEntity<Season> response = client.postForEntity(createUri("/api/shows/1/seasons"), season, Season.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        Season seasonResponse = response.getBody();
+        assertNotNull(seasonResponse);
+        assertNotNull(seasonResponse.getShow());
+        assertEquals(1, seasonResponse.getShow().getId());
+        assertEquals(2, seasonResponse.getSeasonNumber());
+    }
+
+    @Test
+    @Order(9)
+    void testAddUnnumberedSeasonToShow() {
+        ResponseEntity<Season> response = client.postForEntity(createUri("/api/shows/1/seasons"), new Season(), Season.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        Season seasonResponse = response.getBody();
+        assertNotNull(seasonResponse);
+        assertNotNull(seasonResponse.getShow());
+        assertEquals(1, seasonResponse.getShow().getId());
+        assertEquals(3, seasonResponse.getSeasonNumber());
+
+    }
+
+    @Test
+    @Order(10)
     void testAddSeasonToShowAlreadyExists() throws JsonProcessingException {
         Season season = new Season();
         season.setSeasonNumber(1);
@@ -167,7 +201,14 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(9)
+    @Order(11)
+    void testAddSeasonToShowThatDoesNotExist() {
+        Season season = new Season();
+    }
+
+
+    @Test
+    @Order(12)
     void testGetShowSeasons() {
         ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
 
@@ -175,11 +216,11 @@ class ShowsControllerTest {
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
         List<Season> seasons = Arrays.asList(Objects.requireNonNull(response.getBody()));
-        assertEquals(1, seasons.size());
+        assertEquals(3, seasons.size());
     }
 
     @Test
-    @Order(10)
+    @Order(13)
     void testGetShowSeasonByNumber() {
         ResponseEntity<Season> response = client.getForEntity(createUri("/api/shows/1/seasons/1"), Season.class);
     }

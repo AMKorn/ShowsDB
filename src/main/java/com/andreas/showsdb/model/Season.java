@@ -6,8 +6,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "season",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"show", "seasonNumber"}))
+@Table(
+        name = "season",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"show", "seasonNumber"})
+        }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +19,7 @@ public class Season {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "show")
     private Show show;
     private Integer seasonNumber;
