@@ -17,7 +17,7 @@ class ShowsJpaTest {
     @Autowired
     ShowsRepository showsRepository;
     @Autowired
-    SeasonRepository seasonRepository;
+    SeasonsRepository seasonsRepository;
 
     @Test
     void testFindAllShows() {
@@ -77,13 +77,5 @@ class ShowsJpaTest {
         shows = showsRepository.findAll();
         assertEquals(1L, shows.size());
         assertEquals(0, showsRepository.findByName("What We Do in the Shadows").size());
-    }
-
-    @Test
-    void testFindAllShowSeasons() {
-        Show show = showsRepository.findById(1L).orElseThrow();
-        List<Season> seasons = seasonRepository.findByShow(show);
-
-        assertEquals(2, seasons.size());
     }
 }

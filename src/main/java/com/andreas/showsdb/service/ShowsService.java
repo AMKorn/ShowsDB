@@ -1,5 +1,6 @@
 package com.andreas.showsdb.service;
 
+import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 
 import java.util.List;
@@ -13,4 +14,14 @@ public interface ShowsService {
     Show save(Show show);
 
     void deleteById(long id);
+
+    List<Season> getSeasons(Show show);
+
+//    Optional<Season> getShowSeason(Show show, Integer seasonNumber);
+
+    void saveSeason(Season season);
+
+    Season addShowSeason(Show show);
+
+    void deleteSeason(Season season);
 }

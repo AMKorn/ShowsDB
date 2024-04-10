@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +128,35 @@ class ShowsControllerTest {
         assertEquals(2, shows.size());
         Optional<Show> show = shows.stream().filter(s -> s.getId() == 3).findFirst();
         assertTrue(show.isEmpty());
+    }
+
+    @Test
+    @Order(7)
+    void testAddSeasonToShow() {
+        Season season = new Season();
+        season.setSeasonNumber(1);
+        ResponseEntity<Season> response = client.postForEntity(createUri("/api/shows/1/seasons"), season, Season.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        Season seasonResponse = response.getBody();
+        assertNotNull(seasonResponse);
+        assertNotNull(seasonResponse.getShow());
+        assertEquals(1, seasonResponse.getShow().getId());
+        assertEquals(1, seasonResponse.getSeasonNumber());
+    }
+
+    @Test
+    @Order(8)
+    void testGetShowSeasons() {
+        ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        List<Season> seasons = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        assertEquals(1, seasons.size());
     }
 
     private String createUri(String uri) {
