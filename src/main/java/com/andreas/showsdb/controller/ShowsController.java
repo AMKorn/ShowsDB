@@ -41,11 +41,10 @@ public class ShowsController {
 
     @PutMapping("")
     public ResponseEntity<?> modifyShow(@RequestBody Show show) {
-
-        if (showsService.findById(show.getId()).isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Show does not exist");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        try {
+            findShow(show.getId());
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
 
         return ResponseEntity.ok(showsService.save(show));
@@ -133,7 +132,7 @@ public class ShowsController {
         Season season;
         try {
             season = optionalSeason.orElseThrow(() -> new NotFoundException("Season does not exist"));
-        } catch (NotFoundException e){
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
@@ -143,7 +142,7 @@ public class ShowsController {
     }
 
     @DeleteMapping("/{showId}/seasons")
-    public ResponseEntity<?> deleteSeasons(@PathVariable("showId") long showId){
+    public ResponseEntity<?> deleteSeasons(@PathVariable("showId") long showId) {
         Show show;
         try {
             show = findShow(showId);
