@@ -37,6 +37,11 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public void deleteById(long id) {
+        Optional<Show> show = showsRepository.findById(id);
+        show.orElseThrow()
+                .getSeasons()
+                .forEach(this::deleteSeason);
+
         showsRepository.deleteById(id);
     }
 

@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ShowTest {
     @Test
     void testCreate() {
-        Show show = new Show(0L, "What We Do in the Shadows", "United States");
+        Show show = new Show(0L, "What We Do in the Shadows", "United States", null);
 
         assertNotNull(show);
         assertEquals(0L, show.getId());
@@ -27,9 +27,9 @@ class ShowTest {
 
     @Test
     void testEqual() {
-        Show show1 = new Show(0L, "What We Do in the Shadows", "United States");
-        Show show2 = new Show(0L, "What We Do in the Shadows", "United States");
-        Show show3 = new Show(1L, "The Good Place", "United States");
+        Show show1 = new Show(0L, "What We Do in the Shadows", "United States", null);
+        Show show2 = new Show(0L, "What We Do in the Shadows", "United States", null);
+        Show show3 = new Show(1L, "The Good Place", "United States", null);
         Show show4 = new Show("What We Do in the Shadows", "United States");
 
         assertEquals(show1, show2);

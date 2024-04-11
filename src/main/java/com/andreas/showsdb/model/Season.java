@@ -1,5 +1,6 @@
 package com.andreas.showsdb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Season {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "show")
+    @JsonIgnoreProperties(value = {"seasons"})
     private Show show;
     private Integer seasonNumber;
 

@@ -51,8 +51,12 @@ public class ShowsController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteShow(@PathVariable("id") long id) {
+    public ResponseEntity<?> deleteShow(@PathVariable("id") long id) {
+        if (showsService.findById(id).isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
         showsService.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/seasons")
