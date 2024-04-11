@@ -3,6 +3,7 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.service.ShowsService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,7 @@ public class ShowsController {
     @PutMapping("")
     public ResponseEntity<?> modifyShow(@RequestBody Show show) {
 
-        if (showsService.findById(show.getId()).isEmpty()){
+        if (showsService.findById(show.getId()).isEmpty()) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Show does not exist");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -52,7 +53,7 @@ public class ShowsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteShow(@PathVariable("id") long id) {
-        if (showsService.findById(id).isEmpty()){
+        if (showsService.findById(id).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         showsService.deleteById(id);
@@ -71,13 +72,12 @@ public class ShowsController {
 
     @PostMapping("/{id}/seasons")
     public ResponseEntity<?> addShowSeason(@PathVariable("id") long id, @RequestBody(required = false) Season season) {
-        Optional<Show> optionalShow = showsService.findById(id);
-        if (optionalShow.isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Show does not exist");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        Show show;
+        try {
+            show = findShow(id);
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
-        Show show = optionalShow.get();
 
         if (season == null || season.getSeasonNumber() == null) {
             Season savedSeason = showsService.addShowSeason(show);
@@ -103,13 +103,12 @@ public class ShowsController {
     @GetMapping("/{showId}/seasons/{seasonNumber}")
     public ResponseEntity<?> getSeason(@PathVariable("showId") Long showId,
                                        @PathVariable("seasonNumber") int seasonNumber) {
-        Optional<Show> optionalShow = showsService.findById(showId);
-        if (optionalShow.isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Show does not exist");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        Show show;
+        try {
+            show = findShow(showId);
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
-        Show show = optionalShow.get();
 
         Optional<Season> optionalSeason = showsService.getShowSeason(show, seasonNumber);
         try {
@@ -120,5 +119,56 @@ public class ShowsController {
         }
     }
 
+    @DeleteMapping("/{showId}/seasons/{seasonNumber}")
+    public ResponseEntity<?> deleteSeason(@PathVariable("showId") Long showId,
+                                          @PathVariable("seasonNumber") Integer seasonNumber) {
+        Show show;
+        try {
+            show = findShow(showId);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
 
+        Optional<Season> optionalSeason = showsService.getShowSeason(show, seasonNumber);
+        Season season;
+        try {
+            season = optionalSeason.orElseThrow(() -> new NotFoundException("Season does not exist"));
+        } catch (NotFoundException e){
+            return e.getResponse();
+        }
+
+        showsService.deleteSeason(season);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{showId}/seasons")
+    public ResponseEntity<?> deleteSeasons(@PathVariable("showId") long showId){
+        Show show;
+        try {
+            show = findShow(showId);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
+
+        showsService.deleteShowSeasons(show);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private Show findShow(long showId) throws NotFoundException {
+        return showsService.findById(showId)
+                .orElseThrow(() -> new NotFoundException("Show does not exist"));
+    }
+
+    @Getter
+    private static class NotFoundException extends Exception {
+        private final ResponseEntity<Map<?, ?>> response;
+
+        public NotFoundException(String message) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", message); //"Show does not exist");
+            this.response = new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+    }
 }

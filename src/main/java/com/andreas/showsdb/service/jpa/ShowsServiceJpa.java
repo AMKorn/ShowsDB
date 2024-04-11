@@ -72,4 +72,9 @@ public class ShowsServiceJpa implements ShowsService {
     public void deleteSeason(Season season) {
         seasonsRepository.deleteById(season.getId());
     }
+
+    @Override
+    public void deleteShowSeasons(Show show) {
+        seasonsRepository.deleteAllByShow(show);
+    }
 }

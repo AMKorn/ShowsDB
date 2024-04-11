@@ -24,4 +24,6 @@ public interface ShowsService {
     Season addShowSeason(Show show);
 
     void deleteSeason(Season season);
+
+    void deleteShowSeasons(Show show);
 }

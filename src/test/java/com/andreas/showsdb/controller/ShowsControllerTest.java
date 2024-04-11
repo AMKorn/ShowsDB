@@ -2,6 +2,7 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.repository.SeasonsRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -282,36 +283,54 @@ class ShowsControllerTest {
         assertNull(response.getBody());
     }
 
-//    @Test
-//    @Order(17)
-//    void testDeleteShowWithSeasons() throws URISyntaxException {
-////        ResponseEntity<Show> showResponse = client.getForEntity(createUri("/api/shows/1"), Show.class);
-//        ResponseEntity<Season[]> seasonsResponse = client.getForEntity(createUri("/api/shows/1/seasons"),
-//                Season[].class);
-//
-////        Show show = showResponse.getBody();
-////        assertNotNull(show);
-//        List<Season> seasons = Arrays.asList(Objects.requireNonNull(seasonsResponse.getBody()));
-//        assertEquals(3, seasons.size());
-//
-////        client.delete(createUri("/api/shows/1"));
-//
-//    }
-//
-//    @Test
-//    void testDeleteSeason() {
-//        assertEquals(1, 2);
-//    }
-//
-//    @Test
-//    void testDeleteNonexistentSeason() {
-//        assertEquals(1, 2);
-//    }
-//
-//    @Test
-//    void testDeleteAllSeasons() {
-//        assertEquals(1, 2);
-//    }
+    @Test
+    @Order(17)
+    void testDeleteSeason() throws URISyntaxException {
+        ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
+
+        assertNotNull(response.getBody());
+        int numberOfSeasons = response.getBody().length;
+
+        client.delete(createUri("/api/shows/1/seasons/2"));
+
+        response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
+
+        assertNotNull(response.getBody());
+        assertEquals(numberOfSeasons - 1, response.getBody().length);
+    }
+
+    @Test
+    @Order(18)
+    void testDeleteNonexistentSeason() throws URISyntaxException, JsonProcessingException {
+        RequestEntity<Void> request = new RequestEntity<>(HttpMethod.DELETE, createUri("/api/shows/1/seasons/99"));
+        ResponseEntity<String> response = client.exchange(request, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Season does not exist",
+                json.path("message").asText());
+
+    }
+
+    @Test
+    void testDeleteAllSeasons() throws URISyntaxException {
+        ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
+
+        assertNotNull(response.getBody());
+        int numberOfSeasons = response.getBody().length;
+        assertNotEquals(0, numberOfSeasons);
+
+        client.delete(createUri("/api/shows/1/seasons"));
+
+        response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
+
+        assertNotNull(response.getBody());
+        assertEquals(0, response.getBody().length);
+
+    }
 
     private URI createUri(String uri) throws URISyntaxException {
         return new URI("http://localhost:" + port + uri);
