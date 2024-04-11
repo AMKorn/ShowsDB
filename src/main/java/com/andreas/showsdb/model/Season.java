@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 )
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Season {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

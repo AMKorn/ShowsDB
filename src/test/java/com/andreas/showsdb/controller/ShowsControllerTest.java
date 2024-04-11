@@ -10,11 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -117,6 +116,23 @@ class ShowsControllerTest {
 
     @Test
     @Order(6)
+    void testModifyShowDoesNotExist() throws URISyntaxException, JsonProcessingException {
+        Show show = new Show("Nonexistent Show", "Nonexistent Country");
+        show.setId(99L);
+        RequestEntity<Show> request = new RequestEntity<>(show, HttpMethod.PUT, new URI(createUri("/api/shows")));
+        ResponseEntity<String> response = client.exchange(request, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Show does not exist",
+                json.path("message").asText());
+    }
+
+    @Test
+    @Order(7)
     void testDeleteShow() {
         ResponseEntity<Show[]> response = client.getForEntity(createUri("/api/shows"), Show[].class);
         List<Show> shows = Arrays.asList(Objects.requireNonNull(response.getBody()));
@@ -134,7 +150,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     void testAddSeasonToShow() {
         Season season = new Season();
         season.setSeasonNumber(1);
@@ -151,7 +167,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     void testAddSecondSeasonToShow() {
         Season season = new Season();
         season.setSeasonNumber(2);
@@ -168,7 +184,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(9)
+    @Order(10)
     void testAddUnnumberedSeasonToShow() {
         ResponseEntity<Season> response = client.postForEntity(createUri("/api/shows/1/seasons"), new Season(), Season.class);
 
@@ -184,7 +200,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(10)
+    @Order(11)
     void testAddSeasonToShowAlreadyExists() throws JsonProcessingException {
         Season season = new Season();
         season.setSeasonNumber(1);
@@ -201,7 +217,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     void testAddSeasonToShowThatDoesNotExist() throws JsonProcessingException {
         Season season = new Season();
         ResponseEntity<String> response = client.postForEntity(createUri("/api/shows/99/seasons"), season, String.class);
@@ -217,7 +233,7 @@ class ShowsControllerTest {
 
 
     @Test
-    @Order(12)
+    @Order(13)
     void testGetShowSeasons() {
         ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
 
@@ -229,7 +245,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     void testGetShowSeasonByNumber() {
         ResponseEntity<Season> response = client.getForEntity(createUri("/api/shows/1/seasons/1"), Season.class);
 
@@ -240,6 +256,37 @@ class ShowsControllerTest {
         assertNotNull(season);
         assertEquals(1, season.getShow().getId());
         assertEquals(1, season.getSeasonNumber());
+    }
+
+    @Test
+    @Order(15)
+    void testDeleteShowWithSeasons() {
+//        ResponseEntity<Show> showResponse = client.getForEntity(createUri("/api/shows/1"), Show.class);
+        ResponseEntity<Season[]> seasonsResponse = client.getForEntity(createUri("/api/shows/1/seasons"),
+                Season[].class);
+
+//        Show show = showResponse.getBody();
+//        assertNotNull(show);
+        List<Season> seasons = Arrays.asList(Objects.requireNonNull(seasonsResponse.getBody()));
+        assertEquals(3, seasons.size());
+
+//        client.delete(createUri("/api/shows/1"));
+
+    }
+
+    @Test
+    void testDeleteSeason() {
+        assertEquals(1, 2);
+    }
+
+    @Test
+    void testDeleteNonexistentSeason() {
+        assertEquals(1, 2);
+    }
+
+    @Test
+    void testDeleteAllSeasons() {
+        assertEquals(1, 2);
     }
 
     private String createUri(String uri) {
