@@ -23,7 +23,7 @@ public class Show {
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
-    
+
     public Show(String name, String country) {
         this.name = name;
         this.country = country;

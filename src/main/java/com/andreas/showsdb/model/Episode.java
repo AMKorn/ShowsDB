@@ -35,4 +35,23 @@ public class Episode {
         this.name = name;
         this.relDate = relDate;
     }
+
+    public Episode(Integer episodeNumber) {
+        this.episodeNumber = episodeNumber;
+    }
+
+    public Episode(Integer episodeNumber, String name) {
+        this.episodeNumber = episodeNumber;
+        this.name = name;
+    }
+
+    public Episode(Integer episodeNumber, String name, Date relDate) {
+        this.episodeNumber = episodeNumber;
+        this.name = name;
+        this.relDate = relDate;
+    }
+
+    public Show getShow(){
+        return season.getShow();
+    }
 }
