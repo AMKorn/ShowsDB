@@ -44,20 +44,10 @@ public class EpisodesController {
                 .orElseThrow(() -> new NotFoundException("Show does not exist"));
     }
 
-    private Season findSeason(long showId, int seasonNumber) throws NotFoundException {
+    Season findSeason(long showId, int seasonNumber) throws NotFoundException {
         return showsService.getShowSeason(findShow(showId), seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season does not exist"));
     }
 
-    @Getter
-    private static class NotFoundException extends Exception {
-        private final ResponseEntity<Map<?, ?>> response;
-
-        public NotFoundException(String message) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", message); //"Show does not exist");
-            this.response = new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
-    }
 
 }
