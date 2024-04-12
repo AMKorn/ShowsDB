@@ -1,13 +1,16 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.repository.SeasonsRepository;
+import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -312,10 +315,10 @@ class ShowsControllerTest {
         JsonNode json = objectMapper.readTree(response.getBody());
         assertEquals("Season does not exist",
                 json.path("message").asText());
-
     }
 
     @Test
+    @Order(19)
     void testDeleteAllSeasons() throws URISyntaxException {
         ResponseEntity<Season[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), Season[].class);
 
@@ -329,6 +332,25 @@ class ShowsControllerTest {
 
         assertNotNull(response.getBody());
         assertEquals(0, response.getBody().length);
+
+    }
+
+    @Test
+    @Order(20)
+    void testAddEpisode() throws URISyntaxException {
+        Episode episode = new Episode(1, "Pilot", Utils.parseDate("28/03/2019"));
+        ResponseEntity<Episode> response =
+                client.postForEntity(createUri("/api/shows/1/seasons/1/episodes"), episode, Episode.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        episode = response.getBody();
+        assertNotNull(episode);
+        assertEquals(1, episode.getEpisodeNumber());
+        assertEquals("Pilot", episode.getName());
+        assertEquals(1, episode.getSeason().getSeasonNumber());
+        assertEquals("What We Do in the Shadows", episode.getShow().getName());
 
     }
 

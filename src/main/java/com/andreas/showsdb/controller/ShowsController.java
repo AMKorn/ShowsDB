@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.service.ShowsService;
@@ -155,9 +156,31 @@ public class ShowsController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/{showId}/seasons/{seasonNumber}/episodes")
+    public ResponseEntity<?> addEpisode(@PathVariable("showId") long showId,
+                                        @PathVariable("seasonNumber") int seasonNumber,
+                                        @RequestBody Episode episode) {
+        Season season;
+        try {
+            season = findSeason(showId, seasonNumber);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
+
+        episode.setSeason(season);
+
+        return ResponseEntity.ok(showsService.saveEpisode(episode));
+
+    }
+
     private Show findShow(long showId) throws NotFoundException {
         return showsService.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show does not exist"));
+    }
+
+    private Season findSeason(long showId, int seasonNumber) throws NotFoundException {
+        return showsService.getShowSeason(findShow(showId), seasonNumber)
+                .orElseThrow(() -> new NotFoundException("Season does not exist"));
     }
 
     @Getter

@@ -1,7 +1,9 @@
 package com.andreas.showsdb.service.jpa;
 
+import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import com.andreas.showsdb.service.ShowsService;
@@ -19,6 +21,9 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Autowired
     private SeasonsRepository seasonsRepository;
+
+    @Autowired
+    private EpisodesRepository episodesRepository;
 
     @Override
     public List<Show> findAll() {
@@ -76,5 +81,35 @@ public class ShowsServiceJpa implements ShowsService {
     @Override
     public void deleteShowSeasons(Show show) {
         seasonsRepository.deleteAllByShow(show);
+    }
+
+    @Override
+    public List<Episode> getSeasonEpisodes(Season season) {
+        return null;
+    }
+
+    @Override
+    public Optional<Episode> getSeasonEpisode(Season season, Integer episodeNumber) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Episode saveEpisode(Episode episode) {
+        return episodesRepository.save(episode);
+    }
+
+    @Override
+    public Episode addSeasonEpisode(Season season) {
+        return null;
+    }
+
+    @Override
+    public void deleteEpisode(Episode episode) {
+
+    }
+
+    @Override
+    public void deleteSeasonEpisodes(Season season) {
+
     }
 }

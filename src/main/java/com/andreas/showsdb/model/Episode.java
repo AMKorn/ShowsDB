@@ -16,6 +16,7 @@ import java.util.Date;
 )
 @Data
 @NoArgsConstructor
+@JsonIgnoreProperties("show")
 public class Episode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,5 +35,15 @@ public class Episode {
         this.episodeNumber = episodeNumber;
         this.name = name;
         this.relDate = relDate;
+    }
+
+    public Episode(Integer episodeNumber, String name, Date relDate) {
+        this.episodeNumber = episodeNumber;
+        this.name = name;
+        this.relDate = relDate;
+    }
+
+    public Show getShow() {
+        return getSeason().getShow();
     }
 }

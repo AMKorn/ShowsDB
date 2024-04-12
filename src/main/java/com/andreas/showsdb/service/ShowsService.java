@@ -1,5 +1,6 @@
 package com.andreas.showsdb.service;
 
+import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 
@@ -26,4 +27,16 @@ public interface ShowsService {
     void deleteSeason(Season season);
 
     void deleteShowSeasons(Show show);
+
+    List<Episode> getSeasonEpisodes(Season season);
+
+    Optional<Episode> getSeasonEpisode(Season season, Integer episodeNumber);
+
+    Episode saveEpisode(Episode episode);
+
+    Episode addSeasonEpisode(Season season);
+
+    void deleteEpisode(Episode episode);
+
+    void deleteSeasonEpisodes(Season season);
 }
