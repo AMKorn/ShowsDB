@@ -1,5 +1,6 @@
 package com.andreas.showsdb.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Show {
     private String country;
 
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
     
     public Show(String name, String country) {

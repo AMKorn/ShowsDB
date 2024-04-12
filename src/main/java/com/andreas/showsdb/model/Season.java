@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(
         name = "season",
@@ -24,6 +27,10 @@ public class Season {
     @JsonIgnoreProperties(value = {"seasons"})
     private Show show;
     private Integer seasonNumber;
+
+    @OneToMany(mappedBy = "season", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"season"})
+    private List<Episode> episodes;
 
     public Season(Show show, Integer seasonNumber) {
         this.show = show;
