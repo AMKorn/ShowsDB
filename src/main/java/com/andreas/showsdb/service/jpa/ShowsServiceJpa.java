@@ -101,7 +101,8 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public Optional<Episode> getSeasonEpisode(Season season, Integer episodeNumber) {
-        return Optional.empty();
+        return episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber);
+//        return Optional.empty();
     }
 
     @Override

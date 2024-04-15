@@ -402,25 +402,7 @@ class ShowsControllerTest {
     }
 
     @Test
-    void testGetEpisode() {
-
-    }
-
-    @Test
-    void testGetEpisodeDoesNotExist() {
-    }
-
-    @Test
-    void testModifyEpisode() {
-
-    }
-
-    @Test
-    void testModifyEpisodeDoesNotExist() {
-
-    }
-
-    @Test
+    @Order(23)
     void testGetAllSeasonEpisodes() throws URISyntaxException {
         ResponseEntity<Episode[]> response = client.getForEntity(createUri("/api/shows/1/seasons/1/episodes"),
                 Episode[].class);
@@ -430,7 +412,45 @@ class ShowsControllerTest {
 
         List<Episode> episodes = Arrays.asList(Objects.requireNonNull(response.getBody()));
 
-        assertEquals(1, episodes.size());
+        assertEquals(2, episodes.size());
+    }
+
+    @Test
+    @Order(24)
+    void testGetEpisode() throws URISyntaxException {
+        ResponseEntity<Episode> response = client.getForEntity(createUri("/api/shows/1/seasons/1/episodes/1"),
+                Episode.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        Episode episode = response.getBody();
+
+        assertNotNull(episode);
+        assertEquals(1, episode.getEpisodeNumber());
+        assertEquals("Pilot", episode.getName());
+        assertEquals(1, episode.getSeason().getSeasonNumber());
+        assertEquals("What We Do in the Shadows", episode.getShow().getName());
+    }
+
+    @Test
+    @Order(25)
+    void testGetNonexistentEpisode() throws URISyntaxException {
+        ResponseEntity<Episode> response = client.getForEntity(createUri("/api/shows/1/seasons/1/episodes/99"),
+                Episode.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testModifyEpisode() {
+
+    }
+
+    @Test
+    void testModifyEpisodeDoesNotExist() {
 
     }
 

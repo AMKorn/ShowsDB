@@ -19,11 +19,14 @@ public class SeasonsController {
 
     @GetMapping("")
     public ResponseEntity<?> findShowSeasons(@PathVariable("showId") long id) {
-        Optional<Show> show = showsService.findById(id);
-        if (show.isEmpty())
-            return ResponseEntity.notFound().build();
+        Show show;
+        try {
+            show = findShow(id);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
 
-        List<Season> season = showsService.getShowSeasons(show.get());
+        List<Season> season = showsService.getShowSeasons(show);
         return ResponseEntity.ok(season);
     }
 

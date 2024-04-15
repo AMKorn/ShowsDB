@@ -11,8 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
@@ -35,8 +34,6 @@ public class EpisodesController {
         if (episode == null || episode.getEpisodeNumber() == null) {
             Episode savedEpisode = showsService.addSeasonEpisode(season);
             return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
-//            Season savedSeason = showsService.addShowSeason(show);
-//            return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         }
 
         episode.setSeason(season);
@@ -46,7 +43,39 @@ public class EpisodesController {
 
     }
 
+    @GetMapping("")
+    public ResponseEntity<?> getShowEpisodes(@PathVariable("showId") long showId,
+                                             @PathVariable("seasonNumber") int seasonNumber) {
+        Season season;
+        try {
+            season = findSeason(showId, seasonNumber);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
 
+        List<Episode> episodes = season.getEpisodes();
+        return ResponseEntity.ok(episodes);
+    }
+
+    @GetMapping("/{episodeNumber}")
+    public ResponseEntity<?> getEpisode(@PathVariable("showId") long showId,
+                                        @PathVariable("seasonNumber") int seasonNumber,
+                                        @PathVariable("episodeNumber") int episodeNumber) {
+        Season season;
+        try {
+            season = findSeason(showId, seasonNumber);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
+
+        Optional<Episode> optionalEpisode = showsService.getSeasonEpisode(season, episodeNumber);
+        try {
+            Episode episode = optionalEpisode.orElseThrow();
+            return ResponseEntity.ok(episode);
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     private Show findShow(long showId) throws NotFoundException {
         return showsService.findById(showId)
