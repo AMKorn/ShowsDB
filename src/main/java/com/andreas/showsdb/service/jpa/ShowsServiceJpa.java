@@ -44,9 +44,7 @@ public class ShowsServiceJpa implements ShowsService {
     @Override
     public void deleteById(long id) {
         Optional<Show> show = showsRepository.findById(id);
-        show.orElseThrow()
-                .getSeasons()
-                .forEach(this::deleteSeason);
+        deleteShowSeasons(show.orElseThrow());
 
         showsRepository.deleteById(id);
     }
@@ -63,8 +61,7 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public Season saveSeason(Season season) {
-        seasonsRepository.save(season);
-        return season;
+        return seasonsRepository.save(season);
     }
 
     @Override
@@ -76,7 +73,7 @@ public class ShowsServiceJpa implements ShowsService {
                     .max(Season::compareTo)
                     .orElseThrow()
                     .getSeasonNumber() + 1;
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             seasonNumber = 1;
         }
 
@@ -86,23 +83,25 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public void deleteSeason(Season season) {
+        deleteSeasonEpisodes(season);
+
         seasonsRepository.deleteById(season.getId());
     }
 
     @Override
     public void deleteShowSeasons(Show show) {
-        seasonsRepository.deleteAllByShow(show);
+        seasonsRepository.findByShow(show)
+                .forEach(this::deleteSeason);
     }
 
     @Override
     public List<Episode> getSeasonEpisodes(Season season) {
-        return null;
+        return episodesRepository.findBySeason(season);
     }
 
     @Override
     public Optional<Episode> getSeasonEpisode(Season season, Integer episodeNumber) {
         return episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber);
-//        return Optional.empty();
     }
 
     @Override
@@ -112,14 +111,13 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public Episode addSeasonEpisode(Season season) {
-        //.size() + 1;
         int episodeNumber;
         try {
             episodeNumber = episodesRepository.findBySeason(season).stream()
                     .max(Episode::compareTo)
                     .orElseThrow()
                     .getEpisodeNumber() + 1;
-        } catch (NoSuchElementException e){
+        } catch (NoSuchElementException e) {
             episodeNumber = 1;
         }
 
@@ -130,12 +128,14 @@ public class ShowsServiceJpa implements ShowsService {
     }
 
     @Override
-    public void deleteEpisode(Episode episode) {
-
+    public void deleteEpisodeById(Long episodeId) {
+        episodesRepository.deleteById(episodeId);
     }
 
     @Override
     public void deleteSeasonEpisodes(Season season) {
-
+        episodesRepository.findBySeason(season)
+                .stream().map(Episode::getId)
+                .forEach(this::deleteEpisodeById);
     }
 }

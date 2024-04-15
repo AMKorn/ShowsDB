@@ -36,7 +36,7 @@ public interface ShowsService {
 
     Episode addSeasonEpisode(Season season);
 
-    void deleteEpisode(Episode episode);
+    void deleteEpisodeById(Long episodeId);
 
     void deleteSeasonEpisodes(Season season);
 }

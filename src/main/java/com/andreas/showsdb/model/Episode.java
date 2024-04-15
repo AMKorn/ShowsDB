@@ -28,19 +28,20 @@ public class Episode implements Comparable<Episode>{
     private Season season;
     private Integer episodeNumber;
     private String name;
-    private Date relDate;
+    @Column(name = "relDate")
+    private Date releaseDate;
 
-    public Episode(Season season, Integer episodeNumber, String name, Date relDate) {
+    public Episode(Season season, Integer episodeNumber, String name, Date releaseDate) {
         this.season = season;
         this.episodeNumber = episodeNumber;
         this.name = name;
-        this.relDate = relDate;
+        this.releaseDate = releaseDate;
     }
 
-    public Episode(Integer episodeNumber, String name, Date relDate) {
+    public Episode(Integer episodeNumber, String name, Date releaseDate) {
         this.episodeNumber = episodeNumber;
         this.name = name;
-        this.relDate = relDate;
+        this.releaseDate = releaseDate;
     }
 
     public Episode(Integer episodeNumber, String name) {
