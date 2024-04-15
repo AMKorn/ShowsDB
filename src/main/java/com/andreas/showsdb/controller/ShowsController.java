@@ -1,17 +1,16 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.Episode;
-import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.service.ShowsService;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/shows")
@@ -35,14 +34,19 @@ public class ShowsController {
     }
 
     @PostMapping("")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Show createShow(@RequestBody Show show) {
-        return showsService.save(show);
+    public ResponseEntity<?> createShow(@RequestBody Show show) {
+        if (show.getId() != null && showsService.findById(show.getId()).isPresent()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Show already exists with that id");
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+        Show saved = showsService.save(show);
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @PutMapping("")
     public ResponseEntity<?> modifyShow(@RequestBody Show show) {
-        if (showsService.findById(show.getId()).isEmpty()) {
+        if (show.getId() == null || showsService.findById(show.getId()).isEmpty()) {
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Show does not exist");
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -59,6 +63,5 @@ public class ShowsController {
         showsService.deleteById(id);
         return ResponseEntity.ok().build();
     }
-
 
 }

@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties("show")
-public class Episode implements Comparable<Episode>{
+public class Episode implements Comparable<Episode> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

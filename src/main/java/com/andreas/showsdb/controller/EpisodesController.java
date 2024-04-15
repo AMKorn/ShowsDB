@@ -104,7 +104,7 @@ public class EpisodesController {
             Optional<Episode> optionalEpisode = showsService.getSeasonEpisode(season, episodeNumber);
             Episode originalEpisode = optionalEpisode.orElseThrow();
 
-            if(!episode.getId().equals(originalEpisode.getId())){
+            if (!episode.getId().equals(originalEpisode.getId())) {
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "It's not possible to modify episode number.");
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
@@ -122,7 +122,7 @@ public class EpisodesController {
     @DeleteMapping("/{episodeNumber}")
     public ResponseEntity<?> deleteEpisode(@PathVariable("showId") long showId,
                                            @PathVariable("seasonNumber") int seasonNumber,
-                                           @PathVariable("episodeNumber") int episodeNumber){
+                                           @PathVariable("episodeNumber") int episodeNumber) {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
@@ -146,7 +146,7 @@ public class EpisodesController {
 
     @DeleteMapping("")
     public ResponseEntity<?> deleteAllEpisodes(@PathVariable("showId") long showId,
-                                               @PathVariable("seasonNumber") int seasonNumber){
+                                               @PathVariable("seasonNumber") int seasonNumber) {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);

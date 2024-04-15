@@ -37,7 +37,7 @@ public class Season implements Comparable<Season> {
 
     @Override
     public int compareTo(Season s) {
-        if(s.show != show) return 0;
+        if (s.show != show) return 0;
         return seasonNumber.compareTo(s.getSeasonNumber());
     }
 }
