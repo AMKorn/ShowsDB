@@ -17,7 +17,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties("show")
-public class Episode {
+public class Episode implements Comparable<Episode>{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -43,7 +43,18 @@ public class Episode {
         this.relDate = relDate;
     }
 
+    public Episode(Integer episodeNumber, String name) {
+        this.episodeNumber = episodeNumber;
+        this.name = name;
+    }
+
     public Show getShow() {
         return getSeason().getShow();
+    }
+
+    @Override
+    public int compareTo(Episode e) {
+        int compareSeasons = season.compareTo(e.getSeason());
+        return compareSeasons == 0 ? episodeNumber.compareTo(e.getEpisodeNumber()) : compareSeasons;
     }
 }

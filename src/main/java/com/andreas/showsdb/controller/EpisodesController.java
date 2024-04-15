@@ -6,23 +6,22 @@ import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.service.ShowsService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
 public class EpisodesController {
 
     @Autowired
     private ShowsService showsService;
 
-    @PostMapping("/{showId}/seasons/{seasonNumber}/episodes")
+    @PostMapping("")
     public ResponseEntity<?> addEpisode(@PathVariable("showId") long showId,
                                         @PathVariable("seasonNumber") int seasonNumber,
                                         @RequestBody Episode episode) {
@@ -33,11 +32,21 @@ public class EpisodesController {
             return e.getResponse();
         }
 
+        if (episode == null || episode.getEpisodeNumber() == null) {
+            Episode savedEpisode = showsService.addSeasonEpisode(season);
+            return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
+//            Season savedSeason = showsService.addShowSeason(show);
+//            return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
+        }
+
         episode.setSeason(season);
 
-        return ResponseEntity.ok(showsService.saveEpisode(episode));
+        Episode savedEpisode = showsService.saveEpisode(episode);
+        return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
 
     }
+
+
 
     private Show findShow(long showId) throws NotFoundException {
         return showsService.findById(showId)

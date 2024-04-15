@@ -16,7 +16,7 @@ import java.util.List;
 )
 @Data
 @NoArgsConstructor
-public class Season {
+public class Season implements Comparable<Season> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,5 +33,11 @@ public class Season {
     public Season(Show show, Integer seasonNumber) {
         this.show = show;
         this.seasonNumber = seasonNumber;
+    }
+
+    @Override
+    public int compareTo(Season s) {
+        if(s.show != show) return 0;
+        return seasonNumber.compareTo(s.getSeasonNumber());
     }
 }

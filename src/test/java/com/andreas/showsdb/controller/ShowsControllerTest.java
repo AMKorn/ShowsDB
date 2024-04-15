@@ -338,11 +338,16 @@ class ShowsControllerTest {
     @Test
     @Order(20)
     void testAddEpisode() throws URISyntaxException {
+        // Setup
+        Season season = new Season();
+        season.setSeasonNumber(1);
+        client.postForEntity(createUri("/api/shows/1/seasons"), season, Void.class);
+
         Episode episode = new Episode(1, "Pilot", Utils.parseDate("28/03/2019"));
         ResponseEntity<Episode> response =
                 client.postForEntity(createUri("/api/shows/1/seasons/1/episodes"), episode, Episode.class);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
         episode = response.getBody();
@@ -351,6 +356,96 @@ class ShowsControllerTest {
         assertEquals("Pilot", episode.getName());
         assertEquals(1, episode.getSeason().getSeasonNumber());
         assertEquals("What We Do in the Shadows", episode.getShow().getName());
+    }
+
+    @Test
+    @Order(21)
+    void testAddEmptyEpisode() throws URISyntaxException {
+        ResponseEntity<Episode> response =
+                client.postForEntity(createUri("/api/shows/1/seasons/1/episodes"), new Episode(), Episode.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        Episode episode = response.getBody();
+        assertNotNull(episode);
+        assertEquals(2, episode.getEpisodeNumber());
+        assertNull(episode.getName());
+        assertEquals(1, episode.getSeason().getSeasonNumber());
+        assertEquals("What We Do in the Shadows", episode.getShow().getName());
+
+    }
+
+    @Test
+    @Order(22)
+    void testAddEpisodeShowOrSeasonDoesNotExist() throws URISyntaxException, JsonProcessingException {
+        Episode episode = new Episode(1, "Nonexistent episode");
+        ResponseEntity<String> response =
+                client.postForEntity(createUri("/api/shows/9/seasons/9/episodes"), episode, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Show does not exist",
+                json.path("message").asText());
+
+        response = client.postForEntity(createUri("/api/shows/1/seasons/9/episodes"), episode, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        json = objectMapper.readTree(response.getBody());
+        assertEquals("Season does not exist",
+                json.path("message").asText());
+    }
+
+    @Test
+    void testGetEpisode() {
+
+    }
+
+    @Test
+    void testGetEpisodeDoesNotExist() {
+    }
+
+    @Test
+    void testModifyEpisode() {
+
+    }
+
+    @Test
+    void testModifyEpisodeDoesNotExist() {
+
+    }
+
+    @Test
+    void testGetAllSeasonEpisodes() throws URISyntaxException {
+        ResponseEntity<Episode[]> response = client.getForEntity(createUri("/api/shows/1/seasons/1/episodes"),
+                Episode[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        List<Episode> episodes = Arrays.asList(Objects.requireNonNull(response.getBody()));
+
+        assertEquals(1, episodes.size());
+
+    }
+
+    @Test
+    void testDeleteEpisode() {
+
+    }
+
+    @Test
+    void testDeleteEpisodeDoesNotExist() {
+
+    }
+
+    @Test
+    void testDeleteAllEpisodes() {
 
     }
 

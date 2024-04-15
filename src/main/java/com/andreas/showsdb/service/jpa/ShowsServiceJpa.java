@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -68,7 +69,17 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public Season addShowSeason(Show show) {
-        int seasonNumber = seasonsRepository.findByShow(show).size() + 1;
+        //.size() + 1;
+        int seasonNumber;
+        try {
+            seasonNumber = seasonsRepository.findByShow(show).stream()
+                    .max(Season::compareTo)
+                    .orElseThrow()
+                    .getSeasonNumber() + 1;
+        } catch (NoSuchElementException e){
+            seasonNumber = 1;
+        }
+
         Season season = new Season(show, seasonNumber);
         return seasonsRepository.save(season);
     }
@@ -100,7 +111,21 @@ public class ShowsServiceJpa implements ShowsService {
 
     @Override
     public Episode addSeasonEpisode(Season season) {
-        return null;
+        //.size() + 1;
+        int episodeNumber;
+        try {
+            episodeNumber = episodesRepository.findBySeason(season).stream()
+                    .max(Episode::compareTo)
+                    .orElseThrow()
+                    .getEpisodeNumber() + 1;
+        } catch (NoSuchElementException e){
+            episodeNumber = 1;
+        }
+
+        Episode episode = new Episode();
+        episode.setSeason(season);
+        episode.setEpisodeNumber(episodeNumber);
+        return episodesRepository.save(episode);
     }
 
     @Override
