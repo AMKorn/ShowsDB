@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.Set;
 
 @Entity
 @Table(name = "actor")
@@ -19,6 +20,9 @@ public class Actor {
     private String name;
     private String country;
     private Date birthDate;
+
+    @OneToMany(mappedBy = "actor")
+    Set<MainCast> showsAsMainCast;
 
     public Actor(String name, String country, Date birthDate) {
         this.name = name;

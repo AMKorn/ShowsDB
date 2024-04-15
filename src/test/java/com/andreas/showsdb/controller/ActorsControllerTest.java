@@ -52,7 +52,8 @@ class ActorsControllerTest {
     @Test
     @Order(2)
     void testAddActorAlreadyExists() throws URISyntaxException, JsonProcessingException {
-        Actor actor = new Actor(1L, "Kayvan Novak", "United Kingdom", Utils.parseDate("23/11/1978"));
+        Actor actor = new Actor("Kayvan Novak", "United Kingdom", Utils.parseDate("23/11/1978"));
+        actor.setId(1L);
 
         ResponseEntity<String> response = client.postForEntity(createUri("/api/actors"), actor, String.class);
 

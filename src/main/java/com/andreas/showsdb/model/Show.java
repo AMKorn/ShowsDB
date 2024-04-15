@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "show")
@@ -23,6 +24,9 @@ public class Show {
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
+
+    @OneToMany(mappedBy = "show")
+    Set<MainCast> mainCast;
 
     public Show(String name, String country) {
         this.name = name;
