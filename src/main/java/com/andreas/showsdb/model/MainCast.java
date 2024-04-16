@@ -28,6 +28,12 @@ public class MainCast {
 
     String character;
 
+    public MainCast(Actor actor, Show show, String character) {
+        this.actor = actor;
+        this.show = show;
+        this.character = character;
+    }
+
     @Embeddable
     @Data
     @NoArgsConstructor

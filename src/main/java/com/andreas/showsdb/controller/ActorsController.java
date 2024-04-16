@@ -1,6 +1,7 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Actor;
+import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.service.ActorsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -63,7 +64,6 @@ public class ActorsController {
         }
         actorsService.deleteById(id);
         return ResponseEntity.ok().build();
-
     }
 
 }
