@@ -3,6 +3,7 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.model.Actor;
 import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.util.Utils;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +50,14 @@ public class MainCastControllerTest {
         }
         assertNotNull(actor);
 
-        MainCast newMainCast = MainCast.builder()
-                .actor(actor)
-                .show(show)
+        MainCastDto mainCastDto = MainCastDto.builder()
+                .actorId(actor.getId())
+                .showId(show.getId())
                 .character("Nandor the Relentless")
                 .build();
 
         ResponseEntity<MainCast> response =
-                client.postForEntity(createUri("/api/main-cast"), newMainCast, MainCast.class);
+                client.postForEntity(createUri("/api/main-cast"), mainCastDto, MainCast.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());

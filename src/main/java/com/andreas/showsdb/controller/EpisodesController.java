@@ -25,7 +25,7 @@ public class EpisodesController {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
-        } catch (NotFoundException e) {
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -60,7 +60,7 @@ public class EpisodesController {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
-        } catch (NotFoundException e) {
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -75,7 +75,7 @@ public class EpisodesController {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
-        } catch (NotFoundException e) {
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -95,7 +95,7 @@ public class EpisodesController {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
-        } catch (NotFoundException e) {
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -126,7 +126,7 @@ public class EpisodesController {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
-        } catch (NotFoundException e) {
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -134,8 +134,8 @@ public class EpisodesController {
 
         Episode episode;
         try {
-            episode = optionalEpisode.orElseThrow(() -> new NotFoundException("Episode does not exist"));
-        } catch (NotFoundException e) {
+            episode = optionalEpisode.orElseThrow(() -> new ShowsDatabaseException("Episode does not exist"));
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -150,7 +150,7 @@ public class EpisodesController {
         Season season;
         try {
             season = findSeason(showId, seasonNumber);
-        } catch (NotFoundException e) {
+        } catch (ShowsDatabaseException e) {
             return e.getResponse();
         }
 
@@ -159,14 +159,14 @@ public class EpisodesController {
         return ResponseEntity.ok().build();
     }
 
-    private Show findShow(long showId) throws NotFoundException {
+    private Show findShow(long showId) throws ShowsDatabaseException {
         return showsService.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show does not exist"));
+                .orElseThrow(() -> new ShowsDatabaseException("Show does not exist"));
     }
 
-    Season findSeason(long showId, int seasonNumber) throws NotFoundException {
+    Season findSeason(long showId, int seasonNumber) throws ShowsDatabaseException {
         return showsService.getShowSeason(findShow(showId), seasonNumber)
-                .orElseThrow(() -> new NotFoundException("Season does not exist"));
+                .orElseThrow(() -> new ShowsDatabaseException("Season does not exist"));
     }
 
 

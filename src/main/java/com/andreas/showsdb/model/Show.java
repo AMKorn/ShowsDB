@@ -28,7 +28,7 @@ public class Show {
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
 
-//    @OneToMany(mappedBy = "show")
-//    @JsonIgnoreProperties({"show"})
-//    Set<MainCast> mainCast;
+    @OneToMany(mappedBy = "show")
+    @JsonIgnoreProperties({"show"})
+    Set<MainCast> mainCast;
 }

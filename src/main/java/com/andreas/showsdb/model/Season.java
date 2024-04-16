@@ -26,7 +26,7 @@ public class Season implements Comparable<Season> {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "show")
-    @JsonIgnoreProperties(value = {"seasons"})
+    @JsonIgnoreProperties(value = {"seasons", "mainCast"})
     private Show show;
     @Column(name = "season_number")
     private Integer seasonNumber;
