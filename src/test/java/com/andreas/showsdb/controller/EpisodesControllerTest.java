@@ -40,7 +40,11 @@ public class EpisodesControllerTest {
         season.setSeasonNumber(1);
         client.postForEntity(createUri("/api/shows/1/seasons"), season, Void.class);
 
-        Episode episode = new Episode(1, "Pilot", Utils.parseDate("28/03/2019"));
+        Episode episode = Episode.builder()
+                .episodeNumber(1)
+                .name("Pilot")
+                .releaseDate(Utils.parseDate("28/03/2019"))
+                .build();
         ResponseEntity<Episode> response =
                 client.postForEntity(createUri("/api/shows/1/seasons/1/episodes"), episode, Episode.class);
 
@@ -76,7 +80,11 @@ public class EpisodesControllerTest {
     @Test
     @Order(22)
     void testAddEpisodeShowOrSeasonDoesNotExist() throws URISyntaxException, JsonProcessingException {
-        Episode episode = new Episode(1, "Nonexistent episode");
+        Episode episode = Episode.builder()
+                .episodeNumber(1)
+                .name("Nonexistent episode")
+                .build();
+
         ResponseEntity<String> response =
                 client.postForEntity(createUri("/api/shows/9/seasons/9/episodes"), episode, String.class);
 
@@ -174,7 +182,10 @@ public class EpisodesControllerTest {
     @Test
     @Order(27)
     void testModifyEpisodeDoesNotExist() throws URISyntaxException, JsonProcessingException {
-        Episode episode = new Episode(3, "Werewolf Feud");
+        Episode episode = Episode.builder()
+                .episodeNumber(3)
+                .name("Werewolf Feud")
+                .build();
 
         RequestEntity<Episode> request = new RequestEntity<>(episode, HttpMethod.PUT,
                 createUri("/api/shows/1/seasons/1/episodes"));

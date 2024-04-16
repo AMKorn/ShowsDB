@@ -34,7 +34,10 @@ class ShowsJpaTest {
 
     @Test
     void testInsertShow() {
-        Show show = new Show("Bojack Horseman", "United States");
+        Show show = Show.builder()
+                .name("Bojack Horseman")
+                .country("United States")
+                .build();
 
         Show savedShow = showsRepository.save(show);
 

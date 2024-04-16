@@ -35,7 +35,11 @@ class ActorsControllerTest {
     @Test
     @Order(1)
     void testAddActor() throws URISyntaxException {
-        Actor actor = new Actor("Kayvan Novak", "United Kingdom", Utils.parseDate("23/11/1968"));
+        Actor actor = Actor.builder()
+                .name("Kayvan Novak")
+                .country("United Kingdom")
+                .birthDate(Utils.parseDate("23/11/1968"))
+                .build();
 
         ResponseEntity<Actor> response = client.postForEntity(createUri("/api/actors"), actor, Actor.class);
 
@@ -52,8 +56,12 @@ class ActorsControllerTest {
     @Test
     @Order(2)
     void testAddActorAlreadyExists() throws URISyntaxException, JsonProcessingException {
-        Actor actor = new Actor("Kayvan Novak", "United Kingdom", Utils.parseDate("23/11/1978"));
-        actor.setId(1L);
+        Actor actor = Actor.builder()
+                .name("Kayvan Novak")
+                .country("United Kingdom")
+                .birthDate(Utils.parseDate("23/11/1968"))
+                .id(1L)
+                .build();
 
         ResponseEntity<String> response = client.postForEntity(createUri("/api/actors"), actor, String.class);
 

@@ -77,7 +77,10 @@ public class ShowsServiceJpa implements ShowsService {
             seasonNumber = 1;
         }
 
-        Season season = new Season(show, seasonNumber);
+        Season season = Season.builder()
+                .show(show)
+                .seasonNumber(seasonNumber)
+                .build();
         return seasonsRepository.save(season);
     }
 

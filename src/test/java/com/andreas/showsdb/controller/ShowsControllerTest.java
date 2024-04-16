@@ -81,7 +81,10 @@ class ShowsControllerTest {
     @Test
     @Order(4)
     void testAddShow() throws URISyntaxException {
-        Show show = new Show("Bojack Horseman", "United States");
+        Show show = Show.builder()
+                .name("Bojack Horseman")
+                .country("United States")
+                .build();
 
         ResponseEntity<Show> response = client.postForEntity(createUri("/api/shows"), show, Show.class);
 
@@ -119,7 +122,10 @@ class ShowsControllerTest {
     @Test
     @Order(6)
     void testModifyShowDoesNotExist() throws URISyntaxException, JsonProcessingException {
-        Show show = new Show("Nonexistent Show", "Nonexistent Country");
+        Show show = Show.builder()
+                .name("Nonexistent Show")
+                .country("Nonexistent Country")
+                .build();
         show.setId(99L);
         RequestEntity<Show> request = new RequestEntity<>(show, HttpMethod.PUT, createUri("/api/shows"));
         ResponseEntity<String> response = client.exchange(request, String.class);

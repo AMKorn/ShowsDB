@@ -2,6 +2,7 @@ package com.andreas.showsdb.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class MainCast {
     @EmbeddedId
     MainCastKey id;
@@ -27,12 +29,6 @@ public class MainCast {
     Show show;
 
     String character;
-
-    public MainCast(Actor actor, Show show, String character) {
-        this.actor = actor;
-        this.show = show;
-        this.character = character;
-    }
 
     @Embeddable
     @Data

@@ -2,6 +2,8 @@ package com.andreas.showsdb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +18,8 @@ import java.util.List;
 )
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Season implements Comparable<Season> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +34,6 @@ public class Season implements Comparable<Season> {
     @OneToMany(mappedBy = "season", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"season"})
     private List<Episode> episodes;
-
-    public Season(Show show, Integer seasonNumber) {
-        this.show = show;
-        this.seasonNumber = seasonNumber;
-    }
 
     @Override
     public int compareTo(Season s) {

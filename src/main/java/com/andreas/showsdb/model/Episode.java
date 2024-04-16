@@ -2,6 +2,8 @@ package com.andreas.showsdb.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +18,8 @@ import java.util.Date;
 )
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @JsonIgnoreProperties("show")
 public class Episode implements Comparable<Episode> {
     @Id
@@ -31,24 +35,6 @@ public class Episode implements Comparable<Episode> {
     private String name;
     @Column(name = "rel_date")
     private Date releaseDate;
-
-    public Episode(Season season, Integer episodeNumber, String name, Date releaseDate) {
-        this.season = season;
-        this.episodeNumber = episodeNumber;
-        this.name = name;
-        this.releaseDate = releaseDate;
-    }
-
-    public Episode(Integer episodeNumber, String name, Date releaseDate) {
-        this.episodeNumber = episodeNumber;
-        this.name = name;
-        this.releaseDate = releaseDate;
-    }
-
-    public Episode(Integer episodeNumber, String name) {
-        this.episodeNumber = episodeNumber;
-        this.name = name;
-    }
 
     public Show getShow() {
         return getSeason().getShow();

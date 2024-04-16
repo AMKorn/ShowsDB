@@ -2,6 +2,7 @@ package com.andreas.showsdb.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Actor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,10 +25,4 @@ public class Actor {
 
 //    @OneToMany(mappedBy = "actor")
 //    Set<MainCast> showsAsMainCast;
-
-    public Actor(String name, String country, Date birthDate) {
-        this.name = name;
-        this.country = country;
-        this.birthDate = birthDate;
-    }
 }

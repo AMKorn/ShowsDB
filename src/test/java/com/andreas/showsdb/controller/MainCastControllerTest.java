@@ -38,13 +38,22 @@ public class MainCastControllerTest {
         Actor actor = actorResponse.getBody();
         // Depending on test order, actor may or may not exist. If not, we create it.
         if(actor == null) {
-            actor = new Actor("Kayvan Novak", "United Kingdom", Utils.parseDate("23/11/1978"));
+            actor = Actor.builder()
+                    .name("Kayvan Novak")
+                    .country("United Kingdom")
+                    .birthDate(Utils.parseDate("23/11/1978"))
+                    .build();
+
             actorResponse = client.postForEntity(createUri("/api/actors"), actor, Actor.class);
             actor = actorResponse.getBody();
         }
         assertNotNull(actor);
 
-        MainCast newMainCast = new MainCast(actor, show, "Nandor the Relentless");
+        MainCast newMainCast = MainCast.builder()
+                .actor(actor)
+                .show(show)
+                .character("Nandor the Relentless")
+                .build();
 
         ResponseEntity<MainCast> response =
                 client.postForEntity(createUri("/api/main-cast"), newMainCast, MainCast.class);
