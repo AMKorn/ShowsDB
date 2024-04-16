@@ -20,28 +20,28 @@ insert into `show`(`name`, `country`) values ('The Good Place', 'United States')
 create table `season` (
     `id` bigint primary key auto_increment,
     `show` int references `show`,
-    `seasonNumber` int not null,
-    unique (`show`, `seasonNumber`)
+    `season_number` int not null,
+    unique (`show`, `season_number`)
 );
 --rollback DROP TABLE `season`
 
 --changeset andreas:4 labels:seasons
-insert into `season`(`show`, `seasonNumber`) values (1, 1), (1, 2), (2, 1);
+insert into `season`(`show`, `season_number`) values (1, 1), (1, 2), (2, 1);
 --rollback DELETE FROM `season` where `id` between 1 and 3
 
 --changeset andreas:5 labels:episodes
 create table `episode` (
     `id` bigint primary key auto_increment,
     `season` bigint references `season`,
-    `episodeNumber` int not null,
+    `episode_number` int not null,
     `name` varchar(255),
-    `relDate` date,
-	unique (`season`, `episodeNumber`)
+    `rel_date` date,
+	unique (`season`, `episode_number`)
 );
 --rollback drop table `episode`
 
 --changeset andreas:6 labels:episodes
-insert into `episode`(`season`, `episodeNumber`, `name`, `relDate`) values (1, 1, 'Pilot', '2019-03-28'), (1, 2, 'City Council', '2019-04-04');
+insert into `episode`(`season`, `episode_number`, `name`, `rel_date`) values (1, 1, 'Pilot', '2019-03-28'), (1, 2, 'City Council', '2019-04-04');
 --rollback delete from `episodes` where `id` = 1 or `id`=2
 
 --changeset andreas:7 labels:actors
@@ -49,20 +49,20 @@ create table `actor` (
     `id` bigint primary key auto_increment,
     `name` varchar(255) not null,
     `country` varchar(255),
-    `birthDate` date
+    `birth_date` date
 );
 --rollback drop table `actor`
 
 --changeset andreas:8 labels:actors
-insert into `actor`(`name`, `country`, `birthDate`) values ('Kayvan Novak', 'United Kingdom', '1978-11-23'), ('Kristen Bell', 'United States', '1980-07-18'), ('Kristen Schaal', 'United States', '1978-01-24');
+insert into `actor`(`name`, `country`, `birth_date`) values ('Kayvan Novak', 'United Kingdom', '1978-11-23'), ('Kristen Bell', 'United States', '1980-07-18'), ('Kristen Schaal', 'United States', '1978-01-24');
 --rollback delete from `actor` where `id` between 1 and 3
 
 --changeset andreas:9 labels:actors,shows
 create table `main_cast` (
-    `idActor` bigint references `actor`,
-    `idShow` bigint references `show`,
+    `id_actor` bigint references `actor`,
+    `id_show` bigint references `show`,
     `character` varchar(255),
-    primary key (`idActor`, `idShow`)
+    primary key (`id_actor`, `id_show`)
 );
 --rollback drop table `main_cast
 
@@ -72,10 +72,10 @@ insert into `main_cast` values (1, 1, 'Nandor The Relentless'), (2, 2, 'Eleanor 
 
 --changeset andreas:11 labels:actors,episodes
 create table `featured_actor` (
-    `idActor` bigint references `actor`,
+    `id_actor` bigint references `actor`,
     `episode` int references `episode`,
     `character` varchar(255),
-    primary key (`idActor`, `episode`)
+    primary key (`id_actor`, `episode`)
 );
 --rollback drop table `featured_actor`
 

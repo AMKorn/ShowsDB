@@ -18,12 +18,12 @@ public class MainCast {
 
     @ManyToOne
     @MapsId("actorId")
-    @JoinColumn(name = "idActor")
+    @JoinColumn(name = "id_actor")
     Actor actor;
 
     @ManyToOne
     @MapsId("showId")
-    @JoinColumn(name = "idShow", insertable = false, updatable = false)
+    @JoinColumn(name = "id_show")
     Show show;
 
     String character;

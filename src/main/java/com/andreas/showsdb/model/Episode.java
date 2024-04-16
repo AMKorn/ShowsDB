@@ -26,9 +26,10 @@ public class Episode implements Comparable<Episode> {
     @JoinColumn(name = "season")
     @JsonIgnoreProperties(value = {"episodes"})
     private Season season;
+    @Column(name = "episode_number")
     private Integer episodeNumber;
     private String name;
-    @Column(name = "relDate")
+    @Column(name = "rel_date")
     private Date releaseDate;
 
     public Episode(Season season, Integer episodeNumber, String name, Date releaseDate) {

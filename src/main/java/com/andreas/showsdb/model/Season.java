@@ -24,6 +24,7 @@ public class Season implements Comparable<Season> {
     @JoinColumn(name = "show")
     @JsonIgnoreProperties(value = {"seasons"})
     private Show show;
+    @Column(name = "season_number")
     private Integer seasonNumber;
 
     @OneToMany(mappedBy = "season", cascade = CascadeType.ALL)

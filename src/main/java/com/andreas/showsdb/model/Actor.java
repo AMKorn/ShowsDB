@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.Set;
 
 @Entity
 @Table(name = "actor")
@@ -19,6 +18,7 @@ public class Actor {
     private Long id;
     private String name;
     private String country;
+    @Column(name = "birth_date")
     private Date birthDate;
 
 //    @OneToMany(mappedBy = "actor")
