@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MainCastRepository extends JpaRepository<MainCast, MainCast.MainCastKey> {
-    List<Actor> findByShow(Show show);
-    List<Show> findByActor(Actor actor);
+    List<MainCast> findByShow(Show show);
+    List<MainCast> findByActor(Actor actor);
     Optional<MainCast> findDistinctByActorAndShow(Actor actor, Show show);
 }

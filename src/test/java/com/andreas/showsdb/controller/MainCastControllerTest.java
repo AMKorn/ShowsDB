@@ -5,7 +5,10 @@ import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.util.Utils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -38,7 +41,7 @@ public class MainCastControllerTest {
         ResponseEntity<Actor> actorResponse = client.getForEntity(createUri("/api/actors/1"), Actor.class);
         Actor actor = actorResponse.getBody();
         // Depending on test order, actor may or may not exist. If not, we create it.
-        if(actor == null) {
+        if (actor == null) {
             actor = Actor.builder()
                     .name("Kayvan Novak")
                     .country("United Kingdom")
@@ -66,6 +69,21 @@ public class MainCastControllerTest {
         assertNotNull(mainCast);
         assertEquals(actor.getName(), mainCast.getActor().getName());
         assertEquals(show.getName(), mainCast.getShow().getName());
+    }
+
+    @Test
+    @Order(2)
+    void testGetActorShowsAsMainCast() throws URISyntaxException {
+        ResponseEntity<MainCast[]> response = client.getForEntity(createUri("/api/actors/1/shows"), MainCast[].class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        MainCast[] mainCasts = response.getBody();
+        assertNotNull(mainCasts);
+        assertEquals(1, mainCasts.length);
+        assertEquals("What We Do in the Shadows", mainCasts[0].getShow().getName());
+        assertEquals("Nandor the Relentless", mainCasts[0].getCharacter());
     }
 
     private URI createUri(String uri) throws URISyntaxException {

@@ -3,6 +3,7 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.model.Actor;
 import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.service.ActorsService;
+import com.andreas.showsdb.service.MainCastService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,9 @@ public class ActorsController {
 
     @Autowired
     private ActorsService actorsService;
+
+    @Autowired
+    MainCastService mainCastService;
 
     @GetMapping("")
     public List<Actor> getActors() {
@@ -66,4 +70,16 @@ public class ActorsController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{actorId}/shows")
+    public ResponseEntity<?> getActorMainCastShows(@PathVariable("actorId") long id) {
+        Actor actor;
+        try {
+            actor = actorsService.findById(id).orElseThrow(() -> new ShowsDatabaseException("Actor not found"));
+        } catch (ShowsDatabaseException e) {
+            return e.getResponse();
+        }
+
+        List<MainCast> showsAsMainCast = mainCastService.findShowsAsMainCast(actor);
+        return ResponseEntity.ok(showsAsMainCast);
+    }
 }

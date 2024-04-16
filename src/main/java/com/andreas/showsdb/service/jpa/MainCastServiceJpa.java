@@ -30,4 +30,9 @@ public class MainCastServiceJpa implements MainCastService {
     public MainCast saveMainCast(MainCast mainCast) {
         return mainCastRepository.save(mainCast);
     }
+
+    @Override
+    public List<MainCast> findShowsAsMainCast(Actor actor) {
+        return mainCastRepository.findByActor(actor);
+    }
 }
