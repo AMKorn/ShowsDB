@@ -21,8 +21,8 @@ public class Actor {
     private String country;
     private Date birthDate;
 
-    @OneToMany(mappedBy = "actor")
-    Set<MainCast> showsAsMainCast;
+//    @OneToMany(mappedBy = "actor")
+//    Set<MainCast> showsAsMainCast;
 
     public Actor(String name, String country, Date birthDate) {
         this.name = name;
