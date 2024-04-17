@@ -1,17 +1,31 @@
 package com.andreas.showsdb.service;
 
 import com.andreas.showsdb.model.Actor;
+import com.andreas.showsdb.repository.ActorsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface ActorsService {
+@Service
+public class ActorsService {
+    @Autowired
+    private ActorsRepository actorsRepository;
 
-    List<Actor> findAll();
+    public List<Actor> findAll() {
+        return actorsRepository.findAll();
+    }
 
-    Optional<Actor> findById(long id);
+    public Optional<Actor> findById(long id) {
+        return actorsRepository.findById(id);
+    }
 
-    Actor save(Actor actor);
+    public Actor save(Actor actor) {
+        return actorsRepository.save(actor);
+    }
 
-    void deleteById(long id);
+    public void deleteById(long id) {
+        actorsRepository.deleteById(id);
+    }
 }
