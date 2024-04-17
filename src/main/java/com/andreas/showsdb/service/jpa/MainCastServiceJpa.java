@@ -35,4 +35,9 @@ public class MainCastServiceJpa implements MainCastService {
     public List<MainCast> findShowsAsMainCast(Actor actor) {
         return mainCastRepository.findByActor(actor);
     }
+
+    @Override
+    public List<MainCast> findMainCastByShow(Show show) {
+        return mainCastRepository.findByShow(show);
+    }
 }

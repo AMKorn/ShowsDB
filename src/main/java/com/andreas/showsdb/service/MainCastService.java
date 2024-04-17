@@ -12,4 +12,5 @@ public interface MainCastService {
     Optional<MainCast> findByActorAndShow(Actor actor, Show show);
     MainCast saveMainCast(MainCast mainCast);
     List<MainCast> findShowsAsMainCast(Actor actor);
+    List<MainCast> findMainCastByShow(Show show);
 }

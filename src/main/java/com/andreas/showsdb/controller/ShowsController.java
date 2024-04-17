@@ -1,6 +1,8 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.service.MainCastService;
 import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,9 @@ public class ShowsController {
 
     @Autowired
     private ShowsService showsService;
+
+    @Autowired
+    private MainCastService mainCastService;
 
     @GetMapping("")
     public List<Show> searchAll() {
@@ -64,4 +69,16 @@ public class ShowsController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/{id}/main-cast")
+    public ResponseEntity<?> getShowMainCast(@PathVariable("id") long id) {
+        Show show;
+        try {
+            show = showsService.findById(id).orElseThrow(() -> new ShowsDatabaseException("Show not found"));
+        } catch (ShowsDatabaseException e) {
+            return e.getResponse();
+        }
+
+        List<MainCast> mainCasts = mainCastService.findMainCastByShow(show);
+        return ResponseEntity.ok(mainCasts);
+    }
 }

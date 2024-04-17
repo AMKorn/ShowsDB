@@ -45,7 +45,7 @@ public class MainCastController {
 
             Optional<MainCast> optionalMainCast = mainCastService.findByActorAndShow(actor, show);
             if(optionalMainCast.isPresent())
-                throw new ShowsDatabaseException("That actor is already in that show. Use PUT to modify.",
+                throw new ShowsDatabaseException("That actor is already in that show: use PUT to modify",
                         HttpStatus.CONFLICT);
 
             MainCast mainCast = MainCast.builder()
