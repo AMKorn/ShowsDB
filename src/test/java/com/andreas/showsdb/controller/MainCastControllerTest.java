@@ -132,6 +132,69 @@ public class MainCastControllerTest {
         assertEquals("Nandor the Relentless", mainCasts[0].getCharacter());
     }
 
+    @Test
+    @Order(6)
+    void testCreateMainCastShowDoesNotExist() throws URISyntaxException, JsonProcessingException {
+        MainCastDto mainCastDto = MainCastDto.builder()
+                .actorId(1L)
+                .showId(99L)
+                .character("Nonexistent Character")
+                .build();
+
+        ResponseEntity<String> response =
+                client.postForEntity(createUri("/api/main-cast"), mainCastDto, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Show not found", json.path("message").asText());
+    }
+
+    @Test
+    @Order(7)
+    void testCreateMainCastActorDoesNotExist() throws URISyntaxException, JsonProcessingException {
+        MainCastDto mainCastDto = MainCastDto.builder()
+                .actorId(99L)
+                .showId(1L)
+                .character("Nonexistent Character")
+                .build();
+
+        ResponseEntity<String> response =
+                client.postForEntity(createUri("/api/main-cast"), mainCastDto, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode json = objectMapper.readTree(response.getBody());
+        assertEquals("Actor not found", json.path("message").asText());
+    }
+
+    @Test
+    @Order(8)
+    void testModifyMainCast() throws URISyntaxException {
+        MainCastDto mainCastDto = MainCastDto.builder()
+                .showId(1L)
+                .actorId(1L)
+                .character("Nandor, the Relentless")
+                .build();
+
+        RequestEntity<MainCastDto> request =
+                new RequestEntity<>(mainCastDto, HttpMethod.PUT, createUri("/api/main-cast"));
+        ResponseEntity<MainCast> response = client.exchange(request, MainCast.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        MainCast mainCast = response.getBody();
+        assertNotNull(mainCast);
+        assertEquals("What We Do in the Shadows", mainCast.getShow().getName());
+        assertEquals("Kayvan Novak", mainCast.getActor().getName());
+        assertEquals("Nandor, the Relentless", mainCast.getCharacter());
+    }
+
     private URI createUri(String uri) throws URISyntaxException {
         return new URI("http://localhost:" + port + uri);
     }

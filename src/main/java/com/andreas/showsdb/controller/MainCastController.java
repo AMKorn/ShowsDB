@@ -61,4 +61,33 @@ public class MainCastController {
             return e.getResponse();
         }
     }
+
+    @PutMapping("")
+    public ResponseEntity<?> modifyMainCast(@RequestBody MainCastDto mainCastDto) {
+        Optional<Actor> optionalActor = actorsService.findById(mainCastDto.getActorId());
+        Optional<Show> optionalShow = showsService.findById(mainCastDto.getShowId());
+
+        Show show;
+        Actor actor;
+        try {
+            show = optionalShow.orElseThrow(() -> new ShowsDatabaseException("Show not found"));
+            actor = optionalActor.orElseThrow(() -> new ShowsDatabaseException("Actor not found"));
+
+            Optional<MainCast> optionalMainCast = mainCastService.findByActorAndShow(actor, show);
+            if(optionalMainCast.isEmpty())
+                throw new ShowsDatabaseException("That actor is not in that show: use POST to insert");
+
+            MainCast mainCast = MainCast.builder()
+                    .actor(actor)
+                    .show(show)
+                    .character(mainCastDto.getCharacter())
+                    .id(new MainCast.MainCastKey(actor.getId(), show.getId()))
+                    .build();
+
+            MainCast savedMainCast = mainCastService.saveMainCast(mainCast);
+            return ResponseEntity.ok(savedMainCast);
+        } catch (ShowsDatabaseException e) {
+            return e.getResponse();
+        }
+    }
 }
