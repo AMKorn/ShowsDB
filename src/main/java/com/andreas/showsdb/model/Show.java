@@ -1,5 +1,7 @@
 package com.andreas.showsdb.model;
 
+import com.andreas.showsdb.model.dto.ShowDto;
+import com.andreas.showsdb.model.dto.ShowDtoId;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -31,4 +33,19 @@ public class Show {
     @OneToMany(mappedBy = "show")
     @JsonIgnoreProperties({"show"})
     Set<MainCast> mainCast;
+
+    public ShowDto dto(){
+        return ShowDto.builder()
+                .name(name)
+                .country(country)
+                .build();
+    }
+
+    public ShowDtoId dtoId(){
+        return ShowDtoId.builder()
+                .id(id)
+                .name(name)
+                .country(country)
+                .build();
+    }
 }

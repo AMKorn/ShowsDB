@@ -1,5 +1,6 @@
 package com.andreas.showsdb.model;
 
+import com.andreas.showsdb.model.dto.SeasonDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,13 @@ public class Season implements Comparable<Season> {
     @OneToMany(mappedBy = "season", cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"season"})
     private List<Episode> episodes;
+
+    public SeasonDto dto() {
+        return SeasonDto.builder()
+                .showId(show.getId())
+                .seasonNumber(seasonNumber)
+                .build();
+    }
 
     @Override
     public int compareTo(Season s) {

@@ -1,5 +1,6 @@
 package com.andreas.showsdb.model;
 
+import com.andreas.showsdb.model.dto.EpisodeDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,16 @@ public class Episode implements Comparable<Episode> {
     private Date releaseDate;
 
     public Show getShow() {
-        return getSeason().getShow();
+        return season.getShow();
+    }
+
+    public EpisodeDto dto() {
+        return EpisodeDto.builder()
+                .showId(season.getShow().getId())
+                .seasonNumber(season.getSeasonNumber())
+                .episodeNumber(episodeNumber)
+                .releaseDate(releaseDate)
+                .build();
     }
 
     @Override

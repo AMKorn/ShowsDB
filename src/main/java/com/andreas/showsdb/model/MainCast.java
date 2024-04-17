@@ -34,6 +34,14 @@ public class MainCast {
 
     String character;
 
+    public MainCastDto dto(){
+        return MainCastDto.builder()
+                .actorId(actor.getId())
+                .showId(show.getId())
+                .character(character)
+                .build();
+    }
+
     @Embeddable
     @Data
     @NoArgsConstructor

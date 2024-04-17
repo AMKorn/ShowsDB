@@ -1,5 +1,7 @@
 package com.andreas.showsdb.model;
 
+import com.andreas.showsdb.model.dto.ActorDto;
+import com.andreas.showsdb.model.dto.ActorDtoId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,4 +28,21 @@ public class Actor {
 
     @OneToMany(mappedBy = "actor")
     Set<MainCast> showsAsMainCast;
+
+    ActorDto dto() {
+        return ActorDto.builder()
+                .name(name)
+                .country(country)
+                .birthDate(birthDate)
+                .build();
+    }
+
+    ActorDtoId dtoId() {
+        return ActorDtoId.builder()
+                .id(id)
+                .name(name)
+                .country(country)
+                .birthDate(birthDate)
+                .build();
+    }
 }
