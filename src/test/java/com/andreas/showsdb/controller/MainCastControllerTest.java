@@ -5,10 +5,7 @@ import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.util.Utils;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -16,6 +13,8 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class MainCastControllerTest {
 
     @Autowired
@@ -38,19 +38,15 @@ public class MainCastControllerTest {
         ResponseEntity<Show> showResponse = client.getForEntity(createUri("/api/shows/1"), Show.class);
         Show show = showResponse.getBody();
         assertNotNull(show);
-        ResponseEntity<Actor> actorResponse = client.getForEntity(createUri("/api/actors/1"), Actor.class);
-        Actor actor = actorResponse.getBody();
-        // Depending on test order, actor may or may not exist. If not, we create it.
-        if (actor == null) {
-            actor = Actor.builder()
-                    .name("Kayvan Novak")
-                    .country("United Kingdom")
-                    .birthDate(Utils.parseDate("23/11/1978"))
-                    .build();
+        Actor actor = Actor.builder()
+                .name("Kayvan Novak")
+                .country("United Kingdom")
+                .birthDate(Utils.parseDate("23/11/1978"))
+                .build();
 
-            actorResponse = client.postForEntity(createUri("/api/actors"), actor, Actor.class);
-            actor = actorResponse.getBody();
-        }
+        ResponseEntity<Actor> actorResponse = client.postForEntity(createUri("/api/actors"), actor, Actor.class);
+        actor = actorResponse.getBody();
+
         assertNotNull(actor);
 
         MainCastDto mainCastDto = MainCastDto.builder()
@@ -76,7 +72,7 @@ public class MainCastControllerTest {
     void testGetActorShowsAsMainCast() throws URISyntaxException {
         ResponseEntity<MainCast[]> response = client.getForEntity(createUri("/api/actors/1/shows"), MainCast[].class);
 
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
         MainCast[] mainCasts = response.getBody();

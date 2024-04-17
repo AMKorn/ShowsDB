@@ -16,4 +16,10 @@ class ShowsDatabaseException extends Exception {
         response.put("message", message);
         this.response = new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    public ShowsDatabaseException(String message, HttpStatus status) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", message);
+        this.response = new ResponseEntity<>(response, status);
+    }
 }
