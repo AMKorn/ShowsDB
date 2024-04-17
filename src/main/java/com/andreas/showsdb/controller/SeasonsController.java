@@ -3,6 +3,7 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.model.dto.ShowInfo;
 import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;

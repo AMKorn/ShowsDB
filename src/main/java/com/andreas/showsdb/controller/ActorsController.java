@@ -1,10 +1,8 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.Actor;
-import com.andreas.showsdb.model.MainCast;
-import com.andreas.showsdb.model.dto.ActorDto;
-import com.andreas.showsdb.model.dto.ActorDtoId;
+import com.andreas.showsdb.model.dto.ActorInput;
+import com.andreas.showsdb.model.dto.ActorInfo;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,7 @@ public class ActorsController {
     MainCastService mainCastService;
 
     @GetMapping("")
-    public List<ActorDtoId> getAll() {
+    public List<ActorInfo> getAll() {
         return actorsService.findAll();
     }
 
@@ -39,25 +37,13 @@ public class ActorsController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody ActorDto actor) {
-//        if (actor.getId() != null && actorsService.findById(actor.getId()).isPresent()) {
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("message", "Actor already exists with that id");
-//            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-//        }
-
-        ActorDtoId saved = actorsService.save(actor);
+    public ResponseEntity<?> create(@RequestBody ActorInput actor) {
+        ActorInfo saved = actorsService.save(actor);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @PutMapping("")
-    public ResponseEntity<?> modify(@RequestBody ActorDtoId actor) {
-//        if (actor.getId() == null || actorsService.findById(actor.getId()).isEmpty()) {
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("message", "Actor does not exist");
-//            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-//        }
-
+    public ResponseEntity<?> modify(@RequestBody ActorInfo actor) {
         try {
             return ResponseEntity.ok(actorsService.modify(actor));
         } catch (NotFoundException e) {
@@ -73,9 +59,6 @@ public class ActorsController {
             return e.getResponse();
         }
 
-//        if (actorsService.findById(id).isEmpty()) {
-//            return ResponseEntity.notFound().build();
-//        }
         actorsService.deleteById(id);
         return ResponseEntity.ok().build();
     }

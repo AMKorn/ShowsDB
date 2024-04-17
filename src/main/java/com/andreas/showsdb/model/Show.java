@@ -1,7 +1,7 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.ShowDto;
-import com.andreas.showsdb.model.dto.ShowDtoId;
+import com.andreas.showsdb.model.dto.ShowInfo;
+import com.andreas.showsdb.model.dto.ShowInput;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -34,18 +33,38 @@ public class Show {
     @JsonIgnoreProperties({"show"})
     Set<MainCast> mainCast;
 
-    public ShowDto dto(){
-        return ShowDto.builder()
-                .name(name)
-                .country(country)
+//    public ShowInput dto(){
+//        return ShowInput.builder()
+//                .name(name)
+//                .country(country)
+//                .build();
+//    }
+
+    public static Show translateFromDto(ShowInput dto) {
+        return Show.builder()
+                .name(dto.getName())
+                .country(dto.getCountry())
                 .build();
     }
 
-    public ShowDtoId dtoId(){
-        return ShowDtoId.builder()
+    public static Show translateFromDto(ShowInfo dto) {
+        return Show.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .country(dto.getCountry())
+                .build();
+    }
+
+    public ShowInfo dto() {
+        return ShowInfo.builder()
                 .id(id)
                 .name(name)
                 .country(country)
+                .numberOfSeasons(seasons.size())
+                .numberOfEpisodes(seasons.stream()
+                        .flatMap(season -> season.getEpisodes().stream())
+                        .toList()
+                        .size())
                 .build();
     }
 }

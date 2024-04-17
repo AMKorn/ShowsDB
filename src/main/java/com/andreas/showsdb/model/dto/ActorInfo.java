@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Value
 @Builder
-public class ActorDtoId {
+public class ActorInfo {
     @NotNull
     Long id;
     @NotNull

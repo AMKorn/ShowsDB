@@ -1,8 +1,7 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.Actor;
-import com.andreas.showsdb.model.dto.ActorDto;
-import com.andreas.showsdb.model.dto.ActorDtoId;
+import com.andreas.showsdb.model.dto.ActorInput;
+import com.andreas.showsdb.model.dto.ActorInfo;
 import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,17 +36,17 @@ class ActorsControllerTest {
     @Test
     @Order(1)
     void testAddActor() throws URISyntaxException {
-        ActorDto actor = ActorDto.builder()
+        ActorInput actor = ActorInput.builder()
                 .name("Kayvan Novak")
                 .country("United Kingdom")
                 .birthDate(Utils.parseDate("23/11/1968"))
                 .build();
 
-        ResponseEntity<ActorDtoId> response = client.postForEntity(createUri("/api/actors"), actor, ActorDtoId.class);
+        ResponseEntity<ActorInfo> response = client.postForEntity(createUri("/api/actors"), actor, ActorInfo.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        ActorDtoId newActor = response.getBody();
+        ActorInfo newActor = response.getBody();
         assertNotNull(newActor);
         assertEquals(1, newActor.getId());
         assertEquals(actor.getName(), newActor.getName());
@@ -82,12 +81,12 @@ class ActorsControllerTest {
     @Test
     @Order(3)
     void testGetAllActor() throws URISyntaxException {
-        ResponseEntity<ActorDtoId[]> response = client.getForEntity(createUri("/api/actors"), ActorDtoId[].class);
+        ResponseEntity<ActorInfo[]> response = client.getForEntity(createUri("/api/actors"), ActorInfo[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        List<ActorDtoId> actors = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        List<ActorInfo> actors = Arrays.asList(Objects.requireNonNull(response.getBody()));
         assertEquals(1, actors.size());
         assertEquals(1, actors.getFirst().getId());
         assertEquals("Kayvan Novak", actors.getFirst().getName());
@@ -98,12 +97,12 @@ class ActorsControllerTest {
     @Test
     @Order(4)
     void testGetActor() throws URISyntaxException {
-        ResponseEntity<ActorDtoId> response = client.getForEntity(createUri("/api/actors/1"), ActorDtoId.class);
+        ResponseEntity<ActorInfo> response = client.getForEntity(createUri("/api/actors/1"), ActorInfo.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ActorDtoId actor = response.getBody();
+        ActorInfo actor = response.getBody();
         assertNotNull(actor);
         assertEquals(1, actor.getId());
         assertEquals("Kayvan Novak", actor.getName());
@@ -130,11 +129,11 @@ class ActorsControllerTest {
     @Test
     @Order(6)
     void testModifyActor() throws URISyntaxException {
-        ResponseEntity<ActorDtoId> response = client.getForEntity(createUri("/api/actors/1"), ActorDtoId.class);
-        ActorDtoId oldActorInfo = response.getBody();
+        ResponseEntity<ActorInfo> response = client.getForEntity(createUri("/api/actors/1"), ActorInfo.class);
+        ActorInfo oldActorInfo = response.getBody();
         assertNotNull(oldActorInfo);
 
-        ActorDtoId newActorInfo = ActorDtoId.builder()
+        ActorInfo newActorInfo = ActorInfo.builder()
                 .id(oldActorInfo.getId())
                 .name(oldActorInfo.getName())
                 .country(oldActorInfo.getCountry())
@@ -145,8 +144,8 @@ class ActorsControllerTest {
 
         client.put(createUri("/api/actors"), newActorInfo);
 
-        response = client.getForEntity(createUri("/api/actors/1"), ActorDtoId.class);
-        ActorDtoId actor = response.getBody();
+        response = client.getForEntity(createUri("/api/actors/1"), ActorInfo.class);
+        ActorInfo actor = response.getBody();
         assertNotNull(actor);
         assertEquals(Utils.parseDate("23/11/1978"), actor.getBirthDate());
     }
@@ -154,12 +153,12 @@ class ActorsControllerTest {
     @Test
     @Order(7)
     void testModifyNonexistentActor() throws URISyntaxException, JsonProcessingException {
-        ActorDtoId actor = ActorDtoId.builder()
+        ActorInfo actor = ActorInfo.builder()
                 .id(99L)
                 .name("Actor")
                 .build();
 
-        RequestEntity<ActorDtoId> request = new RequestEntity<>(actor, HttpMethod.PUT, createUri("/api/actors"));
+        RequestEntity<ActorInfo> request = new RequestEntity<>(actor, HttpMethod.PUT, createUri("/api/actors"));
         ResponseEntity<String> response = client.exchange(request, String.class);
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -171,16 +170,16 @@ class ActorsControllerTest {
     @Test
     @Order(8)
     void testDeleteActor() throws URISyntaxException {
-        ResponseEntity<ActorDtoId[]> response = client.getForEntity(createUri("/api/actors"), ActorDtoId[].class);
+        ResponseEntity<ActorInfo[]> response = client.getForEntity(createUri("/api/actors"), ActorInfo[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        ActorDtoId[] actors = response.getBody();
+        ActorInfo[] actors = response.getBody();
         assertNotNull(actors);
         assertEquals(1, actors.length);
 
         client.delete(createUri("/api/actors/1"));
 
-        response = client.getForEntity(createUri("/api/actors"), ActorDtoId[].class);
+        response = client.getForEntity(createUri("/api/actors"), ActorInfo[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
         actors = response.getBody();

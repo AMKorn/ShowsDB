@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Value
 @Builder
-public class ActorDto {
+public class ActorInput {
     @NotNull
     @Size(max = 255, message = "Actor name may not be longer than 255 characters")
     String name;
