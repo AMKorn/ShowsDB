@@ -8,15 +8,15 @@ import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.*;
 import org.springframework.test.annotation.DirtiesContext;
 
 import java.net.URI;
@@ -93,6 +93,17 @@ public class MainCastControllerTest {
 
     @Test
     @Order(3)
+    void testGetMainCasts() throws URISyntaxException {
+        ResponseEntity<MainCast[]> response = client.getForEntity(createUri("/api/main-cast"), MainCast[].class);
+        MainCast[] mainCasts = response.getBody();
+        assertNotNull(mainCasts);
+        assertEquals(1, mainCasts.length);
+        assertEquals("What We Do in the Shadows", mainCasts[0].getShow().getName());
+        assertEquals("Nandor the Relentless", mainCasts[0].getCharacter());
+    }
+
+    @Test
+    @Order(4)
     void testGetActorShowsAsMainCast() throws URISyntaxException {
         ResponseEntity<MainCast[]> response = client.getForEntity(createUri("/api/actors/1/shows"), MainCast[].class);
 
@@ -107,7 +118,7 @@ public class MainCastControllerTest {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     void testGetShowMainCast() throws URISyntaxException {
         ResponseEntity<MainCast[]> response = client.getForEntity(createUri("/api/shows/1/main-cast"), MainCast[].class);
 
