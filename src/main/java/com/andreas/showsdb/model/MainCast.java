@@ -1,5 +1,6 @@
 package com.andreas.showsdb.model;
 
+import com.andreas.showsdb.model.dto.MainCastDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

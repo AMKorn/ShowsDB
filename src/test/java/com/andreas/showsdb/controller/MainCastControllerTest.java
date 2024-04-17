@@ -195,6 +195,49 @@ public class MainCastControllerTest {
         assertEquals("Nandor, the Relentless", mainCast.getCharacter());
     }
 
+    @Test
+    @Order(9)
+    void testAddSecondMainCast() throws URISyntaxException {
+        Actor actor = Actor.builder()
+                .name("Kristen Bell")
+                .country("United States")
+                .build();
+        ResponseEntity<Actor> actorResponseEntity = client.postForEntity(createUri("/api/actors"), actor, Actor.class);
+        actor = actorResponseEntity.getBody();
+        assertNotNull(actor);
+        Show show = Show.builder()
+                .name("The Good Place")
+                .build();
+        ResponseEntity<Show> showResponseEntity = client.postForEntity(createUri("/api/shows"), show, Show.class);
+        show = showResponseEntity.getBody();
+        assertNotNull(show);
+        MainCastDto mainCastDto = MainCastDto.builder()
+                .actorId(actor.getId())
+                .showId(show.getId())
+                .character("Eleanor Shellstrop")
+                .build();
+        client.postForEntity(createUri("/api/main-cast"), mainCastDto, Void.class);
+
+
+        ResponseEntity<MainCast[]> response = client.getForEntity(createUri("/api/main-cast"), MainCast[].class);
+
+        MainCast[] mainCasts = response.getBody();
+        assertNotNull(mainCasts);
+        assertEquals(2, mainCasts.length);
+        assertEquals("What We Do in the Shadows", mainCasts[0].getShow().getName());
+        assertEquals("Kayvan Novak", mainCasts[0].getActor().getName());
+        assertEquals("Nandor, the Relentless", mainCasts[0].getCharacter());
+        assertEquals("The Good Place", mainCasts[1].getShow().getName());
+        assertEquals("Kristen Bell", mainCasts[1].getActor().getName());
+        assertEquals("Eleanor Shellstrop", mainCasts[1].getCharacter());
+    }
+
+    @Test
+    @Order(10)
+    void deleteMainCast() {
+
+    }
+
     private URI createUri(String uri) throws URISyntaxException {
         return new URI("http://localhost:" + port + uri);
     }
