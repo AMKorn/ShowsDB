@@ -29,7 +29,26 @@ public class Actor {
     @OneToMany(mappedBy = "actor")
     Set<MainCast> showsAsMainCast;
 
-    ActorDto dto() {
+    public static Actor translateDto(ActorDto dto){
+        return Actor.builder()
+                .name(dto.getName())
+                .country(dto.getCountry())
+                .country(dto.getCountry())
+                .birthDate(dto.getBirthDate())
+                .build();
+    }
+
+    public static Actor translateDto(ActorDtoId dto){
+        return Actor.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .country(dto.getCountry())
+                .country(dto.getCountry())
+                .birthDate(dto.getBirthDate())
+                .build();
+    }
+
+    public ActorDto dto() {
         return ActorDto.builder()
                 .name(name)
                 .country(country)
@@ -37,7 +56,7 @@ public class Actor {
                 .build();
     }
 
-    ActorDtoId dtoId() {
+    public ActorDtoId dtoId() {
         return ActorDtoId.builder()
                 .id(id)
                 .name(name)

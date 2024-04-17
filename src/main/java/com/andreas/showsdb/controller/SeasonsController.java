@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.service.ShowsService;
@@ -22,7 +23,7 @@ public class SeasonsController {
         Show show;
         try {
             show = findShow(id);
-        } catch (ShowsDatabaseException e) {
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
@@ -35,7 +36,7 @@ public class SeasonsController {
         Show show;
         try {
             show = findShow(id);
-        } catch (ShowsDatabaseException e) {
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
@@ -66,7 +67,7 @@ public class SeasonsController {
         Show show;
         try {
             show = findShow(showId);
-        } catch (ShowsDatabaseException e) {
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
@@ -85,15 +86,15 @@ public class SeasonsController {
         Show show;
         try {
             show = findShow(showId);
-        } catch (ShowsDatabaseException e) {
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
         Optional<Season> optionalSeason = showsService.getShowSeason(show, seasonNumber);
         Season season;
         try {
-            season = optionalSeason.orElseThrow(() -> new ShowsDatabaseException("Season does not exist"));
-        } catch (ShowsDatabaseException e) {
+            season = optionalSeason.orElseThrow(() -> new NotFoundException("Season does not exist"));
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
@@ -107,7 +108,7 @@ public class SeasonsController {
         Show show;
         try {
             show = findShow(showId);
-        } catch (ShowsDatabaseException e) {
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
@@ -116,8 +117,8 @@ public class SeasonsController {
         return ResponseEntity.ok().build();
     }
 
-    private Show findShow(long showId) throws ShowsDatabaseException {
+    private Show findShow(long showId) throws NotFoundException {
         return showsService.findById(showId)
-                .orElseThrow(() -> new ShowsDatabaseException("Show does not exist"));
+                .orElseThrow(() -> new NotFoundException("Show does not exist"));
     }
 }

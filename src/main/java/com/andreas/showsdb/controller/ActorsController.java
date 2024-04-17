@@ -1,7 +1,10 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Actor;
 import com.andreas.showsdb.model.MainCast;
+import com.andreas.showsdb.model.dto.ActorDto;
+import com.andreas.showsdb.model.dto.ActorDtoId;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/actors")
@@ -25,61 +25,72 @@ public class ActorsController {
     MainCastService mainCastService;
 
     @GetMapping("")
-    public List<Actor> getActors() {
+    public List<ActorDtoId> getAll() {
         return actorsService.findAll();
     }
 
     @GetMapping("/{actorId}")
-    public ResponseEntity<?> getActor(@PathVariable("actorId") long id) {
+    public ResponseEntity<?> get(@PathVariable("actorId") long id) {
         try {
-            return ResponseEntity.ok(actorsService.findById(id).orElseThrow());
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(actorsService.findById(id));
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createActor(@RequestBody Actor actor) {
-        if (actor.getId() != null && actorsService.findById(actor.getId()).isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Actor already exists with that id");
-            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<?> create(@RequestBody ActorDto actor) {
+//        if (actor.getId() != null && actorsService.findById(actor.getId()).isPresent()) {
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("message", "Actor already exists with that id");
+//            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+//        }
 
-        Actor saved = actorsService.save(actor);
+        ActorDtoId saved = actorsService.save(actor);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @PutMapping("")
-    public ResponseEntity<?> modifyActor(@RequestBody Actor actor) {
-        if (actor.getId() == null || actorsService.findById(actor.getId()).isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Actor does not exist");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<?> modify(@RequestBody ActorDtoId actor) {
+//        if (actor.getId() == null || actorsService.findById(actor.getId()).isEmpty()) {
+//            Map<String, Object> response = new HashMap<>();
+//            response.put("message", "Actor does not exist");
+//            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+//        }
 
-        return ResponseEntity.ok(actorsService.save(actor));
+        try {
+            return ResponseEntity.ok(actorsService.modify(actor));
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
     }
 
     @DeleteMapping("/{actorId}")
-    public ResponseEntity<?> deleteActor(@PathVariable("actorId") long id) {
-        if (actorsService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> delete(@PathVariable("actorId") long id) {
+        try {
+            actorsService.findById(id);
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
+
+//        if (actorsService.findById(id).isEmpty()) {
+//            return ResponseEntity.notFound().build();
+//        }
         actorsService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{actorId}/shows")
-    public ResponseEntity<?> getActorMainCastShows(@PathVariable("actorId") long id) {
-        Actor actor;
-        try {
-            actor = actorsService.findById(id).orElseThrow(() -> new ShowsDatabaseException("Actor not found"));
-        } catch (ShowsDatabaseException e) {
-            return e.getResponse();
-        }
-
-        List<MainCast> showsAsMainCast = mainCastService.findShowsAsMainCast(actor);
-        return ResponseEntity.ok(showsAsMainCast);
+    public ResponseEntity<?> getShows(@PathVariable("actorId") long id) {
+//        Actor actor;
+//        try {
+//            actor = actorsService.findById(id);
+//        } catch (NotFoundException e) {
+//            return e.getResponse();
+//        }
+//
+//        List<MainCast> showsAsMainCast = mainCastService.findShowsAsMainCast(actor);
+//        return ResponseEntity.ok(showsAsMainCast);
+        return ResponseEntity.ok().build();
     }
 }

@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.service.MainCastService;
@@ -73,8 +74,8 @@ public class ShowsController {
     public ResponseEntity<?> getShowMainCast(@PathVariable("id") long id) {
         Show show;
         try {
-            show = showsService.findById(id).orElseThrow(() -> new ShowsDatabaseException("Show not found"));
-        } catch (ShowsDatabaseException e) {
+            show = showsService.findById(id).orElseThrow(() -> new NotFoundException("Show not found"));
+        } catch (NotFoundException e) {
             return e.getResponse();
         }
 
