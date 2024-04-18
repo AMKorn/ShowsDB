@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Value
 @Builder
-public class EpisodeDto {
+public class EpisodeInfo {
     @NotNull
     Long showId;
     @NotNull

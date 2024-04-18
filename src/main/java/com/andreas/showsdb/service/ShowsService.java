@@ -1,9 +1,7 @@
 package com.andreas.showsdb.service;
 
-import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +21,7 @@ public class ShowsService {
     private SeasonsRepository seasonsRepository;
 
     @Autowired
-    private EpisodesRepository episodesRepository;
+    private EpisodesService episodesService;
 
     public List<Show> findAll() {
         return showsRepository.findAll();
@@ -76,7 +74,7 @@ public class ShowsService {
     }
 
     public void deleteSeason(Season season) {
-        deleteSeasonEpisodes(season);
+        episodesService.deleteAllBySeason(season);
 
         seasonsRepository.deleteById(season.getId());
     }
@@ -86,42 +84,5 @@ public class ShowsService {
                 .forEach(this::deleteSeason);
     }
 
-    public List<Episode> getSeasonEpisodes(Season season) {
-        return episodesRepository.findBySeason(season);
-    }
 
-    public Optional<Episode> getSeasonEpisode(Season season, Integer episodeNumber) {
-        return episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber);
-    }
-
-    public Episode saveEpisode(Episode episode) {
-        return episodesRepository.save(episode);
-    }
-
-    public Episode addSeasonEpisode(Season season) {
-        int episodeNumber;
-        try {
-            episodeNumber = episodesRepository.findBySeason(season).stream()
-                    .max(Episode::compareTo)
-                    .orElseThrow()
-                    .getEpisodeNumber() + 1;
-        } catch (NoSuchElementException e) {
-            episodeNumber = 1;
-        }
-
-        Episode episode = new Episode();
-        episode.setSeason(season);
-        episode.setEpisodeNumber(episodeNumber);
-        return episodesRepository.save(episode);
-    }
-
-    public void deleteEpisodeById(Long episodeId) {
-        episodesRepository.deleteById(episodeId);
-    }
-
-    public void deleteSeasonEpisodes(Season season) {
-        episodesRepository.findBySeason(season)
-                .stream().map(Episode::getId)
-                .forEach(this::deleteEpisodeById);
-    }
 }

@@ -4,6 +4,7 @@ import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.service.EpisodesService;
 import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ public class EpisodesController {
     @Autowired
     private ShowsService showsService;
 
+    @Autowired
+    private EpisodesService episodesService;
+
     @PostMapping("")
     public ResponseEntity<?> addEpisode(@PathVariable("showId") long showId,
                                         @PathVariable("seasonNumber") int seasonNumber,
@@ -31,14 +35,14 @@ public class EpisodesController {
         }
 
         if (episode == null) {
-            Episode savedEpisode = showsService.addSeasonEpisode(season);
+            Episode savedEpisode = episodesService.createInSeason(season);
             return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
         }
 
         if (episode.getEpisodeNumber() == null) {
             int episodeNumber;
             try {
-                episodeNumber = showsService.getSeasonEpisodes(season).stream()
+                episodeNumber = episodesService.findBySeason(season).stream()
                         .max(Episode::compareTo)
                         .orElseThrow()
                         .getEpisodeNumber() + 1;
@@ -50,7 +54,7 @@ public class EpisodesController {
 
         episode.setSeason(season);
 
-        Episode savedEpisode = showsService.saveEpisode(episode);
+        Episode savedEpisode = episodesService.save(episode);
         return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
 
     }
@@ -80,7 +84,7 @@ public class EpisodesController {
             return e.getResponse();
         }
 
-        Optional<Episode> optionalEpisode = showsService.getSeasonEpisode(season, episodeNumber);
+        Optional<Episode> optionalEpisode = episodesService.findBySeasonAndNumber(season, episodeNumber);
         try {
             Episode episode = optionalEpisode.orElseThrow();
             return ResponseEntity.ok(episode);
@@ -102,7 +106,7 @@ public class EpisodesController {
 
         try {
             int episodeNumber = episode.getEpisodeNumber();
-            Optional<Episode> optionalEpisode = showsService.getSeasonEpisode(season, episodeNumber);
+            Optional<Episode> optionalEpisode = episodesService.findBySeasonAndNumber(season, episodeNumber);
             Episode originalEpisode = optionalEpisode.orElseThrow();
 
             if (!episode.getId().equals(originalEpisode.getId())) {
@@ -111,7 +115,7 @@ public class EpisodesController {
                 return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
             }
 
-            Episode modifiedEpisode = showsService.saveEpisode(episode);
+            Episode modifiedEpisode = episodesService.save(episode);
             return ResponseEntity.ok(modifiedEpisode);
         } catch (NoSuchElementException e) {
             Map<String, Object> response = new HashMap<>();
@@ -131,7 +135,7 @@ public class EpisodesController {
             return e.getResponse();
         }
 
-        Optional<Episode> optionalEpisode = showsService.getSeasonEpisode(season, episodeNumber);
+        Optional<Episode> optionalEpisode = episodesService.findBySeasonAndNumber(season, episodeNumber);
 
         Episode episode;
         try {
@@ -140,7 +144,7 @@ public class EpisodesController {
             return e.getResponse();
         }
 
-        showsService.deleteEpisodeById(episode.getId());
+        episodesService.deleteById(episode.getId());
 
         return ResponseEntity.ok().build();
     }
@@ -155,7 +159,7 @@ public class EpisodesController {
             return e.getResponse();
         }
 
-        showsService.deleteSeasonEpisodes(season);
+        episodesService.deleteAllBySeason(season);
 
         return ResponseEntity.ok().build();
     }
