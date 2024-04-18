@@ -37,55 +37,8 @@ public class ShowsService {
     }
 
     public void deleteById(long id) {
-        Optional<Show> show = showsRepository.findById(id);
-        deleteShowSeasons(show.orElseThrow());
+//        Optional<Show> show = showsRepository.findById(id);
+//        deleteShowSeasons(show.orElseThrow());
         showsRepository.deleteById(id);
-    }
-
-    public List<Season> getShowSeasons(Show show) {
-        return seasonsRepository.findByShow(show);
-    }
-
-    public Optional<Season> getShowSeason(Show show, Integer seasonNumber) {
-        return seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber);
-    }
-
-    public Season saveSeason(Season season) {
-        return seasonsRepository.save(season);
-    }
-
-    public Season addShowSeason(Show show) {
-        //.size() + 1;
-        int seasonNumber;
-        try {
-            seasonNumber = seasonsRepository.findByShow(show).stream()
-                    .max(Season::compareTo)
-                    .orElseThrow()
-                    .getSeasonNumber() + 1;
-        } catch (NoSuchElementException e) {
-            seasonNumber = 1;
-        }
-
-        Season season = Season.builder()
-                .show(show)
-                .seasonNumber(seasonNumber)
-                .build();
-        return seasonsRepository.save(season);
-    }
-
-    public void deleteSeason(Season season) throws NotFoundException {
-        episodesService.deleteAllBySeason(season.getShow().getId(), season.getSeasonNumber());
-
-        seasonsRepository.deleteById(season.getId());
-    }
-
-    public void deleteShowSeasons(Show show) {
-        try {
-            for (Season season : seasonsRepository.findByShow(show)) {
-                deleteSeason(season);
-            }
-        } catch (NotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

@@ -32,7 +32,7 @@ public class EpisodesService {
         Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"));
         return episodesRepository.findBySeason(season).stream()
-                .map(Episode::dto).toList();
+                .map(Episode::getInfoDto).toList();
     }
 
     public @Valid EpisodeInfo findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
@@ -43,7 +43,7 @@ public class EpisodesService {
                 .orElseThrow(() -> new NotFoundException("Season not found"));
         return episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber)
                 .orElseThrow(() -> new NotFoundException("Episode not found"))
-                .dto();
+                .getInfoDto();
     }
 
     public @Valid EpisodeInfo save(long showId, int seasonNumber, EpisodeInput episodeInput) throws NotFoundException {
@@ -59,7 +59,7 @@ public class EpisodesService {
                 .releaseDate(episodeInput.getReleaseDate())
                 .build();
 
-        return episodesRepository.save(episode).dto();
+        return episodesRepository.save(episode).getInfoDto();
     }
 
     public @Valid EpisodeInfo modify(long showId, int seasonNumber, @Valid EpisodeInput episodeInput)
@@ -74,7 +74,7 @@ public class EpisodesService {
         episode.setName(episodeInput.getName());
         episode.setReleaseDate(episodeInput.getReleaseDate());
 
-        return episodesRepository.save(episode).dto();
+        return episodesRepository.save(episode).getInfoDto();
     }
 
     public @Valid EpisodeInfo createInSeason(long showId, int seasonNumber) throws NotFoundException {
@@ -96,7 +96,7 @@ public class EpisodesService {
         Episode episode = new Episode();
         episode.setSeason(season);
         episode.setEpisodeNumber(episodeNumber);
-        return episodesRepository.save(episode).dto();
+        return episodesRepository.save(episode).getInfoDto();
     }
 
     public void deleteByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)

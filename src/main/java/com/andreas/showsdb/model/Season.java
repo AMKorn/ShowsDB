@@ -33,15 +33,21 @@ public class Season implements Comparable<Season> {
     @Column(name = "season_number")
     private Integer seasonNumber;
 
-    @OneToMany(mappedBy = "season", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "season", orphanRemoval = true, cascade = CascadeType.ALL)
     @JsonIgnoreProperties({"season"})
     private List<Episode> episodes;
 
-    public @Valid SeasonInfo dto() {
-        return SeasonInfo.builder()
+    public @Valid SeasonInfo getInfoDto() {
+        SeasonInfo.SeasonInfoBuilder seasonInfoBuilder = SeasonInfo.builder()
                 .showId(show.getId())
-                .seasonNumber(seasonNumber)
-                .numberOfEpisodes(episodes.size())
+                .seasonNumber(seasonNumber);
+        int numberOfEpisodes;
+        try {
+            numberOfEpisodes = episodes.size();
+        } catch (NullPointerException e) {
+            numberOfEpisodes = 0;
+        }
+        return seasonInfoBuilder.numberOfEpisodes(numberOfEpisodes)
                 .build();
     }
 

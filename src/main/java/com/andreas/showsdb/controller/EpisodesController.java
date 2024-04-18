@@ -5,13 +5,12 @@ import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.andreas.showsdb.model.dto.EpisodeInput;
 import com.andreas.showsdb.service.EpisodesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
@@ -52,11 +51,32 @@ public class EpisodesController {
                         .build();
             }
 
-            EpisodeInfo savedEpisode = episodesService.save(showId, seasonNumber, episodeInput);
-            return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
+            try {
+                EpisodeInfo savedEpisode = episodesService.save(showId, seasonNumber, episodeInput);
+                return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
+            } catch (DataIntegrityViolationException e) {
+                Map<String, Object> response = new HashMap<>();
+                EpisodeInput finalEpisodeInput = episodeInput;
+                Optional<EpisodeInfo> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
+                        .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInput.getEpisodeNumber()))
+                        .findFirst();
+                response.put("message",
+                        "Season already has an episode " + episodeInput.getEpisodeNumber());
+                response.put("episode", optionalEpisode.orElseThrow());
+                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+            }
         } catch (NotFoundException e) {
             return e.getResponse();
         }
+
+//            Optional<@Valid SeasonInfo> optionalSeason = seasonsService.findByShow(showId).stream()
+//                    .filter(s -> s.getSeasonNumber().equals(seasonInput.getSeasonNumber()))
+//                    .findFirst();
+//            response.put("message",
+//                    "Show already has a Season " + seasonInput.getSeasonNumber());
+//            response.put("season", optionalSeason.orElseThrow());
+//            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+
     }
 
     @GetMapping("/{episodeNumber}")

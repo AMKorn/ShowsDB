@@ -84,7 +84,7 @@ class ShowTest {
 
         show.setSeasons(seasons);
 
-        ShowInfo showInfo = show.dto();
+        ShowInfo showInfo = show.getInfoDto();
 
         assertEquals("What We Do in the Shadows", showInfo.getName());
         assertEquals("United States", showInfo.getCountry());

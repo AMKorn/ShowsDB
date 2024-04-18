@@ -30,7 +30,7 @@ public class Show {
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
 
-    @OneToMany(mappedBy = "show")
+    @OneToMany(mappedBy = "show", orphanRemoval = true)
     @JsonIgnoreProperties({"show"})
     Set<MainCast> mainCast;
 
@@ -56,7 +56,7 @@ public class Show {
                 .build();
     }
 
-    public @Valid ShowInfo dto() {
+    public @Valid ShowInfo getInfoDto() {
         return ShowInfo.builder()
                 .id(id)
                 .name(name)

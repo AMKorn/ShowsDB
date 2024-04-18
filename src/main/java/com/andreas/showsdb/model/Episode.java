@@ -42,7 +42,7 @@ public class Episode implements Comparable<Episode> {
         return season.getShow();
     }
 
-    public @Valid EpisodeInfo dto() {
+    public @Valid EpisodeInfo getInfoDto() {
         return EpisodeInfo.builder()
                 .showId(season.getShow().getId())
                 .seasonNumber(season.getSeasonNumber())
