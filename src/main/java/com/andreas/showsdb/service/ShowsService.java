@@ -1,5 +1,6 @@
 package com.andreas.showsdb.service;
 
+import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.repository.SeasonsRepository;
@@ -38,7 +39,6 @@ public class ShowsService {
     public void deleteById(long id) {
         Optional<Show> show = showsRepository.findById(id);
         deleteShowSeasons(show.orElseThrow());
-
         showsRepository.deleteById(id);
     }
 
@@ -73,16 +73,19 @@ public class ShowsService {
         return seasonsRepository.save(season);
     }
 
-    public void deleteSeason(Season season) {
-        episodesService.deleteAllBySeason(season);
+    public void deleteSeason(Season season) throws NotFoundException {
+        episodesService.deleteAllBySeason(season.getShow().getId(), season.getSeasonNumber());
 
         seasonsRepository.deleteById(season.getId());
     }
 
     public void deleteShowSeasons(Show show) {
-        seasonsRepository.findByShow(show)
-                .forEach(this::deleteSeason);
+        try {
+            for (Season season : seasonsRepository.findByShow(show)) {
+                deleteSeason(season);
+            }
+        } catch (NotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
-
-
 }

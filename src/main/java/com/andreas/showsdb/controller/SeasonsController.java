@@ -3,7 +3,6 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.ShowInfo;
 import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -95,27 +94,28 @@ public class SeasonsController {
         Season season;
         try {
             season = optionalSeason.orElseThrow(() -> new NotFoundException("Season does not exist"));
+
+            showsService.deleteSeason(season);
+            return ResponseEntity.ok().build();
+
         } catch (NotFoundException e) {
             return e.getResponse();
         }
 
-        showsService.deleteSeason(season);
 
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("")
     public ResponseEntity<?> deleteSeasons(@PathVariable("showId") long showId) {
-        Show show;
         try {
-            show = findShow(showId);
+            Show show = findShow(showId);
+
+            showsService.deleteShowSeasons(show);
+
+            return ResponseEntity.ok().build();
         } catch (NotFoundException e) {
             return e.getResponse();
         }
-
-        showsService.deleteShowSeasons(show);
-
-        return ResponseEntity.ok().build();
     }
 
     private Show findShow(long showId) throws NotFoundException {

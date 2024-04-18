@@ -46,6 +46,7 @@ public class Episode implements Comparable<Episode> {
                 .showId(season.getShow().getId())
                 .seasonNumber(season.getSeasonNumber())
                 .episodeNumber(episodeNumber)
+                .name(name)
                 .releaseDate(releaseDate)
                 .build();
     }
