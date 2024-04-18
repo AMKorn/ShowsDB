@@ -1,8 +1,9 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.SeasonDto;
+import com.andreas.showsdb.model.dto.SeasonInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,10 +37,11 @@ public class Season implements Comparable<Season> {
     @JsonIgnoreProperties({"season"})
     private List<Episode> episodes;
 
-    public SeasonDto dto() {
-        return SeasonDto.builder()
+    public @Valid SeasonInfo dto() {
+        return SeasonInfo.builder()
                 .showId(show.getId())
                 .seasonNumber(seasonNumber)
+                .numberOfEpisodes(episodes.size())
                 .build();
     }
 

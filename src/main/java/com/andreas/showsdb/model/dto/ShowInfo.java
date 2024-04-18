@@ -2,6 +2,7 @@ package com.andreas.showsdb.model.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Value;
@@ -17,9 +18,9 @@ public class ShowInfo {
     @Size(max = 255, message = "Country name may not be longer than 255 characters")
     String country;
     @NotNull
-    @Positive
+    @PositiveOrZero
     Integer numberOfSeasons;
     @NotNull
-    @Positive
+    @PositiveOrZero
     Integer numberOfEpisodes;
 }

@@ -4,6 +4,7 @@ import com.andreas.showsdb.model.dto.ShowInfo;
 import com.andreas.showsdb.model.dto.ShowInput;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,14 +41,14 @@ public class Show {
 //                .build();
 //    }
 
-    public static Show translateFromDto(ShowInput dto) {
+    public static Show translateFromDto(@Valid ShowInput dto) {
         return Show.builder()
                 .name(dto.getName())
                 .country(dto.getCountry())
                 .build();
     }
 
-    public static Show translateFromDto(ShowInfo dto) {
+    public static Show translateFromDto(@Valid ShowInfo dto) {
         return Show.builder()
                 .id(dto.getId())
                 .name(dto.getName())
@@ -55,7 +56,7 @@ public class Show {
                 .build();
     }
 
-    public ShowInfo dto() {
+    public @Valid ShowInfo dto() {
         return ShowInfo.builder()
                 .id(id)
                 .name(name)

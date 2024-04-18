@@ -3,6 +3,7 @@ package com.andreas.showsdb.model;
 import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,7 +42,7 @@ public class Episode implements Comparable<Episode> {
         return season.getShow();
     }
 
-    public EpisodeInfo dto() {
+    public @Valid EpisodeInfo dto() {
         return EpisodeInfo.builder()
                 .showId(season.getShow().getId())
                 .seasonNumber(season.getSeasonNumber())

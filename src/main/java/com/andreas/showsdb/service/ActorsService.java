@@ -5,6 +5,7 @@ import com.andreas.showsdb.model.Actor;
 import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.model.dto.ActorInfo;
 import com.andreas.showsdb.repository.ActorsRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,25 +17,25 @@ public class ActorsService {
     @Autowired
     private ActorsRepository actorsRepository;
 
-    public List<ActorInfo> findAll() {
+    public List<@Valid ActorInfo> findAll() {
         return actorsRepository.findAll().stream()
-                .map(Actor::dtoId)
+                .map(Actor::getInfoDto)
                 .toList();
     }
 
-    public ActorInfo findById(long id) throws NotFoundException {
+    public @Valid ActorInfo findById(long id) throws NotFoundException {
         return actorsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Actor not found"))
-                .dtoId();
+                .getInfoDto();
     }
 
-    public ActorInfo save(ActorInput actorInput) {
+    public @Valid ActorInfo save(@Valid ActorInput actorInput) {
         Actor actor = Actor.translateFromDto(actorInput);
         Actor saved = actorsRepository.save(actor);
-        return saved.dtoId();
+        return saved.getInfoDto();
     }
 
-    public ActorInfo modify(ActorInfo actorInfo) throws NotFoundException {
+    public @Valid ActorInfo modify(@Valid ActorInfo actorInfo) throws NotFoundException {
         Optional<Actor> optionalActor = actorsRepository.findById(actorInfo.getId());
         if (optionalActor.isEmpty()) {
             throw new NotFoundException("Actor not found");
@@ -42,7 +43,7 @@ public class ActorsService {
 
         Actor actor = Actor.translateFromDto(actorInfo);
         Actor saved = actorsRepository.save(actor);
-        return saved.dtoId();
+        return saved.getInfoDto();
     }
 
     public void deleteById(long id) {

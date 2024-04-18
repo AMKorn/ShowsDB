@@ -9,6 +9,7 @@ import com.andreas.showsdb.model.dto.EpisodeInput;
 import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ public class EpisodesService {
     @Autowired
     private ShowsRepository showsRepository;
 
-    public List<EpisodeInfo> findBySeason(long showId, int seasonNumber) throws NotFoundException {
+    public List<@Valid EpisodeInfo> findBySeason(long showId, int seasonNumber) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
         Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
@@ -34,13 +35,7 @@ public class EpisodesService {
                 .map(Episode::dto).toList();
     }
 
-//    public EpisodeInfo findBySeasonAndNumber(Season season, int episodeNumber) throws NotFoundException {
-//        return episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber)
-//                .orElseThrow(() -> new NotFoundException("Episode not found"))
-//                .dto();
-//    }
-
-    public EpisodeInfo findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
+    public @Valid EpisodeInfo findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
             throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
@@ -51,7 +46,7 @@ public class EpisodesService {
                 .dto();
     }
 
-    public EpisodeInfo save(long showId, int seasonNumber, EpisodeInput episodeInput) throws NotFoundException {
+    public @Valid EpisodeInfo save(long showId, int seasonNumber, EpisodeInput episodeInput) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
         Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
@@ -67,7 +62,8 @@ public class EpisodesService {
         return episodesRepository.save(episode).dto();
     }
 
-    public EpisodeInfo modify(long showId, int seasonNumber, EpisodeInput episodeInput) throws NotFoundException {
+    public @Valid EpisodeInfo modify(long showId, int seasonNumber, @Valid EpisodeInput episodeInput)
+            throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
         Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
@@ -81,7 +77,7 @@ public class EpisodesService {
         return episodesRepository.save(episode).dto();
     }
 
-    public EpisodeInfo createInSeason(long showId, int seasonNumber) throws NotFoundException {
+    public @Valid EpisodeInfo createInSeason(long showId, int seasonNumber) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
         Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)

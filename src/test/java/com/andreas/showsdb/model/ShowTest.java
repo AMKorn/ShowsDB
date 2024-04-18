@@ -1,10 +1,8 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.SeasonDto;
 import com.andreas.showsdb.model.dto.ShowInfo;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
