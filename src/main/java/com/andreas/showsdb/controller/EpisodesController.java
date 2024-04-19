@@ -228,10 +228,7 @@ public class EpisodesController {
     @Operation(summary = "Delete an episode")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Episode deleted",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeInfo.class)
-                    )
+                    description = "Episode deleted"
             ),
             @ApiResponse(responseCode = "404",
                     description = "Show, season or episode not found",
