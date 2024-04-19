@@ -3,6 +3,8 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.model.dto.ShowInfo;
+import com.andreas.showsdb.model.dto.ShowInput;
 import com.andreas.showsdb.service.MainCastService;
 import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,60 +28,57 @@ public class ShowsController {
     private MainCastService mainCastService;
 
     @GetMapping("")
-    public List<Show> searchAll() {
+    public List<ShowInfo> searchAll() {
         return showsService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getShow(@PathVariable("id") long id) {
+    public ResponseEntity<?> get(@PathVariable("id") long id) {
         try {
-            return ResponseEntity.ok(showsService.findById(id).orElseThrow());
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(showsService.findById(id));
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
     }
 
     @PostMapping("")
-    public ResponseEntity<?> createShow(@RequestBody Show show) {
-        if (show.getId() != null && showsService.findById(show.getId()).isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Show already exists with that id");
-            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-        }
-        Show saved = showsService.save(show);
+    public ResponseEntity<?> create(@RequestBody ShowInput show) {
+        ShowInfo saved = showsService.save(show);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
     @PutMapping("")
-    public ResponseEntity<?> modifyShow(@RequestBody Show show) {
-        if (show.getId() == null || showsService.findById(show.getId()).isEmpty()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Show does not exist");
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> modify(@RequestBody ShowInfo show) {
+        try {
+            return ResponseEntity.ok(showsService.modify(show));
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
-
-        return ResponseEntity.ok(showsService.save(show));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteShow(@PathVariable("id") long id) {
-        if (showsService.findById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> delete(@PathVariable("id") long id) {
+        try {
+            showsService.findById(id);
+        } catch (NotFoundException e) {
+            return e.getResponse();
         }
+
         showsService.deleteById(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}/main-cast")
     public ResponseEntity<?> getShowMainCast(@PathVariable("id") long id) {
-        Show show;
-        try {
-            show = showsService.findById(id).orElseThrow(() -> new NotFoundException("Show not found"));
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
-
-        List<MainCast> mainCasts = mainCastService.findMainCastByShow(show);
-        return ResponseEntity.ok(mainCasts);
+//        Show show;
+//        try {
+//            show = showsService.findById(id).orElseThrow(() -> new NotFoundException("Show not found"));
+//        } catch (NotFoundException e) {
+//            return e.getResponse();
+//        }
+//
+//        List<MainCast> mainCasts = mainCastService.findMainCastByShow(show);
+//        return ResponseEntity.ok(mainCasts);
+        return ResponseEntity.ok().build();
     }
 }
