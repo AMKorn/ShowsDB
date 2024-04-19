@@ -1,9 +1,18 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.andreas.showsdb.model.dto.SeasonInfo;
 import com.andreas.showsdb.model.dto.SeasonInput;
 import com.andreas.showsdb.service.SeasonsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,8 +31,30 @@ public class SeasonsController {
     @Autowired
     private SeasonsService seasonsService;
 
+    @Operation(summary = "Find all seasons from a show")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Seasons found",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = SeasonInfo.class)
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @GetMapping("")
-    public ResponseEntity<?> getAllByShow(@PathVariable("showId") long showId) {
+    public ResponseEntity<?> getAllByShow(@Parameter(description = "Id of the show")
+                                          @PathVariable("showId") long showId) {
         try {
             List<SeasonInfo> season = seasonsService.findByShow(showId);
             return ResponseEntity.ok(season);
@@ -32,8 +63,50 @@ public class SeasonsController {
         }
     }
 
+    @Operation(summary = "Create a season",
+            description = """
+                    Creates an empty season whose season number is the one after the last season
+                    (highest season number in a show).
+                                        
+                    Alternatively, can create a season passed through body, in which case it checks for duplicates
+                    (same show, same season number). If a duplicate is found, the season is not created
+                    but is sent as part of the response body.""")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Season created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SeasonInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            ),
+            @ApiResponse(responseCode = "409",
+                    description = "Season already exists",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string",
+                                      "season": {
+                                        "showId": 0,
+                                        "seasonNumber": 0,
+                                        "numberOfEpisodes": 0
+                                      }
+                                    }""")
+                    )
+            )
+    })
     @PostMapping("")
-    public ResponseEntity<?> create(@PathVariable("showId") long showId,
+    public ResponseEntity<?> create(@Parameter(description = "Id of the show")
+                                    @PathVariable("showId") long showId,
                                     @RequestBody(required = false) SeasonInput seasonInput) {
         try {
             if (seasonInput == null || seasonInput.getSeasonNumber() == null) {
@@ -59,8 +132,28 @@ public class SeasonsController {
         }
     }
 
+    @Operation(summary = "Find a season")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Season found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = SeasonInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show or season not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @GetMapping("/{seasonNumber}")
-    public ResponseEntity<?> get(@PathVariable("showId") long showId,
+    public ResponseEntity<?> get(@Parameter(description = "Id of the show")
+                                 @PathVariable("showId") long showId,
                                  @PathVariable("seasonNumber") int seasonNumber) {
         try {
             SeasonInfo seasonInfo = seasonsService.findByShowAndNumber(showId, seasonNumber);
@@ -70,8 +163,25 @@ public class SeasonsController {
         }
     }
 
+    @Operation(summary = "Delete a season")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Season deleted"
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show or season not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @DeleteMapping("/{seasonNumber}")
-    public ResponseEntity<?> delete(@PathVariable("showId") long showId,
+    public ResponseEntity<?> delete(@Parameter(description = "Id of the show")
+                                    @PathVariable("showId") long showId,
                                     @PathVariable("seasonNumber") Integer seasonNumber) {
         try {
             seasonsService.delete(showId, seasonNumber);
@@ -81,8 +191,25 @@ public class SeasonsController {
         }
     }
 
+    @Operation(summary = "Delete all seasons from a show")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Seasons deleted"
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @DeleteMapping("")
-    public ResponseEntity<?> deleteSeasons(@PathVariable("showId") long showId) {
+    public ResponseEntity<?> deleteSeasons(@Parameter(description = "Id of the show")
+                                           @PathVariable("showId") long showId) {
         try {
             seasonsService.deleteByShow(showId);
             return ResponseEntity.ok().build();

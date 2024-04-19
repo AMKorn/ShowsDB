@@ -29,7 +29,7 @@ public class EpisodesController {
     @Operation(summary = "Create an episode",
             description = """
                     Creates an empty episode whose episode number is the one after the last episode
-                    (highest episode number).
+                    (highest episode number in a season).
                                         
                     Alternatively, can create an episode passed through body, in which case it checks for duplicates
                     (same show, same season, same episode number). If a duplicate is found, the episode is not created
@@ -158,7 +158,7 @@ public class EpisodesController {
         }
     }
 
-    @Operation(summary = "Find an episode")
+    @Operation(summary = "Find all episodes from a season")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Episodes found",
@@ -180,10 +180,10 @@ public class EpisodesController {
             )
     })
     @GetMapping("")
-    public ResponseEntity<?> getAllFromShow(@Parameter(description = "Id of the show")
-                                            @PathVariable("showId") long showId,
-                                            @Parameter(description = "Season number")
-                                            @PathVariable("seasonNumber") int seasonNumber) {
+    public ResponseEntity<?> getAllFromSeason(@Parameter(description = "Id of the show")
+                                              @PathVariable("showId") long showId,
+                                              @Parameter(description = "Season number")
+                                              @PathVariable("seasonNumber") int seasonNumber) {
         try {
             List<EpisodeInfo> episodesInfo = episodesService.findBySeason(showId, seasonNumber);
             return ResponseEntity.ok(episodesInfo);
@@ -259,10 +259,7 @@ public class EpisodesController {
     @Operation(summary = "Delete all episodes from a season")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Episodes deleted",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeInfo.class)
-                    )
+                    description = "Episodes deleted"
             ),
             @ApiResponse(responseCode = "404",
                     description = "Show or season not found",
