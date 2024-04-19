@@ -4,6 +4,14 @@ import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.andreas.showsdb.model.dto.EpisodeInput;
 import com.andreas.showsdb.service.EpisodesService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -18,8 +26,53 @@ public class EpisodesController {
     @Autowired
     private EpisodesService episodesService;
 
+    @Operation(summary = "Create an episode",
+            description = """
+                    Creates an empty episode whose episode number is the one after the last episode
+                    (highest episode number).
+                                        
+                    Alternatively, can create an episode passed through body, in which case it checks for duplicates
+                    (same show, same season, same episode number). If a duplicate is found, the episode is not created
+                    but is sent as part of the response body.""")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Episode created",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EpisodeInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show or season not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            ),
+            @ApiResponse(responseCode = "409",
+                    description = "Episode already exists",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string",
+                                      "episode": {
+                                        "showId": 0,
+                                        "seasonNumber": 0,
+                                        "episodeNumber": 0,
+                                        "name": "string",
+                                        "releaseDate": "2024-04-19T09:52:53.977Z"
+                                      }
+                                    }""")
+                    )
+            )
+    })
     @PostMapping("")
-    public ResponseEntity<?> create(@PathVariable("showId") long showId,
+    public ResponseEntity<?> create(@Parameter(description = "Id of the show")
+                                    @PathVariable("showId") long showId,
+                                    @Parameter(description = "Season number")
                                     @PathVariable("seasonNumber") int seasonNumber,
                                     @RequestBody(required = false) EpisodeInput episodeInput) {
         try {
@@ -70,9 +123,31 @@ public class EpisodesController {
         }
     }
 
+    @Operation(summary = "Find an episode")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Episode found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EpisodeInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show, season or episode not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @GetMapping("/{episodeNumber}")
-    public ResponseEntity<?> get(@PathVariable("showId") long showId,
+    public ResponseEntity<?> get(@Parameter(description = "Id of the show")
+                                 @PathVariable("showId") long showId,
+                                 @Parameter(description = "Season number")
                                  @PathVariable("seasonNumber") int seasonNumber,
+                                 @Parameter(description = "Episode number")
                                  @PathVariable("episodeNumber") int episodeNumber) {
         try {
             EpisodeInfo episodeInfo =
@@ -83,8 +158,31 @@ public class EpisodesController {
         }
     }
 
+    @Operation(summary = "Find an episode")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Episodes found",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = EpisodeInfo.class)
+                            )
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show or season not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @GetMapping("")
-    public ResponseEntity<?> getAllFromShow(@PathVariable("showId") long showId,
+    public ResponseEntity<?> getAllFromShow(@Parameter(description = "Id of the show")
+                                            @PathVariable("showId") long showId,
+                                            @Parameter(description = "Season number")
                                             @PathVariable("seasonNumber") int seasonNumber) {
         try {
             List<EpisodeInfo> episodesInfo = episodesService.findBySeason(showId, seasonNumber);
@@ -94,8 +192,29 @@ public class EpisodesController {
         }
     }
 
+    @Operation(summary = "Modify an episode")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Episode modified",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EpisodeInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show, season or episode not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @PutMapping("")
-    public ResponseEntity<?> modify(@PathVariable("showId") long showId,
+    public ResponseEntity<?> modify(@Parameter(description = "Id of the show")
+                                    @PathVariable("showId") long showId,
+                                    @Parameter(description = "Season number")
                                     @PathVariable("seasonNumber") int seasonNumber,
                                     @RequestBody EpisodeInput episodeInput) {
         try {
@@ -106,9 +225,31 @@ public class EpisodesController {
         }
     }
 
+    @Operation(summary = "Delete an episode")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Episode deleted",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EpisodeInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show, season or episode not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @DeleteMapping("/{episodeNumber}")
-    public ResponseEntity<?> delete(@PathVariable("showId") long showId,
+    public ResponseEntity<?> delete(@Parameter(description = "Id of the show")
+                                    @PathVariable("showId") long showId,
+                                    @Parameter(description = "Season number")
                                     @PathVariable("seasonNumber") int seasonNumber,
+                                    @Parameter(description = "Episode number")
                                     @PathVariable("episodeNumber") int episodeNumber) {
         try {
             episodesService.deleteByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
@@ -118,8 +259,29 @@ public class EpisodesController {
         }
     }
 
+    @Operation(summary = "Delete all episodes from a season")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Episodes deleted",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = EpisodeInfo.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "Show or season not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
+                    )
+            )
+    })
     @DeleteMapping("")
-    public ResponseEntity<?> deleteAll(@PathVariable("showId") long showId,
+    public ResponseEntity<?> deleteAll(@Parameter(description = "Id of the show")
+                                       @PathVariable("showId") long showId,
+                                       @Parameter(description = "Season number")
                                        @PathVariable("seasonNumber") int seasonNumber) {
         try {
             episodesService.deleteAllBySeason(showId, seasonNumber);

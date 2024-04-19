@@ -1,6 +1,5 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.ActorInfo;
 import com.andreas.showsdb.model.dto.ActorInput;
@@ -11,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -57,7 +57,11 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
                     )
             )
     })
@@ -71,7 +75,7 @@ public class ActorsController {
         }
     }
 
-    @Operation(summary = "Creates an actor passed through body. Does not check for duplicates")
+    @Operation(summary = "Create an actor passed through body. Does not check for duplicates")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
                     description = "Actor created",
@@ -86,7 +90,7 @@ public class ActorsController {
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Modifies an actor passed through body")
+    @Operation(summary = "Modify an actor passed through body")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Actor found and modified",
@@ -97,7 +101,11 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
                     )
             )
     })
@@ -118,7 +126,11 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
                     )
             )
     })
@@ -148,7 +160,11 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
+                            schema = @Schema,
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "string"
+                                    }""")
                     )
             )
     })
