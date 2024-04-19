@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.ActorInfo;
 import com.andreas.showsdb.model.dto.ActorInput;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -57,11 +57,7 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -101,11 +97,7 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -126,11 +118,7 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -160,11 +148,7 @@ public class ActorsController {
             @ApiResponse(responseCode = "404",
                     description = "Actor not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })

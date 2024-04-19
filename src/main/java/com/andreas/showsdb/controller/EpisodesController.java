@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.andreas.showsdb.model.dto.EpisodeInput;
@@ -8,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
@@ -44,28 +47,13 @@ public class EpisodesController {
             @ApiResponse(responseCode = "404",
                     description = "Show or season not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             ),
             @ApiResponse(responseCode = "409",
-                    description = "Episode already exists",
+                    description = "Episode already exists. Returns old episode",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string",
-                                      "episode": {
-                                        "showId": 0,
-                                        "seasonNumber": 0,
-                                        "episodeNumber": 0,
-                                        "name": "string",
-                                        "releaseDate": "2024-04-19T09:52:53.977Z"
-                                      }
-                                    }""")
+                            schema = @Schema(implementation = EpisodeInfo.class)
                     )
             )
     })
@@ -108,15 +96,11 @@ public class EpisodesController {
                 EpisodeInfo savedEpisode = episodesService.save(showId, seasonNumber, episodeInput);
                 return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
             } catch (DataIntegrityViolationException e) {
-                Map<String, Object> response = new HashMap<>();
                 EpisodeInput finalEpisodeInput = episodeInput;
                 Optional<EpisodeInfo> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
                         .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInput.getEpisodeNumber()))
                         .findFirst();
-                response.put("message",
-                        "Season already has an episode " + episodeInput.getEpisodeNumber());
-                response.put("episode", optionalEpisode.orElseThrow());
-                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+                return new ResponseEntity<>(optionalEpisode.orElseThrow(), HttpStatus.CONFLICT);
             }
         } catch (NotFoundException e) {
             return e.getResponse();
@@ -134,11 +118,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "404",
                     description = "Show, season or episode not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -171,11 +151,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "404",
                     description = "Show or season not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -203,11 +179,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "404",
                     description = "Show, season or episode not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -233,11 +205,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "404",
                     description = "Show, season or episode not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -264,11 +232,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "404",
                     description = "Show or season not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })

@@ -95,18 +95,25 @@ public class SeasonsControllerTest {
         SeasonInput seasonInput = SeasonInput.builder()
                 .seasonNumber(1)
                 .build();
-        ResponseEntity<String> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInput, String.class);
+        ResponseEntity<SeasonInfo> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInput,
+                SeasonInfo.class);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Show already has a Season 1",
-                json.path("message").asText());
-        assertEquals(1, json.path("season").path("showId").asInt());
-        assertEquals(1, json.path("season").path("seasonNumber").asInt());
-        assertEquals(0, json.path("season").path("numberOfEpisodes").asInt());
+        SeasonInfo seasonResponse = response.getBody();
+        assertNotNull(seasonResponse);
+        assertEquals(1, seasonResponse.getShowId());
+        assertEquals(1, seasonResponse.getSeasonNumber());
+        assertEquals(0, seasonResponse.getNumberOfEpisodes());
+
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        JsonNode json = objectMapper.readTree(response.getBody());
+//        assertEquals("Show already has a Season 1",
+//                json.path("message").asText());
+//        assertEquals(1, json.path("season").path("showId").asInt());
+//        assertEquals(1, json.path("season").path("seasonNumber").asInt());
+//        assertEquals(0, json.path("season").path("numberOfEpisodes").asInt());
     }
 
     @Test

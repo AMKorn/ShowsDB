@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.MainCastInfo;
 import com.andreas.showsdb.model.dto.ShowInfo;
@@ -57,11 +58,7 @@ public class ShowsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -101,11 +98,7 @@ public class ShowsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -126,11 +119,7 @@ public class ShowsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -160,11 +149,7 @@ public class ShowsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })

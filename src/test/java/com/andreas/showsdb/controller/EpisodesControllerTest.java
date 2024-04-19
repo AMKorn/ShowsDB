@@ -90,22 +90,31 @@ public class EpisodesControllerTest {
                 .name("Another name")
                 .releaseDate(new Date())
                 .build();
-        ResponseEntity<String> response =
-                client.postForEntity(createUri("/api/shows/1/seasons/1/episodes"), episodeInput, String.class);
+        ResponseEntity<EpisodeInfo> response =
+                client.postForEntity(createUri("/api/shows/1/seasons/1/episodes"), episodeInput, EpisodeInfo.class);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Season already has an episode 1",
-                json.path("message").asText());
-        assertEquals(1, json.path("episode").path("showId").asInt());
-        assertEquals(1, json.path("episode").path("seasonNumber").asInt());
-        assertEquals(1, json.path("episode").path("episodeNumber").asInt());
-        assertEquals("Pilot", json.path("episode").path("name").asText());
-        assertEquals("2019-03-27T23:00:00.000+00:00",
-                json.path("episode").path("releaseDate").asText());
+        EpisodeInfo episodeInfo = response.getBody();
+        assertNotNull(episodeInfo);
+        assertEquals(1, episodeInfo.getEpisodeNumber());
+        assertEquals("Pilot", episodeInfo.getName());
+        assertEquals(1, episodeInfo.getSeasonNumber());
+        assertEquals(1L, episodeInfo.getShowId());
+
+
+
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        JsonNode json = objectMapper.readTree(response.getBody());
+//        assertEquals("Season already has an episode 1",
+//                json.path("message").asText());
+//        assertEquals(1, json.path("episode").path("showId").asInt());
+//        assertEquals(1, json.path("episode").path("seasonNumber").asInt());
+//        assertEquals(1, json.path("episode").path("episodeNumber").asInt());
+//        assertEquals("Pilot", json.path("episode").path("name").asText());
+//        assertEquals("2019-03-27T23:00:00.000+00:00",
+//                json.path("episode").path("releaseDate").asText());
     }
 
     @Test

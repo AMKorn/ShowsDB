@@ -1,6 +1,7 @@
 package com.andreas.showsdb.controller;
 
 
+import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.model.dto.ActorInfo;
@@ -53,11 +54,7 @@ public class MainCastController {
             @ApiResponse(responseCode = "404",
                     description = "Actor or show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -82,11 +79,7 @@ public class MainCastController {
             @ApiResponse(responseCode = "404",
                     description = "Actor, show or main cast not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -108,11 +101,7 @@ public class MainCastController {
             @ApiResponse(responseCode = "404",
                     description = "Actor, show or main cast not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })

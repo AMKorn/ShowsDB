@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.andreas.showsdb.model.dto.SeasonInfo;
 import com.andreas.showsdb.model.dto.SeasonInput;
 import com.andreas.showsdb.service.SeasonsService;
@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -20,9 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -44,11 +41,7 @@ public class SeasonsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -81,26 +74,13 @@ public class SeasonsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             ),
             @ApiResponse(responseCode = "409",
-                    description = "Season already exists",
+                    description = "Season already exists. Returns old season",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string",
-                                      "season": {
-                                        "showId": 0,
-                                        "seasonNumber": 0,
-                                        "numberOfEpisodes": 0
-                                      }
-                                    }""")
+                            schema = @Schema(implementation = SeasonInfo.class)
                     )
             )
     })
@@ -118,14 +98,10 @@ public class SeasonsController {
                 SeasonInfo savedSeason = seasonsService.save(showId, seasonInput);
                 return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
             } catch (DataIntegrityViolationException e) {
-                Map<String, Object> response = new HashMap<>();
                 Optional<@Valid SeasonInfo> optionalSeason = seasonsService.findByShow(showId).stream()
                         .filter(s -> s.getSeasonNumber().equals(seasonInput.getSeasonNumber()))
                         .findFirst();
-                response.put("message",
-                        "Show already has a Season " + seasonInput.getSeasonNumber());
-                response.put("season", optionalSeason.orElseThrow());
-                return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+                return new ResponseEntity<>(optionalSeason.orElseThrow(), HttpStatus.CONFLICT);
             }
         } catch (NotFoundException e) {
             return e.getResponse();
@@ -143,11 +119,7 @@ public class SeasonsController {
             @ApiResponse(responseCode = "404",
                     description = "Show or season not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -171,11 +143,7 @@ public class SeasonsController {
             @ApiResponse(responseCode = "404",
                     description = "Show or season not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
@@ -199,11 +167,7 @@ public class SeasonsController {
             @ApiResponse(responseCode = "404",
                     description = "Show not found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema,
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "string"
-                                    }""")
+                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })
