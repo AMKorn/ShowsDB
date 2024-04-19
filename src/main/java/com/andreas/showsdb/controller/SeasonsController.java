@@ -1,8 +1,6 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.Season;
-import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.SeasonInfo;
 import com.andreas.showsdb.model.dto.SeasonInput;
 import com.andreas.showsdb.service.SeasonsService;
@@ -14,7 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons")
@@ -63,7 +64,7 @@ public class SeasonsController {
 
     @GetMapping("/{seasonNumber}")
     public ResponseEntity<?> get(@PathVariable("showId") long showId,
-                                       @PathVariable("seasonNumber") int seasonNumber) {
+                                 @PathVariable("seasonNumber") int seasonNumber) {
         try {
             SeasonInfo seasonInfo = seasonsService.findByShowAndNumber(showId, seasonNumber);
             return new ResponseEntity<>(seasonInfo, HttpStatus.OK);
@@ -74,7 +75,7 @@ public class SeasonsController {
 
     @DeleteMapping("/{seasonNumber}")
     public ResponseEntity<?> delete(@PathVariable("showId") long showId,
-                                          @PathVariable("seasonNumber") Integer seasonNumber) {
+                                    @PathVariable("seasonNumber") Integer seasonNumber) {
         try {
             seasonsService.delete(showId, seasonNumber);
             return ResponseEntity.ok().build();

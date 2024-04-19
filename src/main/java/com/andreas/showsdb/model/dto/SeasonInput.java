@@ -16,7 +16,7 @@ public class SeasonInput {
     Integer seasonNumber;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class SeasonInputBuilder{
+    public static class SeasonInputBuilder {
 
     }
 }

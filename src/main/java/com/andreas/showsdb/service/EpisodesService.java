@@ -101,13 +101,13 @@ public class EpisodesService {
 
     public void deleteByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
             throws NotFoundException {
-            Show show = showsRepository.findById(showId)
-                    .orElseThrow(() -> new NotFoundException("Show not found"));
-            Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
-                    .orElseThrow(() -> new NotFoundException("Season not found"));
-            Episode episode = episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber)
-                    .orElseThrow(() -> new NotFoundException("Episode not found"));
-            episodesRepository.deleteById(episode.getId());
+        Show show = showsRepository.findById(showId)
+                .orElseThrow(() -> new NotFoundException("Show not found"));
+        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
+                .orElseThrow(() -> new NotFoundException("Season not found"));
+        Episode episode = episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber)
+                .orElseThrow(() -> new NotFoundException("Episode not found"));
+        episodesRepository.deleteById(episode.getId());
     }
 
     public void deleteAllBySeason(long showId, int seasonNumber) throws NotFoundException {

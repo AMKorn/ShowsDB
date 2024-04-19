@@ -1,8 +1,6 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.MainCast;
-import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.MainCastInfo;
 import com.andreas.showsdb.model.dto.ShowInfo;
 import com.andreas.showsdb.model.dto.ShowInput;
@@ -13,10 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/shows")

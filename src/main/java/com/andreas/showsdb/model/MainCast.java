@@ -35,7 +35,7 @@ public class MainCast {
 
     String character;
 
-    public void copyInfo(MainCastInfo mainCastInfo){
+    public void copyInfo(MainCastInfo mainCastInfo) {
         this.character = mainCastInfo.getCharacter();
     }
 

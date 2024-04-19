@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.model.dto.ActorInfo;
+import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

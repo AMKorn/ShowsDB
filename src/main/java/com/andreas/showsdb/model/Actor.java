@@ -1,7 +1,7 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.model.dto.ActorInfo;
+import com.andreas.showsdb.model.dto.ActorInput;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -19,6 +19,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Actor {
+    @OneToMany(mappedBy = "actor")
+    Set<MainCast> showsAsMainCast;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,10 +29,7 @@ public class Actor {
     @Column(name = "birth_date")
     private Date birthDate;
 
-    @OneToMany(mappedBy = "actor")
-    Set<MainCast> showsAsMainCast;
-
-    public static Actor translateFromDto(@Valid ActorInput dto){
+    public static Actor translateFromDto(@Valid ActorInput dto) {
         return Actor.builder()
                 .name(dto.getName())
                 .country(dto.getCountry())
@@ -39,7 +38,7 @@ public class Actor {
                 .build();
     }
 
-    public static Actor translateFromDto(@Valid ActorInfo dto){
+    public static Actor translateFromDto(@Valid ActorInfo dto) {
         return Actor.builder()
                 .id(dto.getId())
                 .name(dto.getName())

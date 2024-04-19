@@ -1,7 +1,5 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.Episode;
-import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.dto.EpisodeInfo;
 import com.andreas.showsdb.model.dto.EpisodeInput;
 import com.andreas.showsdb.model.dto.SeasonInput;

@@ -20,19 +20,17 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Show {
+    @OneToMany(mappedBy = "show")
+    @JsonIgnoreProperties({"show"})
+    Set<MainCast> mainCast;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String country;
-
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL) //, orphanRemoval = true)
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
-
-    @OneToMany(mappedBy = "show")
-    @JsonIgnoreProperties({"show"})
-    Set<MainCast> mainCast;
 
 //    public ShowInput dto(){
 //        return ShowInput.builder()

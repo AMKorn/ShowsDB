@@ -1,14 +1,14 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.Actor;
-import com.andreas.showsdb.model.MainCast;
-import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.*;
 import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -238,8 +238,21 @@ public class MainCastControllerTest {
 
     @Test
     @Order(10)
-    void deleteMainCast() {
+    void deleteMainCast() throws URISyntaxException {
+        ResponseEntity<MainCastInfo[]> response1 = client.getForEntity(createUri("/api/main-cast"), MainCastInfo[].class);
+        MainCastInfo[] mainCasts1 = response1.getBody();
+        assertNotNull(mainCasts1);
+        assertEquals(2, mainCasts1.length);
 
+        long actorId = mainCasts1[1].getActorId();
+        long showId = mainCasts1[1].getShowId();
+
+        client.delete(createUri("/api/main-cast?actor=" + actorId + "&show=" + showId));
+
+        ResponseEntity<MainCastInfo[]> response2 = client.getForEntity(createUri("/api/main-cast"), MainCastInfo[].class);
+        MainCastInfo[] mainCasts2 = response2.getBody();
+        assertNotNull(mainCasts2);
+        assertEquals(1, mainCasts2.length);
     }
 
     private URI createUri(String uri) throws URISyntaxException {

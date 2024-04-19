@@ -21,7 +21,7 @@ public class ActorsController {
     private ActorsService actorsService;
 
     @Autowired
-    MainCastService mainCastService;
+    private MainCastService mainCastService;
 
     @GetMapping("")
     public List<ActorInfo> getAll() {

@@ -2,8 +2,8 @@ package com.andreas.showsdb.service;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Actor;
-import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.model.dto.ActorInfo;
+import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.repository.ActorsRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

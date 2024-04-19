@@ -5,9 +5,7 @@ import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.model.Actor;
 import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.ActorInfo;
 import com.andreas.showsdb.model.dto.MainCastInfo;
-import com.andreas.showsdb.model.dto.ShowInfo;
 import com.andreas.showsdb.repository.ActorsRepository;
 import com.andreas.showsdb.repository.MainCastRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
@@ -52,7 +50,7 @@ public class MainCastService {
                 .orElseThrow(() -> new NotFoundException("Show not found"));
 
         Optional<MainCast> optionalMainCast = mainCastRepository.findDistinctByActorAndShow(actor, show);
-        if(optionalMainCast.isPresent()) {
+        if (optionalMainCast.isPresent()) {
             throw new ShowsDatabaseException("That actor is already in that show", HttpStatus.CONFLICT);
         }
 
@@ -96,5 +94,14 @@ public class MainCastService {
         return mainCastRepository.findByShow(show).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
+    }
+
+    public void delete(Long actorId, Long showId) throws NotFoundException {
+        Actor actor = actorsRepository.findById(actorId)
+                .orElseThrow(() -> new NotFoundException("Actor not found"));
+        Show show = showsRepository.findById(showId)
+                .orElseThrow(() -> new NotFoundException("Show not found"));
+
+        mainCastRepository.deleteDistinctByActorAndShow(actor, show);
     }
 }
