@@ -13,7 +13,6 @@ import java.util.Date;
 public class ActorInfo {
     @NotNull
     Long id;
-    @NotNull
     @Size(max = 255, message = "Actor name may not be longer than 255 characters")
     String name;
     @Size(max = 255, message = "Country may not be longer than 255 characters")
