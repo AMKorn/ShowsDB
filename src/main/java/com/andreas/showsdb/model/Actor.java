@@ -48,14 +48,6 @@ public class Actor {
                 .build();
     }
 
-    public @Valid ActorInput getInputDto() {
-        return ActorInput.builder()
-                .name(name)
-                .country(country)
-                .birthDate(birthDate)
-                .build();
-    }
-
     public @Valid ActorInfo getInfoDto() {
         return ActorInfo.builder()
                 .id(id)

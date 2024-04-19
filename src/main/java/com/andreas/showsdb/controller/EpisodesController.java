@@ -68,15 +68,6 @@ public class EpisodesController {
         } catch (NotFoundException e) {
             return e.getResponse();
         }
-
-//            Optional<@Valid SeasonInfo> optionalSeason = seasonsService.findByShow(showId).stream()
-//                    .filter(s -> s.getSeasonNumber().equals(seasonInput.getSeasonNumber()))
-//                    .findFirst();
-//            response.put("message",
-//                    "Show already has a Season " + seasonInput.getSeasonNumber());
-//            response.put("season", optionalSeason.orElseThrow());
-//            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-
     }
 
     @GetMapping("/{episodeNumber}")

@@ -32,13 +32,6 @@ public class Show {
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
 
-//    public ShowInput dto(){
-//        return ShowInput.builder()
-//                .name(name)
-//                .country(country)
-//                .build();
-//    }
-
     public static Show translateFromDto(@Valid ShowInput dto) {
         return Show.builder()
                 .name(dto.getName())

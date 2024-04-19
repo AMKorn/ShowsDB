@@ -4,9 +4,7 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.model.dto.MainCastInfo;
-import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
-import com.andreas.showsdb.service.ShowsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/main-cast")
 public class MainCastController {
-
-    @Autowired
-    private ShowsService showsService;
-    @Autowired
-    private ActorsService actorsService;
     @Autowired
     private MainCastService mainCastService;
 

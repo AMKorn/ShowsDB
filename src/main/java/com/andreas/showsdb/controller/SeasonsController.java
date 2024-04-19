@@ -4,7 +4,6 @@ import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.SeasonInfo;
 import com.andreas.showsdb.model.dto.SeasonInput;
 import com.andreas.showsdb.service.SeasonsService;
-import com.andreas.showsdb.service.ShowsService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,8 +21,6 @@ import java.util.Optional;
 public class SeasonsController {
     @Autowired
     private SeasonsService seasonsService;
-    @Autowired
-    private ShowsService showsService;
 
     @GetMapping("")
     public ResponseEntity<?> getAllByShow(@PathVariable("showId") long showId) {
