@@ -1,8 +1,9 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.ActorInput;
 import com.andreas.showsdb.model.dto.ActorInfo;
+import com.andreas.showsdb.model.dto.ActorInput;
+import com.andreas.showsdb.model.dto.MainCastInfo;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,15 +66,11 @@ public class ActorsController {
 
     @GetMapping("/{actorId}/shows")
     public ResponseEntity<?> getShows(@PathVariable("actorId") long id) {
-//        Actor actor;
-//        try {
-//            actor = actorsService.findById(id);
-//        } catch (NotFoundException e) {
-//            return e.getResponse();
-//        }
-//
-//        List<MainCast> showsAsMainCast = mainCastService.findShowsAsMainCast(actor);
-//        return ResponseEntity.ok(showsAsMainCast);
-        return ResponseEntity.ok().build();
+        try {
+            List<MainCastInfo> showsAsMainCast = mainCastService.findByActor(id);
+            return ResponseEntity.ok(showsAsMainCast);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
     }
 }

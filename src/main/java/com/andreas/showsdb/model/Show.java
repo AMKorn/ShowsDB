@@ -26,11 +26,11 @@ public class Show {
     private String name;
     private String country;
 
-    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "show", cascade = CascadeType.ALL) //, orphanRemoval = true)
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
 
-    @OneToMany(mappedBy = "show", orphanRemoval = true)
+    @OneToMany(mappedBy = "show")
     @JsonIgnoreProperties({"show"})
     Set<MainCast> mainCast;
 
@@ -57,15 +57,24 @@ public class Show {
     }
 
     public @Valid ShowInfo getInfoDto() {
-        return ShowInfo.builder()
+        ShowInfo.ShowInfoBuilder infoBuilder = ShowInfo.builder()
                 .id(id)
                 .name(name)
-                .country(country)
-                .numberOfSeasons(seasons.size())
-                .numberOfEpisodes(seasons.stream()
-                        .flatMap(season -> season.getEpisodes().stream())
-                        .toList()
-                        .size())
+                .country(country);
+        int numberOfSeasons;
+        int numberOfEpisodes;
+        if (seasons != null) {
+            numberOfSeasons = seasons.size();
+            numberOfEpisodes = seasons.stream()
+                    .flatMap(season -> season.getEpisodes().stream())
+                    .toList()
+                    .size();
+        } else {
+            numberOfSeasons = 0;
+            numberOfEpisodes = 0;
+        }
+        return infoBuilder.numberOfSeasons(numberOfSeasons)
+                .numberOfEpisodes(numberOfEpisodes)
                 .build();
     }
 }

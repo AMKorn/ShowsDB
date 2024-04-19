@@ -1,6 +1,6 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.MainCastDto;
+import com.andreas.showsdb.model.dto.MainCastInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -35,8 +35,12 @@ public class MainCast {
 
     String character;
 
-    public @Valid MainCastDto dto() {
-        return MainCastDto.builder()
+    public void copyInfo(MainCastInfo mainCastInfo){
+        this.character = mainCastInfo.getCharacter();
+    }
+
+    public @Valid MainCastInfo getInfoDto() {
+        return MainCastInfo.builder()
                 .actorId(actor.getId())
                 .showId(show.getId())
                 .character(character)

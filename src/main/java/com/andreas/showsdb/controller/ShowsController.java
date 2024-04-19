@@ -3,6 +3,7 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.MainCast;
 import com.andreas.showsdb.model.Show;
+import com.andreas.showsdb.model.dto.MainCastInfo;
 import com.andreas.showsdb.model.dto.ShowInfo;
 import com.andreas.showsdb.model.dto.ShowInput;
 import com.andreas.showsdb.service.MainCastService;
@@ -69,16 +70,12 @@ public class ShowsController {
     }
 
     @GetMapping("/{id}/main-cast")
-    public ResponseEntity<?> getShowMainCast(@PathVariable("id") long id) {
-//        Show show;
-//        try {
-//            show = showsService.findById(id).orElseThrow(() -> new NotFoundException("Show not found"));
-//        } catch (NotFoundException e) {
-//            return e.getResponse();
-//        }
-//
-//        List<MainCast> mainCasts = mainCastService.findMainCastByShow(show);
-//        return ResponseEntity.ok(mainCasts);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> getMainCast(@PathVariable("id") long id) {
+        try {
+            List<MainCastInfo> mainCasts = mainCastService.findByShow(id);
+            return ResponseEntity.ok(mainCasts);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
     }
 }

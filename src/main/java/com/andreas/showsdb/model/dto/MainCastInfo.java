@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class MainCastDto {
+public class MainCastInfo {
     @NotNull(message = "Actor id may not be null")
     Long actorId;
     @NotNull(message = "Show id may not be null")

@@ -3,10 +3,8 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
-import com.andreas.showsdb.model.Actor;
 import com.andreas.showsdb.model.MainCast;
-import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.MainCastDto;
+import com.andreas.showsdb.model.dto.MainCastInfo;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
 import com.andreas.showsdb.service.ShowsService;
@@ -30,43 +28,28 @@ public class MainCastController {
     private MainCastService mainCastService;
 
     @GetMapping("")
-    public List<MainCast> getMainCasts(){
+    public List<MainCastInfo> getMainCasts(){
         return mainCastService.findAll();
     }
 
     @PostMapping("")
-    public ResponseEntity<?> addMainCast(@RequestBody MainCastDto mainCastDto) {
-//        Optional<Actor> optionalActor = actorsService.findById(mainCastDto.getActorId());
-//        Optional<Show> optionalShow = showsService.findById(mainCastDto.getShowId());
-//
-//        Show show;
-//        Actor actor;
-//        try {
-//            show = optionalShow.orElseThrow(() -> new NotFoundException("Show not found"));
-//            actor = optionalActor.orElseThrow(() -> new NotFoundException("Actor not found"));
-//
-//            Optional<MainCast> optionalMainCast = mainCastService.findByActorAndShow(actor, show);
-//            if(optionalMainCast.isPresent())
-//                throw new ShowsDatabaseException("That actor is already in that show: use PUT to modify",
-//                        HttpStatus.CONFLICT);
-//
-//            MainCast mainCast = MainCast.builder()
-//                    .actor(actor)
-//                    .show(show)
-//                    .character(mainCastDto.getCharacter())
-//                    .id(new MainCast.MainCastKey(actor.getId(), show.getId()))
-//                    .build();
-//
-//            MainCast savedMainCast = mainCastService.saveMainCast(mainCast);
-//            return new ResponseEntity<>(savedMainCast, HttpStatus.CREATED);
-//        } catch (ShowsDatabaseException e) {
-//            return e.getResponse();
-//        }
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> addMainCast(@RequestBody MainCastInfo mainCastInfo) {
+        try {
+            MainCastInfo savedMainCast = mainCastService.save(mainCastInfo);
+            return new ResponseEntity<>(savedMainCast, HttpStatus.CREATED);
+        } catch (ShowsDatabaseException e) {
+            return e.getResponse();
+        }
     }
 
     @PutMapping("")
-    public ResponseEntity<?> modifyMainCast(@RequestBody MainCastDto mainCastDto) {
+    public ResponseEntity<?> modifyMainCast(@RequestBody MainCastInfo mainCastInfo) {
+        try {
+            MainCastInfo modifiedMainCast = mainCastService.modify(mainCastInfo);
+            return ResponseEntity.ok(modifiedMainCast);
+        } catch (NotFoundException e) {
+            return e.getResponse();
+        }
 //        Optional<Actor> optionalActor = actorsService.findById(mainCastDto.getActorId());
 //        Optional<Show> optionalShow = showsService.findById(mainCastDto.getShowId());
 //
@@ -92,6 +75,5 @@ public class MainCastController {
 //        } catch (NotFoundException e) {
 //            return e.getResponse();
 //        }
-        return ResponseEntity.ok().build();
     }
 }
