@@ -85,7 +85,7 @@
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>4.27.0</version>
                 <configuration>
-                    <changeLogFile>db/changelog.sql</changeLogFile>
+                    <changeLogFile>db/changelog-master.xml</changeLogFile>
                     <url>jdbc:mysql://localhost:3306/showsDB?useSSL=false&amp;serverTimezone=CET</url>
                     <username>root</username>
                     <password>admin</password>
