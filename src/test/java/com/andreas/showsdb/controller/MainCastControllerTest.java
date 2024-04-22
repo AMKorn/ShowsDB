@@ -36,35 +36,35 @@ public class MainCastControllerTest {
     @Test
     @Order(1)
     void testAddShowToActor() throws URISyntaxException {
-        ResponseEntity<ShowInfo> showResponse = client.getForEntity(createUri("/api/shows/1"), ShowInfo.class);
-        ShowInfo show = showResponse.getBody();
+        ResponseEntity<ShowOutputDto> showResponse = client.getForEntity(createUri("/api/shows/1"), ShowOutputDto.class);
+        ShowOutputDto show = showResponse.getBody();
         assertNotNull(show);
-        ActorInput actorInput = ActorInput.builder()
+        ActorInputDto actorInputDto = ActorInputDto.builder()
                 .name("Kayvan Novak")
                 .country("United Kingdom")
                 .birthDate(Utils.parseDate("23/11/1978"))
                 .build();
 
-        ResponseEntity<ActorInfo> actorResponse = client.postForEntity(createUri("/api/actors"), actorInput, ActorInfo.class);
-        ActorInfo actorInfo = actorResponse.getBody();
+        ResponseEntity<ActorOutputDto> actorResponse = client.postForEntity(createUri("/api/actors"), actorInputDto, ActorOutputDto.class);
+        ActorOutputDto actorOutputDto = actorResponse.getBody();
 
-        assertNotNull(actorInfo);
+        assertNotNull(actorOutputDto);
 
-        MainCastInfo mainCastInput = MainCastInfo.builder()
-                .actorId(actorInfo.getId())
+        MainCastDto mainCastInput = MainCastDto.builder()
+                .actorId(actorOutputDto.getId())
                 .showId(show.getId())
                 .character("Nandor the Relentless")
                 .build();
 
-        ResponseEntity<MainCastInfo> response =
-                client.postForEntity(createUri("/api/main-cast"), mainCastInput, MainCastInfo.class);
+        ResponseEntity<MainCastDto> response =
+                client.postForEntity(createUri("/api/main-cast"), mainCastInput, MainCastDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        MainCastInfo mainCastResponse = response.getBody();
+        MainCastDto mainCastResponse = response.getBody();
         assertNotNull(mainCastResponse);
-        assertEquals(actorInfo.getId(), mainCastResponse.getActorId());
+        assertEquals(actorOutputDto.getId(), mainCastResponse.getActorId());
         assertEquals(show.getId(), mainCastResponse.getShowId());
         assertEquals("Nandor the Relentless", mainCastResponse.getCharacter());
     }
@@ -72,14 +72,14 @@ public class MainCastControllerTest {
     @Test
     @Order(2)
     void testAddRepeatedShowToActor() throws URISyntaxException, JsonProcessingException {
-        MainCastInfo mainCastInfo = MainCastInfo.builder()
+        MainCastDto mainCastDto = MainCastDto.builder()
                 .actorId(1L)
                 .showId(1L)
                 .character("Nandor the Relentless")
                 .build();
 
         ResponseEntity<String> response =
-                client.postForEntity(createUri("/api/main-cast"), mainCastInfo, String.class);
+                client.postForEntity(createUri("/api/main-cast"), mainCastDto, String.class);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
@@ -93,8 +93,8 @@ public class MainCastControllerTest {
     @Test
     @Order(3)
     void testGetMainCasts() throws URISyntaxException {
-        ResponseEntity<MainCastInfo[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastInfo[].class);
-        MainCastInfo[] mainCasts = response.getBody();
+        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
+        MainCastDto[] mainCasts = response.getBody();
         assertNotNull(mainCasts);
         assertEquals(1, mainCasts.length);
         assertEquals(1, mainCasts[0].getShowId());
@@ -105,13 +105,13 @@ public class MainCastControllerTest {
     @Test
     @Order(4)
     void testGetActorShowsAsMainCast() throws URISyntaxException {
-        ResponseEntity<MainCastInfo[]> response = client.getForEntity(createUri("/api/actors/1/shows"),
-                MainCastInfo[].class);
+        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/actors/1/shows"),
+                MainCastDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        MainCastInfo[] mainCasts = response.getBody();
+        MainCastDto[] mainCasts = response.getBody();
         assertNotNull(mainCasts);
         assertEquals(1, mainCasts.length);
         assertEquals(1, mainCasts[0].getShowId());
@@ -122,12 +122,12 @@ public class MainCastControllerTest {
     @Test
     @Order(5)
     void testGetShowMainCast() throws URISyntaxException {
-        ResponseEntity<MainCastInfo[]> response = client.getForEntity(createUri("/api/shows/1/main-cast"), MainCastInfo[].class);
+        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/shows/1/main-cast"), MainCastDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        MainCastInfo[] mainCasts = response.getBody();
+        MainCastDto[] mainCasts = response.getBody();
         assertNotNull(mainCasts);
         assertEquals(1, mainCasts.length);
         assertEquals(1, mainCasts[0].getShowId());
@@ -138,14 +138,14 @@ public class MainCastControllerTest {
     @Test
     @Order(6)
     void testCreateMainCastShowDoesNotExist() throws URISyntaxException, JsonProcessingException {
-        MainCastInfo mainCastInfo = MainCastInfo.builder()
+        MainCastDto mainCastDto = MainCastDto.builder()
                 .actorId(1L)
                 .showId(99L)
                 .character("Nonexistent Character")
                 .build();
 
         ResponseEntity<String> response =
-                client.postForEntity(createUri("/api/main-cast"), mainCastInfo, String.class);
+                client.postForEntity(createUri("/api/main-cast"), mainCastDto, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
@@ -158,14 +158,14 @@ public class MainCastControllerTest {
     @Test
     @Order(7)
     void testCreateMainCastActorDoesNotExist() throws URISyntaxException, JsonProcessingException {
-        MainCastInfo mainCastInfo = MainCastInfo.builder()
+        MainCastDto mainCastDto = MainCastDto.builder()
                 .actorId(99L)
                 .showId(1L)
                 .character("Nonexistent Character")
                 .build();
 
         ResponseEntity<String> response =
-                client.postForEntity(createUri("/api/main-cast"), mainCastInfo, String.class);
+                client.postForEntity(createUri("/api/main-cast"), mainCastDto, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
@@ -178,20 +178,20 @@ public class MainCastControllerTest {
     @Test
     @Order(8)
     void testModifyMainCast() throws URISyntaxException {
-        MainCastInfo mainCastInfo = MainCastInfo.builder()
+        MainCastDto mainCastDto = MainCastDto.builder()
                 .showId(1L)
                 .actorId(1L)
                 .character("Nandor, the Relentless")
                 .build();
 
-        RequestEntity<MainCastInfo> request =
-                new RequestEntity<>(mainCastInfo, HttpMethod.PUT, createUri("/api/main-cast"));
-        ResponseEntity<MainCastInfo> response = client.exchange(request, MainCastInfo.class);
+        RequestEntity<MainCastDto> request =
+                new RequestEntity<>(mainCastDto, HttpMethod.PUT, createUri("/api/main-cast"));
+        ResponseEntity<MainCastDto> response = client.exchange(request, MainCastDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        MainCastInfo mainCast = response.getBody();
+        MainCastDto mainCast = response.getBody();
         assertNotNull(mainCast);
         assertEquals(1, mainCast.getShowId());
         assertEquals(1, mainCast.getActorId());
@@ -201,31 +201,31 @@ public class MainCastControllerTest {
     @Test
     @Order(9)
     void testAddSecondMainCast() throws URISyntaxException {
-        ActorInput actorInput = ActorInput.builder()
+        ActorInputDto actorInputDto = ActorInputDto.builder()
                 .name("Kristen Bell")
                 .country("United States")
                 .build();
-        ResponseEntity<ActorInfo> actorResponseEntity = client.postForEntity(createUri("/api/actors"),
-                actorInput, ActorInfo.class);
-        ActorInfo actor = actorResponseEntity.getBody();
+        ResponseEntity<ActorOutputDto> actorResponseEntity = client.postForEntity(createUri("/api/actors"),
+                actorInputDto, ActorOutputDto.class);
+        ActorOutputDto actor = actorResponseEntity.getBody();
         assertNotNull(actor);
-        ShowInput showInput = ShowInput.builder()
+        ShowInputDto showInputDto = ShowInputDto.builder()
                 .name("The Good Place")
                 .build();
-        ResponseEntity<ShowInfo> showResponseEntity = client.postForEntity(createUri("/api/shows"), showInput, ShowInfo.class);
-        ShowInfo show = showResponseEntity.getBody();
+        ResponseEntity<ShowOutputDto> showResponseEntity = client.postForEntity(createUri("/api/shows"), showInputDto, ShowOutputDto.class);
+        ShowOutputDto show = showResponseEntity.getBody();
         assertNotNull(show);
-        MainCastInfo mainCastInfo = MainCastInfo.builder()
+        MainCastDto mainCastDto = MainCastDto.builder()
                 .actorId(actor.getId())
                 .showId(show.getId())
                 .character("Eleanor Shellstrop")
                 .build();
-        client.postForEntity(createUri("/api/main-cast"), mainCastInfo, Void.class);
+        client.postForEntity(createUri("/api/main-cast"), mainCastDto, Void.class);
 
 
-        ResponseEntity<MainCastInfo[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastInfo[].class);
+        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
 
-        MainCastInfo[] mainCasts = response.getBody();
+        MainCastDto[] mainCasts = response.getBody();
         assertNotNull(mainCasts);
         assertEquals(2, mainCasts.length);
         assertEquals(1, mainCasts[0].getShowId());
@@ -239,8 +239,8 @@ public class MainCastControllerTest {
     @Test
     @Order(10)
     void deleteMainCast() throws URISyntaxException {
-        ResponseEntity<MainCastInfo[]> response1 = client.getForEntity(createUri("/api/main-cast"), MainCastInfo[].class);
-        MainCastInfo[] mainCasts1 = response1.getBody();
+        ResponseEntity<MainCastDto[]> response1 = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
+        MainCastDto[] mainCasts1 = response1.getBody();
         assertNotNull(mainCasts1);
         assertEquals(2, mainCasts1.length);
 
@@ -249,8 +249,8 @@ public class MainCastControllerTest {
 
         client.delete(createUri("/api/main-cast?actor=" + actorId + "&show=" + showId));
 
-        ResponseEntity<MainCastInfo[]> response2 = client.getForEntity(createUri("/api/main-cast"), MainCastInfo[].class);
-        MainCastInfo[] mainCasts2 = response2.getBody();
+        ResponseEntity<MainCastDto[]> response2 = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
+        MainCastDto[] mainCasts2 = response2.getBody();
         assertNotNull(mainCasts2);
         assertEquals(1, mainCasts2.length);
     }

@@ -9,6 +9,8 @@ import java.util.Optional;
 
 public interface EpisodesRepository extends JpaRepository<Episode, Long> {
     List<Episode> findBySeason(Season season);
+    List<Episode> findBySeasonShowIdAndSeasonNumber(long showId, int seasonNumber);
 
-    Optional<Episode> findBySeasonAndEpisodeNumber(Season season, int episodeNumber);
+    Optional<Episode> findBySeasonAndNumber(Season season, int episodeNumber);
+    Optional<Episode> findBySeasonShowIdAndSeasonNumberAndNumber(long showId, int seasonNumber, int episodeNumber);
 }

@@ -9,9 +9,9 @@ import lombok.Value;
 
 @Value
 @Builder
-@JsonDeserialize(builder = SeasonInput.SeasonInputBuilder.class)
-public class SeasonInput {
-    @Positive
+@JsonDeserialize(builder = SeasonInputDto.SeasonInputBuilder.class)
+public class SeasonInputDto {
+    @Positive(message = "Season number must be higher than 0")
     @JsonProperty("seasonNumber")
     Integer seasonNumber;
 

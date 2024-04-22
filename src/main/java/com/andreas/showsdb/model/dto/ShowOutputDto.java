@@ -8,18 +8,18 @@ import lombok.Value;
 
 @Value
 @Builder
-public class ShowInfo {
-    @NotNull
+public class ShowOutputDto {
+    @NotNull(message = "Show ID must not be null")
     Long id;
-    @NotNull(message = "Show name may not be null")
+    @NotNull(message = "Show name must not be null")
     @Size(max = 255, message = "Show name may not be longer than 255 characters")
     String name;
     @Size(max = 255, message = "Country name may not be longer than 255 characters")
     String country;
-    @NotNull
-    @PositiveOrZero
+    @NotNull(message = "Number of seasons must not be null")
+    @PositiveOrZero(message = "Number of seasons must be higher than or equal to 0")
     Integer numberOfSeasons;
-    @NotNull
-    @PositiveOrZero
+    @NotNull(message = "Number of episodes must not be null")
+    @PositiveOrZero(message = "Number of episodes must be higher than or equal to 0")
     Integer numberOfEpisodes;
 }

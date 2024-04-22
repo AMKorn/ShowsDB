@@ -2,8 +2,8 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.SeasonInfo;
-import com.andreas.showsdb.model.dto.SeasonInput;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
+import com.andreas.showsdb.model.dto.SeasonInputDto;
 import com.andreas.showsdb.service.SeasonsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +24,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons")
 public class SeasonsController {
-    @Autowired
-    private SeasonsService seasonsService;
+    private final SeasonsService seasonsService;
+
+    public SeasonsController(SeasonsService seasonsService) {
+        this.seasonsService = seasonsService;
+    }
 
     @Operation(summary = "Find all seasons from a show")
     @ApiResponses(value = {
@@ -34,7 +36,7 @@ public class SeasonsController {
                     description = "Seasons found",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = SeasonInfo.class)
+                                    schema = @Schema(implementation = SeasonOutputDto.class)
                             )
                     )
             ),
@@ -49,7 +51,7 @@ public class SeasonsController {
     public ResponseEntity<?> getAllByShow(@Parameter(description = "Id of the show")
                                           @PathVariable("showId") long showId) {
         try {
-            List<SeasonInfo> season = seasonsService.findByShow(showId);
+            List<SeasonOutputDto> season = seasonsService.findByShow(showId);
             return ResponseEntity.ok(season);
         } catch (NotFoundException e) {
             return e.getResponse();
@@ -68,7 +70,7 @@ public class SeasonsController {
             @ApiResponse(responseCode = "201",
                     description = "Season created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SeasonInfo.class)
+                            schema = @Schema(implementation = SeasonOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -80,26 +82,26 @@ public class SeasonsController {
             @ApiResponse(responseCode = "409",
                     description = "Season already exists. Returns old season",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SeasonInfo.class)
+                            schema = @Schema(implementation = SeasonOutputDto.class)
                     )
             )
     })
     @PostMapping("")
     public ResponseEntity<?> create(@Parameter(description = "Id of the show")
                                     @PathVariable("showId") long showId,
-                                    @RequestBody(required = false) SeasonInput seasonInput) {
+                                    @RequestBody(required = false) SeasonInputDto seasonInputDto) {
         try {
-            if (seasonInput == null || seasonInput.getSeasonNumber() == null) {
-                SeasonInfo savedSeason = seasonsService.createInShow(showId);
+            if (seasonInputDto == null || seasonInputDto.getSeasonNumber() == null) {
+                SeasonOutputDto savedSeason = seasonsService.createInShow(showId);
                 return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
             }
 
             try {
-                SeasonInfo savedSeason = seasonsService.save(showId, seasonInput);
+                SeasonOutputDto savedSeason = seasonsService.save(showId, seasonInputDto);
                 return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
             } catch (DataIntegrityViolationException e) {
-                Optional<@Valid SeasonInfo> optionalSeason = seasonsService.findByShow(showId).stream()
-                        .filter(s -> s.getSeasonNumber().equals(seasonInput.getSeasonNumber()))
+                Optional<@Valid SeasonOutputDto> optionalSeason = seasonsService.findByShow(showId).stream()
+                        .filter(s -> s.getSeasonNumber().equals(seasonInputDto.getSeasonNumber()))
                         .findFirst();
                 return new ResponseEntity<>(optionalSeason.orElseThrow(), HttpStatus.CONFLICT);
             }
@@ -113,7 +115,7 @@ public class SeasonsController {
             @ApiResponse(responseCode = "200",
                     description = "Season found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = SeasonInfo.class)
+                            schema = @Schema(implementation = SeasonOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -128,8 +130,8 @@ public class SeasonsController {
                                  @PathVariable("showId") long showId,
                                  @PathVariable("seasonNumber") int seasonNumber) {
         try {
-            SeasonInfo seasonInfo = seasonsService.findByShowAndNumber(showId, seasonNumber);
-            return new ResponseEntity<>(seasonInfo, HttpStatus.OK);
+            SeasonOutputDto seasonOutputDto = seasonsService.findByShowAndNumber(showId, seasonNumber);
+            return new ResponseEntity<>(seasonOutputDto, HttpStatus.OK);
         } catch (NotFoundException e) {
             return e.getResponse();
         }

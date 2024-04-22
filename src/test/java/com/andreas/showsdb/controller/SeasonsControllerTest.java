@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.dto.SeasonInfo;
-import com.andreas.showsdb.model.dto.SeasonInput;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
+import com.andreas.showsdb.model.dto.SeasonInputDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,16 +39,16 @@ public class SeasonsControllerTest {
         // Set-up necessary for when all tests are run together. Can't use @BeforeAll because client is not static
 //        client.delete(createUri("/api/shows/1/seasons"));
 
-        SeasonInput seasonInput = SeasonInput.builder()
+        SeasonInputDto seasonInputDto = SeasonInputDto.builder()
                 .seasonNumber(1)
                 .build();
 
-        ResponseEntity<SeasonInfo> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInput, SeasonInfo.class);
+        ResponseEntity<SeasonOutputDto> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInputDto, SeasonOutputDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        SeasonInfo seasonResponse = response.getBody();
+        SeasonOutputDto seasonResponse = response.getBody();
         assertNotNull(seasonResponse);
         assertEquals(1, seasonResponse.getShowId());
         assertEquals(1, seasonResponse.getSeasonNumber());
@@ -58,16 +58,16 @@ public class SeasonsControllerTest {
     @Test
     @Order(2)
     void testAddSecondSeasonToShow() throws URISyntaxException {
-        SeasonInput seasonInput = SeasonInput.builder()
+        SeasonInputDto seasonInputDto = SeasonInputDto.builder()
                 .seasonNumber(2)
                 .build();
-        ResponseEntity<SeasonInfo> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInput,
-                SeasonInfo.class);
+        ResponseEntity<SeasonOutputDto> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInputDto,
+                SeasonOutputDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        SeasonInfo seasonResponse = response.getBody();
+        SeasonOutputDto seasonResponse = response.getBody();
         assertNotNull(seasonResponse);
         assertEquals(1, seasonResponse.getShowId());
         assertEquals(2, seasonResponse.getSeasonNumber());
@@ -76,13 +76,13 @@ public class SeasonsControllerTest {
     @Test
     @Order(3)
     void testAddUnnumberedSeasonToShow() throws URISyntaxException {
-        ResponseEntity<SeasonInfo> response = client.postForEntity(createUri("/api/shows/1/seasons"),
-                SeasonInfo.builder().build(), SeasonInfo.class);
+        ResponseEntity<SeasonOutputDto> response = client.postForEntity(createUri("/api/shows/1/seasons"),
+                SeasonOutputDto.builder().build(), SeasonOutputDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        SeasonInfo seasonResponse = response.getBody();
+        SeasonOutputDto seasonResponse = response.getBody();
         assertNotNull(seasonResponse);
         assertEquals(1, seasonResponse.getShowId());
         assertEquals(3, seasonResponse.getSeasonNumber());
@@ -92,16 +92,16 @@ public class SeasonsControllerTest {
     @Test
     @Order(4)
     void testAddSeasonToShowAlreadyExists() throws URISyntaxException {
-        SeasonInput seasonInput = SeasonInput.builder()
+        SeasonInputDto seasonInputDto = SeasonInputDto.builder()
                 .seasonNumber(1)
                 .build();
-        ResponseEntity<SeasonInfo> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInput,
-                SeasonInfo.class);
+        ResponseEntity<SeasonOutputDto> response = client.postForEntity(createUri("/api/shows/1/seasons"), seasonInputDto,
+                SeasonOutputDto.class);
 
         assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        SeasonInfo seasonResponse = response.getBody();
+        SeasonOutputDto seasonResponse = response.getBody();
         assertNotNull(seasonResponse);
         assertEquals(1, seasonResponse.getShowId());
         assertEquals(1, seasonResponse.getSeasonNumber());
@@ -111,7 +111,7 @@ public class SeasonsControllerTest {
     @Test
     @Order(5)
     void testAddSeasonToShowThatDoesNotExist() throws JsonProcessingException, URISyntaxException {
-        SeasonInfo season = SeasonInfo.builder().build();
+        SeasonOutputDto season = SeasonOutputDto.builder().build();
         ResponseEntity<String> response = client.postForEntity(createUri("/api/shows/99/seasons"), season, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -127,24 +127,24 @@ public class SeasonsControllerTest {
     @Test
     @Order(6)
     void testGetShowSeasons() throws URISyntaxException {
-        ResponseEntity<SeasonInfo[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonInfo[].class);
+        ResponseEntity<SeasonOutputDto[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonOutputDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        List<SeasonInfo> seasons = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        List<SeasonOutputDto> seasons = Arrays.asList(Objects.requireNonNull(response.getBody()));
         assertEquals(3, seasons.size());
     }
 
     @Test
     @Order(7)
     void testGetShowSeasonByNumber() throws URISyntaxException {
-        ResponseEntity<SeasonInfo> response = client.getForEntity(createUri("/api/shows/1/seasons/1"), SeasonInfo.class);
+        ResponseEntity<SeasonOutputDto> response = client.getForEntity(createUri("/api/shows/1/seasons/1"), SeasonOutputDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        SeasonInfo season = response.getBody();
+        SeasonOutputDto season = response.getBody();
         assertNotNull(season);
         assertEquals(1, season.getShowId());
         assertEquals(1, season.getSeasonNumber());
@@ -168,14 +168,14 @@ public class SeasonsControllerTest {
     @Test
     @Order(9)
     void testDeleteSeason() throws URISyntaxException {
-        ResponseEntity<SeasonInfo[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonInfo[].class);
+        ResponseEntity<SeasonOutputDto[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonOutputDto[].class);
 
         assertNotNull(response.getBody());
         int numberOfSeasons = response.getBody().length;
 
         client.delete(createUri("/api/shows/1/seasons/2"));
 
-        response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonInfo[].class);
+        response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonOutputDto[].class);
 
         assertNotNull(response.getBody());
         assertEquals(numberOfSeasons - 1, response.getBody().length);
@@ -199,7 +199,7 @@ public class SeasonsControllerTest {
     @Test
     @Order(11)
     void testDeleteAllSeasons() throws URISyntaxException {
-        ResponseEntity<SeasonInfo[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonInfo[].class);
+        ResponseEntity<SeasonOutputDto[]> response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonOutputDto[].class);
 
         assertNotNull(response.getBody());
         int numberOfSeasons = response.getBody().length;
@@ -207,7 +207,7 @@ public class SeasonsControllerTest {
 
         client.delete(createUri("/api/shows/1/seasons"));
 
-        response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonInfo[].class);
+        response = client.getForEntity(createUri("/api/shows/1/seasons"), SeasonOutputDto[].class);
 
         assertNotNull(response.getBody());
         assertEquals(0, response.getBody().length);
@@ -216,17 +216,17 @@ public class SeasonsControllerTest {
     @Test
     @Order(12)
     void testAddEmptySeasonToEmptyShow() throws URISyntaxException {
-        SeasonInput seasonInput = SeasonInput.builder().build();
-        ResponseEntity<SeasonInfo> response =
-                client.postForEntity(createUri("/api/shows/2/seasons"), seasonInput, SeasonInfo.class);
+        SeasonInputDto seasonInputDto = SeasonInputDto.builder().build();
+        ResponseEntity<SeasonOutputDto> response =
+                client.postForEntity(createUri("/api/shows/2/seasons"), seasonInputDto, SeasonOutputDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        SeasonInfo seasonInfo = response.getBody();
-        assertNotNull(seasonInfo);
-        assertEquals(2L, seasonInfo.getShowId());
-        assertEquals(1, seasonInfo.getSeasonNumber());
+        SeasonOutputDto seasonOutputDto = response.getBody();
+        assertNotNull(seasonOutputDto);
+        assertEquals(2L, seasonOutputDto.getShowId());
+        assertEquals(1, seasonOutputDto.getSeasonNumber());
     }
 
     private URI createUri(String uri) throws URISyntaxException {

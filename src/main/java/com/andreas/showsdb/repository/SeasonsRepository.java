@@ -12,11 +12,15 @@ import java.util.Optional;
 
 public interface SeasonsRepository extends JpaRepository<Season, Long> {
     List<Season> findByShow(Show show);
+    List<Season> findByShowId(long showId);
 
-    Optional<Season> findByShowAndSeasonNumber(Show show, int seasonNumber);
+    Optional<Season> findByShowAndNumber(Show show, int number);
+    Optional<Season> findByShowIdAndNumber(long showId, int number);
 
     @Modifying
     @Transactional
-    @Query("delete from Season s where s.show = ?1")
     void deleteAllByShow(Show show);
+    @Modifying
+    @Transactional
+    void deleteAllByShowId(long showId);
 }

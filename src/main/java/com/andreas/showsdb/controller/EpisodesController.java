@@ -2,8 +2,8 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.EpisodeInfo;
-import com.andreas.showsdb.model.dto.EpisodeInput;
+import com.andreas.showsdb.model.dto.EpisodeOutputDto;
+import com.andreas.showsdb.model.dto.EpisodeInputDto;
 import com.andreas.showsdb.service.EpisodesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +25,11 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
 public class EpisodesController {
-    @Autowired
-    private EpisodesService episodesService;
+    private final EpisodesService episodesService;
+
+    public EpisodesController(EpisodesService episodesService) {
+        this.episodesService = episodesService;
+    }
 
     @Operation(summary = "Create an episode",
             description = """
@@ -41,7 +43,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "201",
                     description = "Episode created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeInfo.class)
+                            schema = @Schema(implementation = EpisodeOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -53,7 +55,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "409",
                     description = "Episode already exists. Returns old episode",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeInfo.class)
+                            schema = @Schema(implementation = EpisodeOutputDto.class)
                     )
             )
     })
@@ -62,43 +64,43 @@ public class EpisodesController {
                                     @PathVariable("showId") long showId,
                                     @Parameter(description = "Season number")
                                     @PathVariable("seasonNumber") int seasonNumber,
-                                    @RequestBody(required = false) EpisodeInput episodeInput) {
+                                    @RequestBody(required = false) EpisodeInputDto episodeInputDto) {
         try {
-            if (episodeInput == null) {
-                EpisodeInfo savedEpisode = episodesService.createInSeason(showId, seasonNumber);
+            if (episodeInputDto == null) {
+                EpisodeOutputDto savedEpisode = episodesService.createInSeason(showId, seasonNumber);
                 return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
             }
 
             // In case no episode number was stated, we put it by default as the next episode in the season.
-            Integer episodeNumber = episodeInput.getEpisodeNumber();
+            Integer episodeNumber = episodeInputDto.getEpisodeNumber();
             if (episodeNumber == null) {
                 try {
                     episodeNumber = episodesService.findBySeason(showId, seasonNumber).stream()
                             .max(Comparator
-                                    .comparingLong(EpisodeInfo::getShowId)
-                                    .thenComparingInt(EpisodeInfo::getSeasonNumber)
-                                    .thenComparingInt(EpisodeInfo::getEpisodeNumber))
+                                    .comparingLong(EpisodeOutputDto::getShowId)
+                                    .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
+                                    .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
                             .orElseThrow()
                             .getEpisodeNumber() + 1;
                 } catch (NoSuchElementException e) {
                     episodeNumber = 1;
                 }
-                EpisodeInput oldEpisodeInput = episodeInput;
+                EpisodeInputDto oldEpisodeInputDto = episodeInputDto;
 
-                episodeInput = EpisodeInput.builder()
+                episodeInputDto = EpisodeInputDto.builder()
                         .episodeNumber(episodeNumber)
-                        .name(oldEpisodeInput.getName())
-                        .releaseDate(oldEpisodeInput.getReleaseDate())
+                        .name(oldEpisodeInputDto.getName())
+                        .releaseDate(oldEpisodeInputDto.getReleaseDate())
                         .build();
             }
 
             try {
-                EpisodeInfo savedEpisode = episodesService.save(showId, seasonNumber, episodeInput);
+                EpisodeOutputDto savedEpisode = episodesService.save(showId, seasonNumber, episodeInputDto);
                 return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
             } catch (DataIntegrityViolationException e) {
-                EpisodeInput finalEpisodeInput = episodeInput;
-                Optional<EpisodeInfo> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
-                        .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInput.getEpisodeNumber()))
+                EpisodeInputDto finalEpisodeInputDto = episodeInputDto;
+                Optional<EpisodeOutputDto> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
+                        .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInputDto.getEpisodeNumber()))
                         .findFirst();
                 return new ResponseEntity<>(optionalEpisode.orElseThrow(), HttpStatus.CONFLICT);
             }
@@ -112,7 +114,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "200",
                     description = "Episode found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeInfo.class)
+                            schema = @Schema(implementation = EpisodeOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -130,9 +132,9 @@ public class EpisodesController {
                                  @Parameter(description = "Episode number")
                                  @PathVariable("episodeNumber") int episodeNumber) {
         try {
-            EpisodeInfo episodeInfo =
+            EpisodeOutputDto episodeOutputDto =
                     episodesService.findByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
-            return ResponseEntity.ok(episodeInfo);
+            return ResponseEntity.ok(episodeOutputDto);
         } catch (NotFoundException e) {
             return e.getResponse();
         }
@@ -144,7 +146,7 @@ public class EpisodesController {
                     description = "Episodes found",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = EpisodeInfo.class)
+                                    schema = @Schema(implementation = EpisodeOutputDto.class)
                             )
                     )
             ),
@@ -161,7 +163,7 @@ public class EpisodesController {
                                               @Parameter(description = "Season number")
                                               @PathVariable("seasonNumber") int seasonNumber) {
         try {
-            List<EpisodeInfo> episodesInfo = episodesService.findBySeason(showId, seasonNumber);
+            List<EpisodeOutputDto> episodesInfo = episodesService.findBySeason(showId, seasonNumber);
             return ResponseEntity.ok(episodesInfo);
         } catch (NotFoundException e) {
             return e.getResponse();
@@ -173,7 +175,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "200",
                     description = "Episode modified",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeInfo.class)
+                            schema = @Schema(implementation = EpisodeOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -188,9 +190,9 @@ public class EpisodesController {
                                     @PathVariable("showId") long showId,
                                     @Parameter(description = "Season number")
                                     @PathVariable("seasonNumber") int seasonNumber,
-                                    @RequestBody EpisodeInput episodeInput) {
+                                    @RequestBody EpisodeInputDto episodeInputDto) {
         try {
-            EpisodeInfo modifiedEpisode = episodesService.modify(showId, seasonNumber, episodeInput);
+            EpisodeOutputDto modifiedEpisode = episodesService.modify(showId, seasonNumber, episodeInputDto);
             return ResponseEntity.ok(modifiedEpisode);
         } catch (NotFoundException e) {
             return e.getResponse();

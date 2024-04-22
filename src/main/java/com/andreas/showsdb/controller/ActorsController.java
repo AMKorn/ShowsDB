@@ -2,9 +2,9 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.ActorInfo;
-import com.andreas.showsdb.model.dto.ActorInput;
-import com.andreas.showsdb.model.dto.MainCastInfo;
+import com.andreas.showsdb.model.dto.ActorOutputDto;
+import com.andreas.showsdb.model.dto.ActorInputDto;
+import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,24 +24,27 @@ import java.util.List;
 @RequestMapping("/api/actors")
 public class ActorsController {
 
-    @Autowired
-    private ActorsService actorsService;
+    private final ActorsService actorsService;
 
-    @Autowired
-    private MainCastService mainCastService;
+    private final MainCastService mainCastService;
+
+    public ActorsController(ActorsService actorsService, MainCastService mainCastService) {
+        this.actorsService = actorsService;
+        this.mainCastService = mainCastService;
+    }
 
     @Operation(summary = "List all actors")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = ActorInfo.class)
+                                    schema = @Schema(implementation = ActorOutputDto.class)
                             )
                     )
             )
     })
     @GetMapping("")
-    public List<ActorInfo> getAll() {
+    public List<ActorOutputDto> getAll() {
         return actorsService.findAll();
     }
 
@@ -51,7 +53,7 @@ public class ActorsController {
             @ApiResponse(responseCode = "200",
                     description = "Actor found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActorInfo.class)
+                            schema = @Schema(implementation = ActorOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -76,13 +78,13 @@ public class ActorsController {
             @ApiResponse(responseCode = "201",
                     description = "Actor created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActorInfo.class)
+                            schema = @Schema(implementation = ActorOutputDto.class)
                     )
             )
     })
     @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody ActorInput actor) {
-        ActorInfo saved = actorsService.save(actor);
+    public ResponseEntity<?> create(@RequestBody ActorInputDto actor) {
+        ActorOutputDto saved = actorsService.save(actor);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
@@ -91,7 +93,7 @@ public class ActorsController {
             @ApiResponse(responseCode = "200",
                     description = "Actor found and modified",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActorInfo.class)
+                            schema = @Schema(implementation = ActorOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -102,7 +104,7 @@ public class ActorsController {
             )
     })
     @PutMapping("")
-    public ResponseEntity<?> modify(@RequestBody ActorInfo actor) {
+    public ResponseEntity<?> modify(@RequestBody ActorOutputDto actor) {
         try {
             return ResponseEntity.ok(actorsService.modify(actor));
         } catch (NotFoundException e) {
@@ -141,7 +143,7 @@ public class ActorsController {
                     description = "Shows and characters found",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = MainCastInfo.class)
+                                    schema = @Schema(implementation = MainCastDto.class)
                             )
                     )
             ),
@@ -155,7 +157,7 @@ public class ActorsController {
     @GetMapping("/{actorId}/shows")
     public ResponseEntity<?> getShows(@PathVariable("actorId") long id) {
         try {
-            List<MainCastInfo> showsAsMainCast = mainCastService.findByActor(id);
+            List<MainCastDto> showsAsMainCast = mainCastService.findByActor(id);
             return ResponseEntity.ok(showsAsMainCast);
         } catch (NotFoundException e) {
             return e.getResponse();

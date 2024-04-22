@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.dto.ActorInfo;
-import com.andreas.showsdb.model.dto.ActorInput;
+import com.andreas.showsdb.model.dto.ActorOutputDto;
+import com.andreas.showsdb.model.dto.ActorInputDto;
 import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,17 +37,17 @@ class ActorsControllerTest {
     @Test
     @Order(1)
     void testAddActor() throws URISyntaxException {
-        ActorInput actor = ActorInput.builder()
+        ActorInputDto actor = ActorInputDto.builder()
                 .name("Kayvan Novak")
                 .country("United Kingdom")
                 .birthDate(Utils.parseDate("23/11/1968"))
                 .build();
 
-        ResponseEntity<ActorInfo> response = client.postForEntity(createUri("/api/actors"), actor, ActorInfo.class);
+        ResponseEntity<ActorOutputDto> response = client.postForEntity(createUri("/api/actors"), actor, ActorOutputDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        ActorInfo newActor = response.getBody();
+        ActorOutputDto newActor = response.getBody();
         assertNotNull(newActor);
         assertEquals(1, newActor.getId());
         assertEquals(actor.getName(), newActor.getName());
@@ -56,38 +56,14 @@ class ActorsControllerTest {
     }
 
     @Test
-    @Order(2)
-    void testAddActorAlreadyExists() throws URISyntaxException, JsonProcessingException {
-        // Commented out because when the post method deserializes actor it maps it to actorDto which does not have
-        // an id, which makes it so that it creates a new one with duplicated values. IDK what is the right behavior
-
-//        ActorDtoId actor = ActorDtoId.builder()
-//                .id(1L)
-//                .name("Kayvan Novak")
-//                .country("United Kingdom")
-//                .birthDate(Utils.parseDate("23/11/1968"))
-//                .build();
-//
-//        ResponseEntity<String> response = client.postForEntity(createUri("/api/actors"), actor, String.class);
-//
-//        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-//        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-//
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode json = objectMapper.readTree(response.getBody());
-//        assertEquals("Actor already exists with that id",
-//                json.path("message").asText());
-    }
-
-    @Test
     @Order(3)
     void testGetAllActor() throws URISyntaxException {
-        ResponseEntity<ActorInfo[]> response = client.getForEntity(createUri("/api/actors"), ActorInfo[].class);
+        ResponseEntity<ActorOutputDto[]> response = client.getForEntity(createUri("/api/actors"), ActorOutputDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        List<ActorInfo> actors = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        List<ActorOutputDto> actors = Arrays.asList(Objects.requireNonNull(response.getBody()));
         assertEquals(1, actors.size());
         assertEquals(1, actors.getFirst().getId());
         assertEquals("Kayvan Novak", actors.getFirst().getName());
@@ -98,12 +74,12 @@ class ActorsControllerTest {
     @Test
     @Order(4)
     void testGetActor() throws URISyntaxException {
-        ResponseEntity<ActorInfo> response = client.getForEntity(createUri("/api/actors/1"), ActorInfo.class);
+        ResponseEntity<ActorOutputDto> response = client.getForEntity(createUri("/api/actors/1"), ActorOutputDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ActorInfo actor = response.getBody();
+        ActorOutputDto actor = response.getBody();
         assertNotNull(actor);
         assertEquals(1, actor.getId());
         assertEquals("Kayvan Novak", actor.getName());
@@ -130,23 +106,23 @@ class ActorsControllerTest {
     @Test
     @Order(6)
     void testModifyActor() throws URISyntaxException {
-        ResponseEntity<ActorInfo> response = client.getForEntity(createUri("/api/actors/1"), ActorInfo.class);
-        ActorInfo oldActorInfo = response.getBody();
-        assertNotNull(oldActorInfo);
+        ResponseEntity<ActorOutputDto> response = client.getForEntity(createUri("/api/actors/1"), ActorOutputDto.class);
+        ActorOutputDto oldActorOutputDto = response.getBody();
+        assertNotNull(oldActorOutputDto);
 
-        ActorInfo newActorInfo = ActorInfo.builder()
-                .id(oldActorInfo.getId())
-                .name(oldActorInfo.getName())
-                .country(oldActorInfo.getCountry())
+        ActorOutputDto newActorOutputDto = ActorOutputDto.builder()
+                .id(oldActorOutputDto.getId())
+                .name(oldActorOutputDto.getName())
+                .country(oldActorOutputDto.getCountry())
                 .birthDate(Utils.parseDate("23/11/1978"))
                 .build();
 
 //        actor.setBirthDate(Utils.parseDate("23/11/1978"));
 
-        client.put(createUri("/api/actors"), newActorInfo);
+        client.put(createUri("/api/actors"), newActorOutputDto);
 
-        response = client.getForEntity(createUri("/api/actors/1"), ActorInfo.class);
-        ActorInfo actor = response.getBody();
+        response = client.getForEntity(createUri("/api/actors/1"), ActorOutputDto.class);
+        ActorOutputDto actor = response.getBody();
         assertNotNull(actor);
         assertEquals(Utils.parseDate("23/11/1978"), actor.getBirthDate());
     }
@@ -154,13 +130,16 @@ class ActorsControllerTest {
     @Test
     @Order(7)
     void testModifyNonexistentActor() throws URISyntaxException, JsonProcessingException {
-        ActorInfo actor = ActorInfo.builder()
+        ActorOutputDto actor = ActorOutputDto.builder()
                 .id(99L)
                 .name("Actor")
                 .build();
 
-        RequestEntity<ActorInfo> request = new RequestEntity<>(actor, HttpMethod.PUT, createUri("/api/actors"));
+        RequestEntity<ActorOutputDto> request = new RequestEntity<>(actor, HttpMethod.PUT, createUri("/api/actors"));
         ResponseEntity<String> response = client.exchange(request, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode json = objectMapper.readTree(response.getBody());
@@ -171,16 +150,16 @@ class ActorsControllerTest {
     @Test
     @Order(8)
     void testDeleteActor() throws URISyntaxException {
-        ResponseEntity<ActorInfo[]> response = client.getForEntity(createUri("/api/actors"), ActorInfo[].class);
+        ResponseEntity<ActorOutputDto[]> response = client.getForEntity(createUri("/api/actors"), ActorOutputDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-        ActorInfo[] actors = response.getBody();
+        ActorOutputDto[] actors = response.getBody();
         assertNotNull(actors);
         assertEquals(1, actors.length);
 
         client.delete(createUri("/api/actors/1"));
 
-        response = client.getForEntity(createUri("/api/actors"), ActorInfo[].class);
+        response = client.getForEntity(createUri("/api/actors"), ActorOutputDto[].class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
         actors = response.getBody();

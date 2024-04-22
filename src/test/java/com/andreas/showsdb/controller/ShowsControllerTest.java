@@ -1,8 +1,8 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.ShowInfo;
-import com.andreas.showsdb.model.dto.ShowInput;
+import com.andreas.showsdb.model.dto.ShowOutputDto;
+import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,13 +36,13 @@ class ShowsControllerTest {
     @Test
     @Order(1)
     void testSearchAll() throws URISyntaxException {
-        ResponseEntity<ShowInfo[]> response =
-                client.getForEntity(createUri("/api/shows"), ShowInfo[].class);
+        ResponseEntity<ShowOutputDto[]> response =
+                client.getForEntity(createUri("/api/shows"), ShowOutputDto[].class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        List<ShowInfo> shows = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        List<ShowOutputDto> shows = Arrays.asList(Objects.requireNonNull(response.getBody()));
 
         assertEquals(2, shows.size());
         assertEquals(1L, shows.get(0).getId());
@@ -57,12 +57,12 @@ class ShowsControllerTest {
     @Test
     @Order(2)
     void testGetShowExists() throws URISyntaxException {
-        ResponseEntity<ShowInfo> response = client.getForEntity(createUri("/api/shows/1"), ShowInfo.class);
+        ResponseEntity<ShowOutputDto> response = client.getForEntity(createUri("/api/shows/1"), ShowOutputDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ShowInfo show = response.getBody();
+        ShowOutputDto show = response.getBody();
         assertNotNull(show);
         assertEquals(1L, show.getId());
         assertEquals("What We Do in the Shadows", show.getName());
@@ -86,49 +86,49 @@ class ShowsControllerTest {
     @Test
     @Order(4)
     void testAddShow() throws URISyntaxException {
-        ShowInput showInput = ShowInput.builder()
+        ShowInputDto showInputDto = ShowInputDto.builder()
                 .name("Bojack Horseman")
                 .country("United States")
                 .build();
 
-        ResponseEntity<ShowInfo> response = client.postForEntity(createUri("/api/shows"), showInput, ShowInfo.class);
+        ResponseEntity<ShowOutputDto> response = client.postForEntity(createUri("/api/shows"), showInputDto, ShowOutputDto.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ShowInfo showInfo = response.getBody();
-        assertNotNull(showInfo);
-        assertEquals(3, showInfo.getId());
-        assertEquals("Bojack Horseman", showInfo.getName());
-        assertEquals("United States", showInfo.getCountry());
+        ShowOutputDto showOutputDto = response.getBody();
+        assertNotNull(showOutputDto);
+        assertEquals(3, showOutputDto.getId());
+        assertEquals("Bojack Horseman", showOutputDto.getName());
+        assertEquals("United States", showOutputDto.getCountry());
     }
 
     @Test
     @Order(5)
     void testModifyShow() throws URISyntaxException {
-        ResponseEntity<ShowInfo> response = client.getForEntity(createUri("/api/shows/2"), ShowInfo.class);
-        ShowInfo showInfo = response.getBody();
+        ResponseEntity<ShowOutputDto> response = client.getForEntity(createUri("/api/shows/2"), ShowOutputDto.class);
+        ShowOutputDto showOutputDto = response.getBody();
 
-        assertNotNull(showInfo);
+        assertNotNull(showOutputDto);
 
-        ShowInfo showInfo1 = ShowInfo.builder()
-                .id(showInfo.getId())
+        ShowOutputDto showOutputDto1 = ShowOutputDto.builder()
+                .id(showOutputDto.getId())
                 .name("The Good Place")
                 .country("Canada")
                 .build();
 
 
-        client.put(createUri("/api/shows"), showInfo1);
+        client.put(createUri("/api/shows"), showOutputDto1);
 
-        response = client.getForEntity(createUri("/api/shows/2"), ShowInfo.class);
+        response = client.getForEntity(createUri("/api/shows/2"), ShowOutputDto.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        showInfo = response.getBody();
-        assertNotNull(showInfo);
-        assertEquals("The Good Place", showInfo.getName());
-        assertEquals("Canada", showInfo.getCountry());
+        showOutputDto = response.getBody();
+        assertNotNull(showOutputDto);
+        assertEquals("The Good Place", showOutputDto.getName());
+        assertEquals("Canada", showOutputDto.getCountry());
     }
 
     @Test

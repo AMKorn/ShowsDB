@@ -1,9 +1,8 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.EpisodeInfo;
+import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,7 +32,7 @@ public class Episode implements Comparable<Episode> {
     @JsonIgnoreProperties(value = {"episodes"})
     private Season season;
     @Column(name = "episode_number")
-    private Integer episodeNumber;
+    private Integer number;
     private String name;
     @Column(name = "rel_date")
     private Date releaseDate;
@@ -42,11 +41,11 @@ public class Episode implements Comparable<Episode> {
         return season.getShow();
     }
 
-    public @Valid EpisodeInfo getInfoDto() {
-        return EpisodeInfo.builder()
+    public EpisodeOutputDto getInfoDto() {
+        return EpisodeOutputDto.builder()
                 .showId(season.getShow().getId())
-                .seasonNumber(season.getSeasonNumber())
-                .episodeNumber(episodeNumber)
+                .seasonNumber(season.getNumber())
+                .episodeNumber(number)
                 .name(name)
                 .releaseDate(releaseDate)
                 .build();
@@ -55,6 +54,6 @@ public class Episode implements Comparable<Episode> {
     @Override
     public int compareTo(Episode e) {
         int compareSeasons = season.compareTo(e.getSeason());
-        return compareSeasons == 0 ? episodeNumber.compareTo(e.getEpisodeNumber()) : compareSeasons;
+        return compareSeasons == 0 ? number.compareTo(e.getNumber()) : compareSeasons;
     }
 }

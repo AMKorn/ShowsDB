@@ -2,20 +2,19 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.MainCastInfo;
-import com.andreas.showsdb.model.dto.ShowInfo;
-import com.andreas.showsdb.model.dto.ShowInput;
+import com.andreas.showsdb.model.dto.MainCastDto;
+import com.andreas.showsdb.model.dto.ShowOutputDto;
+import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.service.MainCastService;
 import com.andreas.showsdb.service.ShowsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,24 +25,27 @@ import java.util.List;
 @RequestMapping("/api/shows")
 public class ShowsController {
 
-    @Autowired
-    private ShowsService showsService;
+    private final ShowsService showsService;
 
-    @Autowired
-    private MainCastService mainCastService;
+    private final MainCastService mainCastService;
+
+    public ShowsController(ShowsService showsService, MainCastService mainCastService) {
+        this.showsService = showsService;
+        this.mainCastService = mainCastService;
+    }
 
     @Operation(summary = "List all shows")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = ShowInfo.class)
+                                    schema = @Schema(implementation = ShowOutputDto.class)
                             )
                     )
             )
     })
-    @GetMapping("")
-    public List<ShowInfo> searchAll() {
+    @GetMapping
+    public List<ShowOutputDto> searchAll() {
         return showsService.findAll();
     }
 
@@ -52,7 +54,7 @@ public class ShowsController {
             @ApiResponse(responseCode = "200",
                     description = "Show found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ShowInfo.class)
+                            schema = @Schema(implementation = ShowOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -77,13 +79,13 @@ public class ShowsController {
             @ApiResponse(responseCode = "201",
                     description = "Show created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ShowInfo.class)
+                            schema = @Schema(implementation = ShowOutputDto.class)
                     )
             )
     })
-    @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody ShowInput show) {
-        ShowInfo saved = showsService.save(show);
+    @PostMapping
+    public ResponseEntity<?> create(@RequestBody @Valid ShowInputDto show) {
+        ShowOutputDto saved = showsService.save(show);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 
@@ -92,7 +94,7 @@ public class ShowsController {
             @ApiResponse(responseCode = "200",
                     description = "Show found and modified",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ShowInfo.class)
+                            schema = @Schema(implementation = ShowOutputDto.class)
                     )
             ),
             @ApiResponse(responseCode = "404",
@@ -102,8 +104,8 @@ public class ShowsController {
                     )
             )
     })
-    @PutMapping("")
-    public ResponseEntity<?> modify(@RequestBody ShowInfo show) {
+    @PutMapping
+    public ResponseEntity<?> modify(@RequestBody ShowOutputDto show) {
         try {
             return ResponseEntity.ok(showsService.modify(show));
         } catch (NotFoundException e) {
@@ -142,7 +144,7 @@ public class ShowsController {
                     description = "Shows and characters found",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = MainCastInfo.class)
+                                    schema = @Schema(implementation = MainCastDto.class)
                             )
                     )
             ),
@@ -157,7 +159,7 @@ public class ShowsController {
     public ResponseEntity<?> getMainCast(@Parameter(description = "Id of the show")
                                          @PathVariable("id") long id) {
         try {
-            List<MainCastInfo> mainCasts = mainCastService.findByShow(id);
+            List<MainCastDto> mainCasts = mainCastService.findByShow(id);
             return ResponseEntity.ok(mainCasts);
         } catch (NotFoundException e) {
             return e.getResponse();

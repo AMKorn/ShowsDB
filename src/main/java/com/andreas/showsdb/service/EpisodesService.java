@@ -4,8 +4,8 @@ import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.EpisodeInfo;
-import com.andreas.showsdb.model.dto.EpisodeInput;
+import com.andreas.showsdb.model.dto.EpisodeOutputDto;
+import com.andreas.showsdb.model.dto.EpisodeInputDto;
 import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
@@ -19,68 +19,61 @@ import java.util.NoSuchElementException;
 @Service
 public class EpisodesService {
 
-    @Autowired
-    private EpisodesRepository episodesRepository;
-    @Autowired
-    private SeasonsRepository seasonsRepository;
-    @Autowired
-    private ShowsRepository showsRepository;
+    private final EpisodesRepository episodesRepository;
+    private final SeasonsRepository seasonsRepository;
+    private final ShowsRepository showsRepository;
 
-    public List<@Valid EpisodeInfo> findBySeason(long showId, int seasonNumber) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
-                .orElseThrow(() -> new NotFoundException("Season not found"));
-        return episodesRepository.findBySeason(season).stream()
+    public EpisodesService(EpisodesRepository episodesRepository, SeasonsRepository seasonsRepository, ShowsRepository showsRepository) {
+        this.episodesRepository = episodesRepository;
+        this.seasonsRepository = seasonsRepository;
+        this.showsRepository = showsRepository;
+    }
+
+    public List<@Valid EpisodeOutputDto> findBySeason(long showId, int seasonNumber) {
+        return episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber).stream()
                 .map(Episode::getInfoDto).toList();
     }
 
-    public @Valid EpisodeInfo findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
+    public @Valid EpisodeOutputDto findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
             throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
-                .orElseThrow(() -> new NotFoundException("Season not found"));
-        return episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber)
+        return episodesRepository.findBySeasonShowIdAndSeasonNumberAndNumber(showId, seasonNumber, episodeNumber)
                 .orElseThrow(() -> new NotFoundException("Episode not found"))
                 .getInfoDto();
     }
 
-    public @Valid EpisodeInfo save(long showId, int seasonNumber, EpisodeInput episodeInput) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
+    public @Valid EpisodeOutputDto save(long showId, int seasonNumber, EpisodeInputDto episodeInputDto) throws NotFoundException {
+        Season season = seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"));
 
         Episode episode = Episode.builder()
                 .season(season)
-                .name(episodeInput.getName())
-                .episodeNumber(episodeInput.getEpisodeNumber())
-                .releaseDate(episodeInput.getReleaseDate())
+                .name(episodeInputDto.getName())
+                .number(episodeInputDto.getEpisodeNumber())
+                .releaseDate(episodeInputDto.getReleaseDate())
                 .build();
 
         return episodesRepository.save(episode).getInfoDto();
     }
 
-    public @Valid EpisodeInfo modify(long showId, int seasonNumber, @Valid EpisodeInput episodeInput)
+    public @Valid EpisodeOutputDto modify(long showId, int seasonNumber, @Valid EpisodeInputDto episodeInputDto)
             throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
+        Season season = seasonsRepository.findByShowAndNumber(show, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"));
-        Episode episode = episodesRepository.findBySeasonAndEpisodeNumber(season, episodeInput.getEpisodeNumber())
+        Episode episode = episodesRepository.findBySeasonAndNumber(season, episodeInputDto.getEpisodeNumber())
                 .orElseThrow(() -> new NotFoundException("Episode not found or trying to modify episode number."));
 
-        episode.setName(episodeInput.getName());
-        episode.setReleaseDate(episodeInput.getReleaseDate());
+        episode.setName(episodeInputDto.getName());
+        episode.setReleaseDate(episodeInputDto.getReleaseDate());
 
         return episodesRepository.save(episode).getInfoDto();
     }
 
-    public @Valid EpisodeInfo createInSeason(long showId, int seasonNumber) throws NotFoundException {
+    public @Valid EpisodeOutputDto createInSeason(long showId, int seasonNumber) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
+        Season season = seasonsRepository.findByShowAndNumber(show, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"));
 
         int episodeNumber;
@@ -88,14 +81,14 @@ public class EpisodesService {
             episodeNumber = episodesRepository.findBySeason(season).stream()
                     .max(Episode::compareTo)
                     .orElseThrow()
-                    .getEpisodeNumber() + 1;
+                    .getNumber() + 1;
         } catch (NoSuchElementException e) {
             episodeNumber = 1;
         }
 
         Episode episode = new Episode();
         episode.setSeason(season);
-        episode.setEpisodeNumber(episodeNumber);
+        episode.setNumber(episodeNumber);
         return episodesRepository.save(episode).getInfoDto();
     }
 
@@ -103,9 +96,9 @@ public class EpisodesService {
             throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
+        Season season = seasonsRepository.findByShowAndNumber(show, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"));
-        Episode episode = episodesRepository.findBySeasonAndEpisodeNumber(season, episodeNumber)
+        Episode episode = episodesRepository.findBySeasonAndNumber(season, episodeNumber)
                 .orElseThrow(() -> new NotFoundException("Episode not found"));
         episodesRepository.deleteById(episode.getId());
     }
@@ -113,7 +106,7 @@ public class EpisodesService {
     public void deleteAllBySeason(long showId, int seasonNumber) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndSeasonNumber(show, seasonNumber)
+        Season season = seasonsRepository.findByShowAndNumber(show, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"));
 
         episodesRepository.findBySeason(season)

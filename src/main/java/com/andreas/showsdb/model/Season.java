@@ -1,9 +1,7 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.SeasonInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import jakarta.persistence.*;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,19 +26,17 @@ public class Season implements Comparable<Season> {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "show")
-    @JsonIgnoreProperties(value = {"seasons", "mainCast"})
     private Show show;
     @Column(name = "season_number")
-    private Integer seasonNumber;
+    private Integer number;
 
     @OneToMany(mappedBy = "season", orphanRemoval = true, cascade = CascadeType.ALL)
-    @JsonIgnoreProperties({"season"})
     private List<Episode> episodes;
 
-    public @Valid SeasonInfo getInfoDto() {
-        SeasonInfo.SeasonInfoBuilder seasonInfoBuilder = SeasonInfo.builder()
+    public SeasonOutputDto getInfoDto() {
+        SeasonOutputDto.SeasonOutputDtoBuilder seasonInfoBuilder = SeasonOutputDto.builder()
                 .showId(show.getId())
-                .seasonNumber(seasonNumber);
+                .seasonNumber(number);
         int numberOfEpisodes;
         try {
             numberOfEpisodes = episodes.size();
@@ -54,6 +50,6 @@ public class Season implements Comparable<Season> {
     @Override
     public int compareTo(Season s) {
         if (s.show != show) return 0;
-        return seasonNumber.compareTo(s.getSeasonNumber());
+        return number.compareTo(s.getNumber());
     }
 }

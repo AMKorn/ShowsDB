@@ -1,7 +1,7 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.ShowInfo;
-import com.andreas.showsdb.model.dto.ShowInput;
+import com.andreas.showsdb.model.dto.ShowOutputDto;
+import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -32,14 +32,14 @@ public class Show {
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
 
-    public static Show translateFromDto(@Valid ShowInput dto) {
+    public static Show translateFromDto(@Valid ShowInputDto dto) {
         return Show.builder()
                 .name(dto.getName())
                 .country(dto.getCountry())
                 .build();
     }
 
-    public static Show translateFromDto(@Valid ShowInfo dto) {
+    public static Show translateFromDto(@Valid ShowOutputDto dto) {
         return Show.builder()
                 .id(dto.getId())
                 .name(dto.getName())
@@ -47,8 +47,8 @@ public class Show {
                 .build();
     }
 
-    public @Valid ShowInfo getInfoDto() {
-        ShowInfo.ShowInfoBuilder infoBuilder = ShowInfo.builder()
+    public ShowOutputDto getInfoDto() {
+        ShowOutputDto.ShowOutputDtoBuilder infoBuilder = ShowOutputDto.builder()
                 .id(id)
                 .name(name)
                 .country(country);
