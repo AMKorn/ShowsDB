@@ -32,17 +32,6 @@ public class MainCastService {
                 .toList();
     }
 
-    public @Valid MainCastInfo findByActorAndShow(Long actorId, Long showId) throws NotFoundException {
-        Actor actor = actorsRepository.findById(actorId)
-                .orElseThrow(() -> new NotFoundException("Actor not found"));
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-
-        return mainCastRepository.findDistinctByActorAndShow(actor, show)
-                .orElseThrow(() -> new NotFoundException("Main cast not found"))
-                .getInfoDto();
-    }
-
     public @Valid MainCastInfo save(@Valid MainCastInfo mainCastInfo) throws ShowsDatabaseException {
         Actor actor = actorsRepository.findById(mainCastInfo.getActorId())
                 .orElseThrow(() -> new NotFoundException("Actor not found"));

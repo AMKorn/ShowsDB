@@ -91,7 +91,7 @@ public class SeasonsControllerTest {
 
     @Test
     @Order(4)
-    void testAddSeasonToShowAlreadyExists() throws JsonProcessingException, URISyntaxException {
+    void testAddSeasonToShowAlreadyExists() throws URISyntaxException {
         SeasonInput seasonInput = SeasonInput.builder()
                 .seasonNumber(1)
                 .build();
@@ -106,14 +106,6 @@ public class SeasonsControllerTest {
         assertEquals(1, seasonResponse.getShowId());
         assertEquals(1, seasonResponse.getSeasonNumber());
         assertEquals(0, seasonResponse.getNumberOfEpisodes());
-
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        JsonNode json = objectMapper.readTree(response.getBody());
-//        assertEquals("Show already has a Season 1",
-//                json.path("message").asText());
-//        assertEquals(1, json.path("season").path("showId").asInt());
-//        assertEquals(1, json.path("season").path("seasonNumber").asInt());
-//        assertEquals(0, json.path("season").path("numberOfEpisodes").asInt());
     }
 
     @Test
@@ -219,7 +211,22 @@ public class SeasonsControllerTest {
 
         assertNotNull(response.getBody());
         assertEquals(0, response.getBody().length);
+    }
 
+    @Test
+    @Order(12)
+    void testAddEmptySeasonToEmptyShow() throws URISyntaxException {
+        SeasonInput seasonInput = SeasonInput.builder().build();
+        ResponseEntity<SeasonInfo> response =
+                client.postForEntity(createUri("/api/shows/2/seasons"), seasonInput, SeasonInfo.class);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
+
+        SeasonInfo seasonInfo = response.getBody();
+        assertNotNull(seasonInfo);
+        assertEquals(2L, seasonInfo.getShowId());
+        assertEquals(1, seasonInfo.getSeasonNumber());
     }
 
     private URI createUri(String uri) throws URISyntaxException {
