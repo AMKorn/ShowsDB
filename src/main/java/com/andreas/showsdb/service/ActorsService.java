@@ -27,7 +27,7 @@ public class ActorsService {
 
     public ActorOutputDto findById(long id) throws NotFoundException {
         return actorsRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Actor not found"))
+                .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
@@ -40,7 +40,7 @@ public class ActorsService {
     public ActorOutputDto modify(@Valid ActorOutputDto actorOutputDto) throws NotFoundException {
         Optional<Actor> optionalActor = actorsRepository.findById(actorOutputDto.getId());
         if (optionalActor.isEmpty()) {
-            throw new NotFoundException("Actor not found");
+            throw new NotFoundException();
         }
 
         Actor actor = Actor.translateFromDto(actorOutputDto);

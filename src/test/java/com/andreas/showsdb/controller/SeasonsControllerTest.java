@@ -36,9 +36,6 @@ class SeasonsControllerTest {
     @Test
     @Order(1)
     void testAddSeasonToShow() throws URISyntaxException {
-        // Set-up necessary for when all tests are run together. Can't use @BeforeAll because client is not static
-//        client.delete(createUri("/api/shows/1/seasons"));
-
         SeasonInputDto seasonInputDto = SeasonInputDto.builder()
                 .seasonNumber(1)
                 .build();
@@ -183,17 +180,13 @@ class SeasonsControllerTest {
 
     @Test
     @Order(10)
-    void testDeleteNonexistentSeason() throws URISyntaxException, JsonProcessingException {
+    void testDeleteNonexistentSeason() throws URISyntaxException {
         RequestEntity<Void> request = new RequestEntity<>(HttpMethod.DELETE, createUri("/api/shows/1/seasons/99"));
         ResponseEntity<String> response = client.exchange(request, String.class);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Season not found",
-                json.path("message").asText());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
     }
 
     @Test

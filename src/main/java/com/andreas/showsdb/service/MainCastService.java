@@ -62,7 +62,7 @@ public class MainCastService {
 
         MainCast mainCast = mainCastRepository.findDistinctByActorIdAndShowId(mainCastDto.getActorId(),
                         mainCastDto.getShowId())
-                .orElseThrow(() -> new NotFoundException("Main cast not found"));
+                .orElseThrow(NotFoundException::new);
 
         mainCast.copyInfo(mainCastDto);
 

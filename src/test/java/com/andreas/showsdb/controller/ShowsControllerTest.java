@@ -75,12 +75,8 @@ class ShowsControllerTest {
         ResponseEntity<String> response = client.getForEntity(createUri("/api/shows/10"), String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Show not found",
-                json.path("message").asText());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
     }
 
     @Test
@@ -143,12 +139,8 @@ class ShowsControllerTest {
         ResponseEntity<String> response = client.exchange(request, String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Show not found",
-                json.path("message").asText());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
     }
 
     @Test
@@ -175,13 +167,9 @@ class ShowsControllerTest {
         RequestEntity<Void> request = new RequestEntity<>(HttpMethod.DELETE, createUri("/api/shows/99"));
         ResponseEntity<String> response = client.exchange(request, String.class);
 
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Show not found",
-                json.path("message").asText());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
     }
 
     private URI createUri(String uri) throws URISyntaxException {

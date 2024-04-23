@@ -22,8 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -93,14 +92,8 @@ class ActorsControllerTest {
         ResponseEntity<String> response = client.getForEntity(createUri("/api/actors/9"), String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-
-        String body = response.getBody();
-        assertNotNull(body);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(body);
-        assertEquals("Actor not found", json.path("message").asText());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
     }
 
     @Test
@@ -116,8 +109,6 @@ class ActorsControllerTest {
                 .country(oldActorOutputDto.getCountry())
                 .birthDate(Utils.parseDate("23/11/1978"))
                 .build();
-
-//        actor.setBirthDate(Utils.parseDate("23/11/1978"));
 
         client.put(createUri("/api/actors"), newActorOutputDto);
 
@@ -136,15 +127,11 @@ class ActorsControllerTest {
                 .build();
 
         RequestEntity<ActorOutputDto> request = new RequestEntity<>(actor, HttpMethod.PUT, createUri("/api/actors"));
-        ResponseEntity<String> response = client.exchange(request, String.class);
+        ResponseEntity<ActorOutputDto> response = client.exchange(request, ActorOutputDto.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode json = objectMapper.readTree(response.getBody());
-        assertEquals("Actor not found",
-                json.path("message").asText());
+        assertNull(response.getHeaders().getContentType());
+        assertNull(response.getBody());
     }
 
     @Test

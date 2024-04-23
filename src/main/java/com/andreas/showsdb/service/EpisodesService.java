@@ -33,14 +33,14 @@ public class EpisodesService {
     public EpisodeOutputDto findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
             throws NotFoundException {
         return episodesRepository.findBySeasonShowIdAndSeasonNumberAndNumber(showId, seasonNumber, episodeNumber)
-                .orElseThrow(() -> new NotFoundException("Episode not found"))
+                .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
     public EpisodeOutputDto save(long showId, int seasonNumber, EpisodeInputDto episodeInputDto)
             throws NotFoundException {
         Season season = seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
-                .orElseThrow(() -> new NotFoundException("Season not found"));
+                .orElseThrow(NotFoundException::new);
 
         Episode episode = Episode.builder()
                 .season(season)
@@ -66,7 +66,7 @@ public class EpisodesService {
 
     public EpisodeOutputDto createInSeason(long showId, int seasonNumber) throws NotFoundException {
         Season season = seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
-                .orElseThrow(() -> new NotFoundException("Season not found"));
+                .orElseThrow(NotFoundException::new);
 
         int episodeNumber;
         try {

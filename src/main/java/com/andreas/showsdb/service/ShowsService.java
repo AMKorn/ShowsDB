@@ -27,7 +27,7 @@ public class ShowsService {
 
     public ShowOutputDto findById(long id) throws NotFoundException {
         return showsRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Show not found"))
+                .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
@@ -38,9 +38,7 @@ public class ShowsService {
 
     public ShowOutputDto modify(ShowOutputDto showOutputDto) throws NotFoundException {
         Optional<Show> optionalShow = showsRepository.findById(showOutputDto.getId());
-        if (optionalShow.isEmpty()) {
-            throw new NotFoundException("Show not found");
-        }
+        if (optionalShow.isEmpty()) throw new NotFoundException();
 
         Show show = Show.translateFromDto(showOutputDto);
         Show saved = showsRepository.save(show);

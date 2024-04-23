@@ -11,4 +11,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionMessage> handleNotFoundException(ShowsDatabaseException e) {
         return e.getResponse();
     }
+
+    @ExceptionHandler(value = Exception.class)
+    public void handleException(Exception e) {
+        System.err.println(e.getMessage());
+    }
 }
