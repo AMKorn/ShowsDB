@@ -1,7 +1,6 @@
 package com.andreas.showsdb.controller;
 
 
-import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.model.dto.ActorOutputDto;
@@ -52,10 +51,10 @@ public class MainCastController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Actor or show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Actor or show not found"
+            ),
+            @ApiResponse(responseCode = "409",
+                    description = "Combination already present in database"
             )
     })
     @PostMapping
@@ -73,10 +72,7 @@ public class MainCastController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Actor, show or main cast not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Actor, show or main cast not found"
             )
     })
     @PutMapping
@@ -89,12 +85,6 @@ public class MainCastController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Main cast deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Actor, show or main cast not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping

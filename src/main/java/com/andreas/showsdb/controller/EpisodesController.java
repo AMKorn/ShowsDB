@@ -1,6 +1,5 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.EpisodeInputDto;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;
@@ -47,10 +46,7 @@ public class EpisodesController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show or season not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show or season not found"
             ),
             @ApiResponse(responseCode = "409",
                     description = "Episode already exists. Returns old episode",
@@ -115,10 +111,7 @@ public class EpisodesController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show, season or episode not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show, season or episode not found"
             )
     })
     @GetMapping("/{episodeNumber}")
@@ -140,12 +133,6 @@ public class EpisodesController {
                                     schema = @Schema(implementation = EpisodeOutputDto.class)
                             )
                     )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show or season not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @GetMapping
@@ -165,10 +152,7 @@ public class EpisodesController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show, season or episode not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show, season or episode not found"
             )
     })
     @PutMapping
@@ -184,12 +168,6 @@ public class EpisodesController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Episode deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show, season or episode not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping("/{episodeNumber}")
@@ -206,12 +184,6 @@ public class EpisodesController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Episodes deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show or season not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping

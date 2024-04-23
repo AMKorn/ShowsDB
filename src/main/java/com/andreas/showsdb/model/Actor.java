@@ -1,7 +1,7 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.model.dto.ActorInputDto;
+import com.andreas.showsdb.model.dto.ActorOutputDto;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

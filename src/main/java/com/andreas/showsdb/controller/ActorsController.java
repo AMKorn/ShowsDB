@@ -1,6 +1,5 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.ActorInputDto;
 import com.andreas.showsdb.model.dto.ActorOutputDto;
@@ -56,15 +55,12 @@ public class ActorsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Actor not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Actor not found"
             )
     })
     @GetMapping("/{actorId}")
     public ActorOutputDto get(@Parameter(description = "Id of the actor to be found")
-                                              @PathVariable("actorId") long id) throws NotFoundException {
+                              @PathVariable("actorId") long id) throws NotFoundException {
         return actorsService.findById(id);
     }
 
@@ -92,10 +88,7 @@ public class ActorsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Actor not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Actor not found"
             )
     })
     @PutMapping
@@ -107,12 +100,6 @@ public class ActorsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Actor deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Actor not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping("/{actorId}")
@@ -132,10 +119,7 @@ public class ActorsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Actor not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Actor not found"
             )
     })
     @GetMapping("/{actorId}/shows")

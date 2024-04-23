@@ -1,6 +1,5 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
@@ -57,10 +56,7 @@ public class ShowsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show not found"
             )
     })
     @GetMapping("/{id}")
@@ -93,10 +89,7 @@ public class ShowsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show not found"
             )
     })
     @PutMapping
@@ -108,12 +101,6 @@ public class ShowsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Show deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping("/{id}")
@@ -130,12 +117,6 @@ public class ShowsController {
                             array = @ArraySchema(
                                     schema = @Schema(implementation = MainCastDto.class)
                             )
-                    )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
                     )
             )
     })

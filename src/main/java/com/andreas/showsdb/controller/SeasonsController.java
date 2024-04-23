@@ -68,10 +68,7 @@ public class SeasonsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show not found"
             ),
             @ApiResponse(responseCode = "409",
                     description = "Season already exists. Returns old season",
@@ -110,10 +107,7 @@ public class SeasonsController {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "Show or season not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
+                    description = "Show or season not found"
             )
     })
     @GetMapping("/{seasonNumber}")
@@ -127,18 +121,12 @@ public class SeasonsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Season deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show or season not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping("/{seasonNumber}")
     public void delete(@Parameter(description = "Id of the show")
                        @PathVariable("showId") long showId,
-                       @PathVariable("seasonNumber") Integer seasonNumber) throws NotFoundException {
+                       @PathVariable("seasonNumber") Integer seasonNumber) {
         seasonsService.delete(showId, seasonNumber);
     }
 
@@ -146,12 +134,6 @@ public class SeasonsController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Seasons deleted"
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show not found",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class)
-                    )
             )
     })
     @DeleteMapping

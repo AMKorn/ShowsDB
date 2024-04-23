@@ -1,7 +1,7 @@
 package com.andreas.showsdb.model;
 
-import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
+import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;

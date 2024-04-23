@@ -1,11 +1,9 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.model.dto.ActorInputDto;
+import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;

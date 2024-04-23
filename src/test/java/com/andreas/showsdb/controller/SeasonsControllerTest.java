@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.model.dto.SeasonInputDto;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
