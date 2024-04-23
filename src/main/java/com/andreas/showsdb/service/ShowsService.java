@@ -2,10 +2,9 @@ package com.andreas.showsdb.service;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
+import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.repository.ShowsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,8 +13,11 @@ import java.util.Optional;
 @Service
 public class ShowsService {
 
-    @Autowired
-    private ShowsRepository showsRepository;
+    private final ShowsRepository showsRepository;
+
+    public ShowsService(ShowsRepository showsRepository) {
+        this.showsRepository = showsRepository;
+    }
 
     public List<ShowOutputDto> findAll() {
         return showsRepository.findAll().stream()
@@ -31,12 +33,7 @@ public class ShowsService {
 
     public ShowOutputDto save(ShowInputDto showInputDto) {
         Show show = Show.translateFromDto(showInputDto);
-        try {
-            return showsRepository.save(show).getInfoDto();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return null;
-        }
+        return showsRepository.save(show).getInfoDto();
     }
 
     public ShowOutputDto modify(ShowOutputDto showOutputDto) throws NotFoundException {

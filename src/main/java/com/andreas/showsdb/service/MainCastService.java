@@ -10,7 +10,6 @@ import com.andreas.showsdb.repository.ActorsRepository;
 import com.andreas.showsdb.repository.MainCastRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -19,26 +18,32 @@ import java.util.Optional;
 
 @Service
 public class MainCastService {
-    @Autowired
-    private MainCastRepository mainCastRepository;
-    @Autowired
-    private ActorsRepository actorsRepository;
-    @Autowired
-    private ShowsRepository showsRepository;
+    private final MainCastRepository mainCastRepository;
+    private final ActorsRepository actorsRepository;
+    private final ShowsRepository showsRepository;
 
-    public List<@Valid MainCastDto> findAll() {
+    public MainCastService(MainCastRepository mainCastRepository,
+                           ActorsRepository actorsRepository,
+                           ShowsRepository showsRepository) {
+        this.mainCastRepository = mainCastRepository;
+        this.actorsRepository = actorsRepository;
+        this.showsRepository = showsRepository;
+    }
+
+    public List<MainCastDto> findAll() {
         return mainCastRepository.findAll().stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
-    public @Valid MainCastDto save(@Valid MainCastDto mainCastDto) throws ShowsDatabaseException {
+    public MainCastDto save(@Valid MainCastDto mainCastDto) throws ShowsDatabaseException {
         Actor actor = actorsRepository.findById(mainCastDto.getActorId())
                 .orElseThrow(() -> new NotFoundException("Actor not found"));
         Show show = showsRepository.findById(mainCastDto.getShowId())
                 .orElseThrow(() -> new NotFoundException("Show not found"));
 
-        Optional<MainCast> optionalMainCast = mainCastRepository.findDistinctByActorAndShow(actor, show);
+        Optional<MainCast> optionalMainCast = mainCastRepository.findDistinctByActorIdAndShowId(
+                mainCastDto.getActorId(), mainCastDto.getShowId());
         if (optionalMainCast.isPresent()) {
             throw new ShowsDatabaseException("That actor is already in that show", HttpStatus.CONFLICT);
         }
@@ -53,13 +58,10 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
-    public @Valid MainCastDto modify(@Valid MainCastDto mainCastDto) throws NotFoundException {
-        Actor actor = actorsRepository.findById(mainCastDto.getActorId())
-                .orElseThrow(() -> new NotFoundException("Actor not found"));
-        Show show = showsRepository.findById(mainCastDto.getShowId())
-                .orElseThrow(() -> new NotFoundException("Show not found"));
+    public MainCastDto modify(@Valid MainCastDto mainCastDto) throws NotFoundException {
 
-        MainCast mainCast = mainCastRepository.findDistinctByActorAndShow(actor, show)
+        MainCast mainCast = mainCastRepository.findDistinctByActorIdAndShowId(mainCastDto.getActorId(),
+                        mainCastDto.getShowId())
                 .orElseThrow(() -> new NotFoundException("Main cast not found"));
 
         mainCast.copyInfo(mainCastDto);
@@ -67,30 +69,19 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
-    public List<@Valid MainCastDto> findByActor(long actorId) throws NotFoundException {
-        Actor actor = actorsRepository.findById(actorId)
-                .orElseThrow(() -> new NotFoundException("Actor not found"));
-
-        return mainCastRepository.findByActor(actor).stream()
+    public List<MainCastDto> findByActor(long actorId) {
+        return mainCastRepository.findByActorId(actorId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
-    public List<@Valid MainCastDto> findByShow(long showId) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-
-        return mainCastRepository.findByShow(show).stream()
+    public List<MainCastDto> findByShow(long showId) {
+        return mainCastRepository.findByShowId(showId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
-    public void delete(Long actorId, Long showId) throws NotFoundException {
-        Actor actor = actorsRepository.findById(actorId)
-                .orElseThrow(() -> new NotFoundException("Actor not found"));
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-
-        mainCastRepository.deleteDistinctByActorAndShow(actor, show);
+    public void delete(Long actorId, Long showId) {
+        mainCastRepository.deleteDistinctByActorIdAndShowId(actorId, showId);
     }
 }

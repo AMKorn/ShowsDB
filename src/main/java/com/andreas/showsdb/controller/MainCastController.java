@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,7 +38,7 @@ public class MainCastController {
                     )
             )
     })
-    @GetMapping("")
+    @GetMapping
     public List<MainCastDto> getAll() {
         return mainCastService.findAll();
     }
@@ -59,14 +58,10 @@ public class MainCastController {
                     )
             )
     })
-    @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody MainCastDto mainCastDto) {
-        try {
-            MainCastDto savedMainCast = mainCastService.save(mainCastDto);
-            return new ResponseEntity<>(savedMainCast, HttpStatus.CREATED);
-        } catch (ShowsDatabaseException e) {
-            return e.getResponse();
-        }
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public MainCastDto create(@RequestBody MainCastDto mainCastDto) throws ShowsDatabaseException {
+        return mainCastService.save(mainCastDto);
     }
 
     @Operation(summary = "Modify a main cast passed through body")
@@ -84,15 +79,11 @@ public class MainCastController {
                     )
             )
     })
-    @PutMapping("")
-    public ResponseEntity<?> modify(@RequestBody MainCastDto mainCastDto) {
-        try {
-            MainCastDto modifiedMainCast = mainCastService.modify(mainCastDto);
-            return ResponseEntity.ok(modifiedMainCast);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @PutMapping
+    public MainCastDto modify(@RequestBody MainCastDto mainCastDto) throws NotFoundException {
+        return mainCastService.modify(mainCastDto);
     }
+
 
     @Operation(summary = "Delete a main cast")
     @ApiResponses(value = {
@@ -106,16 +97,11 @@ public class MainCastController {
                     )
             )
     })
-    @DeleteMapping("")
-    public ResponseEntity<?> delete(@Parameter(description = "Id of the actor")
-                                    @RequestParam("actor") Long actorId,
-                                    @Parameter(description = "Id of the show")
-                                    @RequestParam("show") Long showId) {
-        try {
-            mainCastService.delete(actorId, showId);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @DeleteMapping
+    public void delete(@Parameter(description = "Id of the actor")
+                       @RequestParam("actor") Long actorId,
+                       @Parameter(description = "Id of the show")
+                       @RequestParam("show") Long showId) {
+        mainCastService.delete(actorId, showId);
     }
 }

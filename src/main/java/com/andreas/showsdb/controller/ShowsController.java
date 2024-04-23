@@ -3,8 +3,8 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.MainCastDto;
-import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
+import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.service.MainCastService;
 import com.andreas.showsdb.service.ShowsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -65,13 +64,9 @@ public class ShowsController {
             )
     })
     @GetMapping("/{id}")
-    public ResponseEntity<?> get(@Parameter(description = "Id of the show")
-                                 @PathVariable("id") long id) {
-        try {
-            return ResponseEntity.ok(showsService.findById(id));
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public ShowOutputDto get(@Parameter(description = "Id of the show")
+                             @PathVariable("id") long id) throws NotFoundException {
+        return showsService.findById(id);
     }
 
     @Operation(summary = "Create a show passed through body. Does not check for duplicates")
@@ -84,9 +79,9 @@ public class ShowsController {
             )
     })
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody @Valid ShowInputDto show) {
-        ShowOutputDto saved = showsService.save(show);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ShowOutputDto create(@RequestBody @Valid ShowInputDto show) {
+        return showsService.save(show);
     }
 
     @Operation(summary = "Modify a show passed through body")
@@ -105,12 +100,8 @@ public class ShowsController {
             )
     })
     @PutMapping
-    public ResponseEntity<?> modify(@RequestBody ShowOutputDto show) {
-        try {
-            return ResponseEntity.ok(showsService.modify(show));
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public ShowOutputDto modify(@RequestBody ShowOutputDto show) throws NotFoundException {
+        return showsService.modify(show);
     }
 
     @Operation(summary = "Delete a show given the specified id by parameter")
@@ -126,16 +117,9 @@ public class ShowsController {
             )
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@Parameter(description = "Id of the show")
-                                    @PathVariable("id") long id) {
-        try {
-            showsService.findById(id);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
-
+    public void delete(@Parameter(description = "Id of the show")
+                       @PathVariable("id") long id) {
         showsService.deleteById(id);
-        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Find all the main cast of a show and the characters they play")
@@ -156,13 +140,8 @@ public class ShowsController {
             )
     })
     @GetMapping("/{id}/main-cast")
-    public ResponseEntity<?> getMainCast(@Parameter(description = "Id of the show")
+    public List<MainCastDto> getMainCast(@Parameter(description = "Id of the show")
                                          @PathVariable("id") long id) {
-        try {
-            List<MainCastDto> mainCasts = mainCastService.findByShow(id);
-            return ResponseEntity.ok(mainCasts);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+        return mainCastService.findByShow(id);
     }
 }

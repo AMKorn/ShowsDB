@@ -1,7 +1,6 @@
 package com.andreas.showsdb.model;
 
 import com.andreas.showsdb.model.dto.MainCastDto;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -24,13 +23,11 @@ public class MainCast {
     @ManyToOne
     @MapsId("actorId")
     @JoinColumn(name = "id_actor")
-    @JsonIgnoreProperties({"showsAsMainCast"})
     Actor actor;
 
     @ManyToOne
     @MapsId("showId")
     @JoinColumn(name = "id_show")
-    @JsonIgnoreProperties({"seasons", "mainCast"})
     Show show;
 
     String character;

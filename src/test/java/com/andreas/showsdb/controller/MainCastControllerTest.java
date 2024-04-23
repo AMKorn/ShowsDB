@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 //@Disabled
-public class MainCastControllerTest {
+class MainCastControllerTest {
 
     @Autowired
     private TestRestTemplate client;

@@ -2,8 +2,8 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.model.dto.ActorInputDto;
+import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,7 +42,7 @@ public class ActorsController {
                     )
             )
     })
-    @GetMapping("")
+    @GetMapping
     public List<ActorOutputDto> getAll() {
         return actorsService.findAll();
     }
@@ -64,13 +63,9 @@ public class ActorsController {
             )
     })
     @GetMapping("/{actorId}")
-    public ResponseEntity<?> get(@Parameter(description = "Id of the actor to be found")
-                                 @PathVariable("actorId") long id) {
-        try {
-            return ResponseEntity.ok(actorsService.findById(id));
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public ActorOutputDto get(@Parameter(description = "Id of the actor to be found")
+                                              @PathVariable("actorId") long id) throws NotFoundException {
+        return actorsService.findById(id);
     }
 
     @Operation(summary = "Create an actor passed through body. Does not check for duplicates")
@@ -82,10 +77,10 @@ public class ActorsController {
                     )
             )
     })
-    @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody ActorInputDto actor) {
-        ActorOutputDto saved = actorsService.save(actor);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ActorOutputDto create(@RequestBody ActorInputDto actor) {
+        return actorsService.save(actor);
     }
 
     @Operation(summary = "Modify an actor passed through body")
@@ -103,13 +98,9 @@ public class ActorsController {
                     )
             )
     })
-    @PutMapping("")
-    public ResponseEntity<?> modify(@RequestBody ActorOutputDto actor) {
-        try {
-            return ResponseEntity.ok(actorsService.modify(actor));
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @PutMapping
+    public ActorOutputDto modify(@RequestBody ActorOutputDto actor) throws NotFoundException {
+        return actorsService.modify(actor);
     }
 
     @Operation(summary = "Delete an actor given the specified id by parameter")
@@ -125,16 +116,9 @@ public class ActorsController {
             )
     })
     @DeleteMapping("/{actorId}")
-    public ResponseEntity<?> delete(@Parameter(description = "Id of the actor to be deleted")
-                                    @PathVariable("actorId") long id) {
-        try {
-            actorsService.findById(id);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
-
+    public void delete(@Parameter(description = "Id of the actor to be deleted")
+                       @PathVariable("actorId") long id) {
         actorsService.deleteById(id);
-        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Find all the show ids in which an actor was main cast and the characters they played")
@@ -155,12 +139,7 @@ public class ActorsController {
             )
     })
     @GetMapping("/{actorId}/shows")
-    public ResponseEntity<?> getShows(@PathVariable("actorId") long id) {
-        try {
-            List<MainCastDto> showsAsMainCast = mainCastService.findByActor(id);
-            return ResponseEntity.ok(showsAsMainCast);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public List<MainCastDto> getShows(@PathVariable("actorId") long id) {
+        return mainCastService.findByActor(id);
     }
 }

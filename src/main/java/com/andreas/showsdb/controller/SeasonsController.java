@@ -2,8 +2,8 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.model.dto.SeasonInputDto;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.service.SeasonsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,15 +46,10 @@ public class SeasonsController {
                     )
             )
     })
-    @GetMapping("")
-    public ResponseEntity<?> getAllByShow(@Parameter(description = "Id of the show")
-                                          @PathVariable("showId") long showId) {
-        try {
-            List<SeasonOutputDto> season = seasonsService.findByShow(showId);
-            return ResponseEntity.ok(season);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @GetMapping
+    public List<SeasonOutputDto> getAllByShow(@Parameter(description = "Id of the show")
+                                              @PathVariable("showId") long showId) {
+        return seasonsService.findByShow(showId);
     }
 
     @Operation(summary = "Create a season",
@@ -86,27 +80,24 @@ public class SeasonsController {
                     )
             )
     })
-    @PostMapping("")
-    public ResponseEntity<?> create(@Parameter(description = "Id of the show")
-                                    @PathVariable("showId") long showId,
-                                    @RequestBody(required = false) SeasonInputDto seasonInputDto) {
-        try {
-            if (seasonInputDto == null || seasonInputDto.getSeasonNumber() == null) {
-                SeasonOutputDto savedSeason = seasonsService.createInShow(showId);
-                return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
-            }
+    @PostMapping
+    public ResponseEntity<SeasonOutputDto> create(@Parameter(description = "Id of the show")
+                                                  @PathVariable("showId") long showId,
+                                                  @RequestBody(required = false) SeasonInputDto seasonInputDto)
+            throws NotFoundException {
+        if (seasonInputDto == null || seasonInputDto.getSeasonNumber() == null) {
+            SeasonOutputDto savedSeason = seasonsService.createInShow(showId);
+            return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
+        }
 
-            try {
-                SeasonOutputDto savedSeason = seasonsService.save(showId, seasonInputDto);
-                return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
-            } catch (DataIntegrityViolationException e) {
-                Optional<@Valid SeasonOutputDto> optionalSeason = seasonsService.findByShow(showId).stream()
-                        .filter(s -> s.getSeasonNumber().equals(seasonInputDto.getSeasonNumber()))
-                        .findFirst();
-                return new ResponseEntity<>(optionalSeason.orElseThrow(), HttpStatus.CONFLICT);
-            }
-        } catch (NotFoundException e) {
-            return e.getResponse();
+        try {
+            SeasonOutputDto savedSeason = seasonsService.save(showId, seasonInputDto);
+            return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            Optional<SeasonOutputDto> optionalSeason = seasonsService.findByShow(showId).stream()
+                    .filter(s -> s.getSeasonNumber().equals(seasonInputDto.getSeasonNumber()))
+                    .findFirst();
+            return new ResponseEntity<>(optionalSeason.orElseThrow(), HttpStatus.CONFLICT);
         }
     }
 
@@ -126,15 +117,10 @@ public class SeasonsController {
             )
     })
     @GetMapping("/{seasonNumber}")
-    public ResponseEntity<?> get(@Parameter(description = "Id of the show")
-                                 @PathVariable("showId") long showId,
-                                 @PathVariable("seasonNumber") int seasonNumber) {
-        try {
-            SeasonOutputDto seasonOutputDto = seasonsService.findByShowAndNumber(showId, seasonNumber);
-            return new ResponseEntity<>(seasonOutputDto, HttpStatus.OK);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public SeasonOutputDto get(@Parameter(description = "Id of the show")
+                               @PathVariable("showId") long showId,
+                               @PathVariable("seasonNumber") int seasonNumber) throws NotFoundException {
+        return seasonsService.findByShowAndNumber(showId, seasonNumber);
     }
 
     @Operation(summary = "Delete a season")
@@ -150,15 +136,10 @@ public class SeasonsController {
             )
     })
     @DeleteMapping("/{seasonNumber}")
-    public ResponseEntity<?> delete(@Parameter(description = "Id of the show")
-                                    @PathVariable("showId") long showId,
-                                    @PathVariable("seasonNumber") Integer seasonNumber) {
-        try {
-            seasonsService.delete(showId, seasonNumber);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public void delete(@Parameter(description = "Id of the show")
+                       @PathVariable("showId") long showId,
+                       @PathVariable("seasonNumber") Integer seasonNumber) throws NotFoundException {
+        seasonsService.delete(showId, seasonNumber);
     }
 
     @Operation(summary = "Delete all seasons from a show")
@@ -173,14 +154,9 @@ public class SeasonsController {
                     )
             )
     })
-    @DeleteMapping("")
-    public ResponseEntity<?> deleteSeasons(@Parameter(description = "Id of the show")
-                                           @PathVariable("showId") long showId) {
-        try {
-            seasonsService.deleteByShow(showId);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @DeleteMapping
+    public void deleteSeasons(@Parameter(description = "Id of the show")
+                              @PathVariable("showId") long showId) {
+        seasonsService.deleteByShow(showId);
     }
 }

@@ -9,14 +9,14 @@ import lombok.Value;
 
 @Value
 @Builder
-@JsonDeserialize(builder = SeasonInputDto.SeasonInputBuilder.class)
+@JsonDeserialize(builder = SeasonInputDto.SeasonInputDtoBuilder.class)
 public class SeasonInputDto {
     @Positive(message = "Season number must be higher than 0")
     @JsonProperty("seasonNumber")
     Integer seasonNumber;
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class SeasonInputBuilder {
+    public static class SeasonInputDtoBuilder {
 
     }
 }

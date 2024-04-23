@@ -3,12 +3,11 @@ package com.andreas.showsdb.service;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
-import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.model.dto.SeasonInputDto;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,28 +15,26 @@ import java.util.NoSuchElementException;
 
 @Service
 public class SeasonsService {
-    @Autowired
-    private ShowsRepository showsRepository;
-    @Autowired
-    private SeasonsRepository seasonsRepository;
+    private final ShowsRepository showsRepository;
+    private final SeasonsRepository seasonsRepository;
 
-    public List<@Valid SeasonOutputDto> findByShow(long showId) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
+    public SeasonsService(ShowsRepository showsRepository, SeasonsRepository seasonsRepository) {
+        this.showsRepository = showsRepository;
+        this.seasonsRepository = seasonsRepository;
+    }
 
-        return seasonsRepository.findByShow(show).stream()
+    public List<SeasonOutputDto> findByShow(long showId) {
+        return seasonsRepository.findByShowId(showId).stream()
                 .map(Season::getInfoDto).toList();
     }
 
-    public @Valid SeasonOutputDto findByShowAndNumber(long showId, int seasonNumber) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-        return seasonsRepository.findByShowAndNumber(show, seasonNumber)
+    public SeasonOutputDto findByShowAndNumber(long showId, int seasonNumber) throws NotFoundException {
+        return seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"))
                 .getInfoDto();
     }
 
-    public @Valid SeasonOutputDto save(long showId, @Valid SeasonInputDto seasonInputDto) throws NotFoundException {
+    public SeasonOutputDto save(long showId, @Valid SeasonInputDto seasonInputDto) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
         Season season = Season.builder()
@@ -48,12 +45,12 @@ public class SeasonsService {
         return seasonsRepository.save(season).getInfoDto();
     }
 
-    public @Valid SeasonOutputDto createInShow(long showId) throws NotFoundException {
+    public SeasonOutputDto createInShow(long showId) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
         int seasonNumber;
         try {
-            seasonNumber = seasonsRepository.findByShow(show).stream()
+            seasonNumber = seasonsRepository.findByShowId(showId).stream()
                     .max(Season::compareTo)
                     .orElseThrow()
                     .getNumber() + 1;
@@ -69,21 +66,12 @@ public class SeasonsService {
         return seasonsRepository.save(season).getInfoDto();
     }
 
-    public void delete(long showId, int seasonNumber) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-        Season season = seasonsRepository.findByShowAndNumber(show, seasonNumber)
-                .orElseThrow(() -> new NotFoundException("Season not found"));
-
-        seasonsRepository.deleteById(season.getId());
+    public void delete(long showId, int seasonNumber) {
+        seasonsRepository.deleteByShowIdAndNumber(showId, seasonNumber);
     }
 
-    public void deleteByShow(long showId) throws NotFoundException {
-        Show show = showsRepository.findById(showId)
-                .orElseThrow(() -> new NotFoundException("Show not found"));
-
-        seasonsRepository.findByShow(show)
-                .forEach(seasonsRepository::delete);
+    public void deleteByShow(long showId) {
+        seasonsRepository.deleteAllByShowId(showId);
     }
 
 }

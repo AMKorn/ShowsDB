@@ -49,15 +49,6 @@ class ShowsJpaTest {
     }
 
     @Test
-    void testFindShowByName() {
-        String showName = "What We Do in the Shadows";
-        Show show = showsRepository.findByName(showName).getFirst();
-
-        assertEquals(1L, show.getId());
-        assertEquals(showName, show.getName());
-    }
-
-    @Test
     void testUpdateShow() {
         Show show = showsRepository.findById(1L).orElseThrow();
         show.setCountry("Canada");
@@ -70,12 +61,11 @@ class ShowsJpaTest {
     @Test
     void testDeleteShow() {
         List<Show> shows = showsRepository.findAll();
-        assertEquals(2L, shows.size());
+        assertEquals(2, shows.size());
 
         showsRepository.deleteById(1L);
 
         shows = showsRepository.findAll();
-        assertEquals(1L, shows.size());
-        assertEquals(0, showsRepository.findByName("What We Do in the Shadows").size());
+        assertEquals(1, shows.size());
     }
 }

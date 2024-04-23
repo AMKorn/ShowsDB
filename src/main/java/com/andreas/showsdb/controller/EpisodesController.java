@@ -2,8 +2,8 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.model.dto.EpisodeInputDto;
+import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.service.EpisodesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,53 +59,50 @@ public class EpisodesController {
                     )
             )
     })
-    @PostMapping("")
-    public ResponseEntity<?> create(@Parameter(description = "Id of the show")
-                                    @PathVariable("showId") long showId,
-                                    @Parameter(description = "Season number")
-                                    @PathVariable("seasonNumber") int seasonNumber,
-                                    @RequestBody(required = false) EpisodeInputDto episodeInputDto) {
-        try {
-            if (episodeInputDto == null) {
-                EpisodeOutputDto savedEpisode = episodesService.createInSeason(showId, seasonNumber);
-                return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
-            }
+    @PostMapping
+    public ResponseEntity<EpisodeOutputDto> create(@Parameter(description = "Id of the show")
+                                                   @PathVariable("showId") long showId,
+                                                   @Parameter(description = "Season number")
+                                                   @PathVariable("seasonNumber") int seasonNumber,
+                                                   @RequestBody(required = false) EpisodeInputDto episodeInputDto)
+            throws NotFoundException {
+        if (episodeInputDto == null) {
+            EpisodeOutputDto savedEpisode = episodesService.createInSeason(showId, seasonNumber);
+            return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
+        }
 
-            // In case no episode number was stated, we put it by default as the next episode in the season.
-            Integer episodeNumber = episodeInputDto.getEpisodeNumber();
-            if (episodeNumber == null) {
-                try {
-                    episodeNumber = episodesService.findBySeason(showId, seasonNumber).stream()
-                            .max(Comparator
-                                    .comparingLong(EpisodeOutputDto::getShowId)
-                                    .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
-                                    .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
-                            .orElseThrow()
-                            .getEpisodeNumber() + 1;
-                } catch (NoSuchElementException e) {
-                    episodeNumber = 1;
-                }
-                EpisodeInputDto oldEpisodeInputDto = episodeInputDto;
-
-                episodeInputDto = EpisodeInputDto.builder()
-                        .episodeNumber(episodeNumber)
-                        .name(oldEpisodeInputDto.getName())
-                        .releaseDate(oldEpisodeInputDto.getReleaseDate())
-                        .build();
-            }
-
+        // In case no episode number was stated, we put it by default as the next episode in the season.
+        Integer episodeNumber = episodeInputDto.getEpisodeNumber();
+        if (episodeNumber == null) {
             try {
-                EpisodeOutputDto savedEpisode = episodesService.save(showId, seasonNumber, episodeInputDto);
-                return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
-            } catch (DataIntegrityViolationException e) {
-                EpisodeInputDto finalEpisodeInputDto = episodeInputDto;
-                Optional<EpisodeOutputDto> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
-                        .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInputDto.getEpisodeNumber()))
-                        .findFirst();
-                return new ResponseEntity<>(optionalEpisode.orElseThrow(), HttpStatus.CONFLICT);
+                episodeNumber = episodesService.findBySeason(showId, seasonNumber).stream()
+                        .max(Comparator
+                                .comparingLong(EpisodeOutputDto::getShowId)
+                                .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
+                                .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
+                        .orElseThrow()
+                        .getEpisodeNumber() + 1;
+            } catch (NoSuchElementException e) {
+                episodeNumber = 1;
             }
-        } catch (NotFoundException e) {
-            return e.getResponse();
+            EpisodeInputDto oldEpisodeInputDto = episodeInputDto;
+
+            episodeInputDto = EpisodeInputDto.builder()
+                    .episodeNumber(episodeNumber)
+                    .name(oldEpisodeInputDto.getName())
+                    .releaseDate(oldEpisodeInputDto.getReleaseDate())
+                    .build();
+        }
+
+        try {
+            EpisodeOutputDto savedEpisode = episodesService.save(showId, seasonNumber, episodeInputDto);
+            return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
+        } catch (DataIntegrityViolationException e) {
+            EpisodeInputDto finalEpisodeInputDto = episodeInputDto;
+            Optional<EpisodeOutputDto> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
+                    .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInputDto.getEpisodeNumber()))
+                    .findFirst();
+            return new ResponseEntity<>(optionalEpisode.orElseThrow(), HttpStatus.CONFLICT);
         }
     }
 
@@ -125,19 +122,13 @@ public class EpisodesController {
             )
     })
     @GetMapping("/{episodeNumber}")
-    public ResponseEntity<?> get(@Parameter(description = "Id of the show")
-                                 @PathVariable("showId") long showId,
-                                 @Parameter(description = "Season number")
-                                 @PathVariable("seasonNumber") int seasonNumber,
-                                 @Parameter(description = "Episode number")
-                                 @PathVariable("episodeNumber") int episodeNumber) {
-        try {
-            EpisodeOutputDto episodeOutputDto =
-                    episodesService.findByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
-            return ResponseEntity.ok(episodeOutputDto);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public EpisodeOutputDto get(@Parameter(description = "Id of the show")
+                                @PathVariable("showId") long showId,
+                                @Parameter(description = "Season number")
+                                @PathVariable("seasonNumber") int seasonNumber,
+                                @Parameter(description = "Episode number")
+                                @PathVariable("episodeNumber") int episodeNumber) throws NotFoundException {
+        return episodesService.findByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
     }
 
     @Operation(summary = "Find all episodes from a season")
@@ -157,17 +148,12 @@ public class EpisodesController {
                     )
             )
     })
-    @GetMapping("")
-    public ResponseEntity<?> getAllFromSeason(@Parameter(description = "Id of the show")
-                                              @PathVariable("showId") long showId,
-                                              @Parameter(description = "Season number")
-                                              @PathVariable("seasonNumber") int seasonNumber) {
-        try {
-            List<EpisodeOutputDto> episodesInfo = episodesService.findBySeason(showId, seasonNumber);
-            return ResponseEntity.ok(episodesInfo);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @GetMapping
+    public List<EpisodeOutputDto> getAllFromSeason(@Parameter(description = "Id of the show")
+                                                   @PathVariable("showId") long showId,
+                                                   @Parameter(description = "Season number")
+                                                   @PathVariable("seasonNumber") int seasonNumber) {
+        return episodesService.findBySeason(showId, seasonNumber);
     }
 
     @Operation(summary = "Modify an episode")
@@ -185,18 +171,13 @@ public class EpisodesController {
                     )
             )
     })
-    @PutMapping("")
-    public ResponseEntity<?> modify(@Parameter(description = "Id of the show")
-                                    @PathVariable("showId") long showId,
-                                    @Parameter(description = "Season number")
-                                    @PathVariable("seasonNumber") int seasonNumber,
-                                    @RequestBody EpisodeInputDto episodeInputDto) {
-        try {
-            EpisodeOutputDto modifiedEpisode = episodesService.modify(showId, seasonNumber, episodeInputDto);
-            return ResponseEntity.ok(modifiedEpisode);
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @PutMapping
+    public EpisodeOutputDto modify(@Parameter(description = "Id of the show")
+                                   @PathVariable("showId") long showId,
+                                   @Parameter(description = "Season number")
+                                   @PathVariable("seasonNumber") int seasonNumber,
+                                   @RequestBody EpisodeInputDto episodeInputDto) throws NotFoundException {
+        return episodesService.modify(showId, seasonNumber, episodeInputDto);
     }
 
     @Operation(summary = "Delete an episode")
@@ -212,18 +193,13 @@ public class EpisodesController {
             )
     })
     @DeleteMapping("/{episodeNumber}")
-    public ResponseEntity<?> delete(@Parameter(description = "Id of the show")
-                                    @PathVariable("showId") long showId,
-                                    @Parameter(description = "Season number")
-                                    @PathVariable("seasonNumber") int seasonNumber,
-                                    @Parameter(description = "Episode number")
-                                    @PathVariable("episodeNumber") int episodeNumber) {
-        try {
-            episodesService.deleteByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    public void delete(@Parameter(description = "Id of the show")
+                       @PathVariable("showId") long showId,
+                       @Parameter(description = "Season number")
+                       @PathVariable("seasonNumber") int seasonNumber,
+                       @Parameter(description = "Episode number")
+                       @PathVariable("episodeNumber") int episodeNumber) {
+        episodesService.deleteByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
     }
 
     @Operation(summary = "Delete all episodes from a season")
@@ -238,16 +214,11 @@ public class EpisodesController {
                     )
             )
     })
-    @DeleteMapping("")
-    public ResponseEntity<?> deleteAll(@Parameter(description = "Id of the show")
-                                       @PathVariable("showId") long showId,
-                                       @Parameter(description = "Season number")
-                                       @PathVariable("seasonNumber") int seasonNumber) {
-        try {
-            episodesService.deleteAllBySeason(showId, seasonNumber);
-            return ResponseEntity.ok().build();
-        } catch (NotFoundException e) {
-            return e.getResponse();
-        }
+    @DeleteMapping
+    public void deleteAll(@Parameter(description = "Id of the show")
+                          @PathVariable("showId") long showId,
+                          @Parameter(description = "Season number")
+                          @PathVariable("seasonNumber") int seasonNumber) {
+        episodesService.deleteAllBySeason(showId, seasonNumber);
     }
 }
