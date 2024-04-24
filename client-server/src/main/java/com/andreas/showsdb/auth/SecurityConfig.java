@@ -14,12 +14,17 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(authHttp -> authHttp
-                        .requestMatchers("/authorized").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/shows").hasAnyAuthority(
-                                "SCOPE_read", "SCOPE_write")
-                        .requestMatchers(HttpMethod.POST, "/api/shows").hasAuthority("SCOPE_write")
-                        .anyRequest().authenticated()
+        return http.authorizeHttpRequests(authHttp -> {
+                            String apiEndpoints = "/api/**";
+                            String read = "SCOPE_read";
+                            String write = "SCOPE_write";
+                            authHttp.requestMatchers("/authorized").permitAll()
+                                    .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyAuthority(read, write)
+                                    .requestMatchers(HttpMethod.POST, apiEndpoints).hasAuthority(write)
+                                    .requestMatchers(HttpMethod.PUT, apiEndpoints).hasAuthority(write)
+                                    .requestMatchers(HttpMethod.DELETE, apiEndpoints).hasAuthority(write)
+                                    .anyRequest().authenticated();
+                        }
                 )
                 .csrf(AbstractHttpConfigurer::disable) // disable forms because it's not necessary for REST APIs
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

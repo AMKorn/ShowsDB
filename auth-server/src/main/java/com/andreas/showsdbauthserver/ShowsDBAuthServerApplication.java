@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ShowsdbAuthServerApplication {
+public class ShowsDBAuthServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ShowsdbAuthServerApplication.class, args);
+		SpringApplication.run(ShowsDBAuthServerApplication.class, args);
 	}
 
 }
