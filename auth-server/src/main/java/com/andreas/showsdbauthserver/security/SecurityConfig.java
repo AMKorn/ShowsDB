@@ -94,14 +94,13 @@ public class SecurityConfig {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        String clientId = "client-showsdb";
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId(clientId)
+                .clientId("client-showsdb")
                 .clientSecret("{noop}secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/" + clientId) // this is actually client name
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/client-showsdb") // this is actually client name
                 .redirectUri("http://127.0.0.1:8080/authorized") // endpoint where we will get the authorization code
                 .postLogoutRedirectUri("http://127.0.0.1:8080/")
                 .scope("read")

@@ -1,0 +1,22 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://127.0.0.1:9000"
+      client:
+        registration:
+          client-showsdb:
+            provider: spring
+            client-id: client-showsdb
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://127.0.0.1:8080/authorized"
+            scope:
+              - openid
+              - profile
+              - read
+            client-name: client-showsdb
+        provider:
+          spring:
+            issuer-uri: "http://127.0.0.1:9000"
