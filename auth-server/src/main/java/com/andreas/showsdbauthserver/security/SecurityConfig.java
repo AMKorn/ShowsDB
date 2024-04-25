@@ -1,5 +1,8 @@
 package com.andreas.showsdbauthserver.security;
 
+import com.andreas.showsdbauthserver.model.User;
+import com.andreas.showsdbauthserver.repository.UserRepository;
+import com.andreas.showsdbauthserver.service.MyUserDetailsService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -13,7 +16,6 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -36,11 +38,18 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 import java.util.UUID;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private UserRepository userRepository;
+
+    public SecurityConfig(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Bean
     @Order(1)
@@ -69,8 +78,7 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
-        http
-                .authorizeHttpRequests(authorize -> authorize
+        http.authorizeHttpRequests(authorize -> authorize
                         .anyRequest().authenticated()
                 )
                 // Form login handles the redirect to the login page from the
@@ -81,16 +89,20 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.builder()
-                .username("user")
-                .password("{noop}password")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(userDetails);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService() {
+////        List<User> userList = userRepository.findAll();
+////        UserDetails[] userDetails = new UserDetails[]{};
+////        userList.toArray(userDetails);
+////        UserDetails userDetails = User.builder()
+////                .username("user")
+////                .password("{noop}password")
+////                .roles("USER")
+////                .build();
+//
+//        return new MyUserDetailsService(userRepository);
+////        return new InMemoryUserDetailsManager(userDetails);
+//    }
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
