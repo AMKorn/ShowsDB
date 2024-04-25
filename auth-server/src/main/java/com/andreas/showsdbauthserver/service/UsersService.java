@@ -1,22 +1,22 @@
 package com.andreas.showsdbauthserver.service;
 
-import com.andreas.showsdbauthserver.repository.UserRepository;
+import com.andreas.showsdbauthserver.repository.UsersRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MyUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepository;
+public class UsersService implements UserDetailsService {
+    private final UsersRepository usersRepository;
 
-    public MyUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UsersService(UsersRepository usersRepository) {
+        this.usersRepository = usersRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userRepository.findByUsername(username)
+        return usersRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username " + username + " not found"));
     }
 }

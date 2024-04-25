@@ -36,13 +36,13 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return roles.stream()
-//                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
-//                .toList();
-        return Set.of(
-                new SimpleGrantedAuthority("USER"),
-                new SimpleGrantedAuthority("ADMIN")
-        );
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .toList();
+//        return Set.of(
+//                new SimpleGrantedAuthority("USER"),
+//                new SimpleGrantedAuthority("ADMIN")
+//        );
     }
 
     @Override
