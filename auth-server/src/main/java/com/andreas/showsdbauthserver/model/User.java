@@ -27,12 +27,18 @@ public class User implements UserDetails {
 
     private String password;
 
-    private String roles;
-
-//    private Set<String> roles;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role"))
+    Set<Role> roles;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+//        return roles.stream()
+//                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+//                .toList();
         return Set.of(
                 new SimpleGrantedAuthority("USER"),
                 new SimpleGrantedAuthority("ADMIN")
