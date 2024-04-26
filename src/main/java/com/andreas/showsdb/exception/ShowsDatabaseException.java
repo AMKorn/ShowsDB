@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
-public class ShowsDatabaseException extends Exception {
+public class ShowsDatabaseException extends RuntimeException {
     private final ResponseEntity<ExceptionMessage> response;
 
     public ShowsDatabaseException(HttpStatus status) {
