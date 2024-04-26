@@ -90,7 +90,8 @@ public class SecurityConfig {
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("client-showsdb")
-                .clientSecret("{noop}secret")
+                .clientSecret("$2a$12$25K8LCD..msD33xQ3ht8i.uOjPSxMGtvqWSrmS51mnz1vWv//f2ya")
+//                .clientSecret("{noop}secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
