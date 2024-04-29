@@ -11,7 +11,7 @@ import java.util.Map;
 public class AuthorizationController {
 
     @GetMapping("/authorized")
-    public Map<String, String> authorized(@RequestParam String token) {
-        return Collections.singletonMap("token", token);
+    public Map<String, String> authorized(@RequestParam String code) {
+        return Collections.singletonMap("code", code);
     }
 }
