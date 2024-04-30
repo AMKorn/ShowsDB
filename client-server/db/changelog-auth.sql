@@ -11,6 +11,7 @@ create table `user` (
 
 --changeset andreas:14 labels:users
 create table `role`(
+    `id` bigint primary key auto_increment,
     `role` varchar(16) unique not null
 )
 -- rollback DROP TABLE `roles`;
@@ -18,11 +19,11 @@ create table `role`(
 --changeset andreas:15 labels:users
 create table `user_role`(
     `user_id` bigint references `user`,
-    `role` varchar(16) references `role`,
+    `role` bigint references `role`,
     primary key (`user_id`,`role`)
 )
 --rollback DROP TABLE `user_role`;
 
 --changeset andreas:16 labels:users
-insert into `role` values ('ADMIN'), ('USER')
+insert into `role`(`role`) values ('ADMIN'), ('USER')
 --rollback TRUNCATE `role`;
