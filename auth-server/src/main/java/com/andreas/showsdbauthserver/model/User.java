@@ -39,10 +39,6 @@ public class User implements UserDetails {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
                 .toList();
-//        return Set.of(
-//                new SimpleGrantedAuthority("USER"),
-//                new SimpleGrantedAuthority("ADMIN")
-//        );
     }
 
     @Override

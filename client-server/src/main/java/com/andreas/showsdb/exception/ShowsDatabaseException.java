@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 @Getter
 public class ShowsDatabaseException extends Exception {
-    private final ResponseEntity<ExceptionMessage> response;
+    private final transient ResponseEntity<ExceptionMessage> response;
 
     public ShowsDatabaseException(HttpStatus status) {
         this.response = new ResponseEntity<>(status);
