@@ -1,7 +1,5 @@
 package com.andreas.showsdbauthserver.security;
 
-import com.andreas.showsdbauthserver.model.Role;
-import com.andreas.showsdbauthserver.service.UsersService;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -123,16 +121,18 @@ public class SecurityConfig {
 
     @Bean
     public OAuth2TokenCustomizer<JwtEncodingContext> jwtTokenCustomizer() {
+        Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
         return context -> {
-            Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
             if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
                 context.getClaims().claims(claims -> {
+                    logger.info("Context claims: %s".formatted(claims));
                     Set<String> roles = AuthorityUtils.authorityListToSet(context.getPrincipal().getAuthorities())
                             .stream()
-                            .map(s -> s.replaceFirst("^ROLE_", ""))
+//                            .map(s -> s.replaceFirst("^ROLE_", ""))
                             .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
-                    claims.put("roles", roles);
                     logger.info("Adding roles to jwt claims: %s".formatted(roles));
+                    claims.put("roles", roles);
+                    logger.info("New context claims: %s".formatted(claims));
                 });
             }
         };

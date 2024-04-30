@@ -1,5 +1,7 @@
 package com.andreas.showsdb.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.List;
 import java.util.Set;
 
 @Configuration
@@ -20,17 +23,14 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authHttp -> {
-                            String apiEndpoints = "/api/**";
-                            String read = "SCOPE_read";
-                            String write = "SCOPE_write";
-                            authHttp.requestMatchers("/authorized").permitAll()
-                                    .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyAuthority(read, write)
-                                    .requestMatchers(HttpMethod.POST, apiEndpoints).hasAuthority(write)
-                                    .requestMatchers(HttpMethod.PUT, apiEndpoints).hasAuthority(write)
-                                    .requestMatchers(HttpMethod.DELETE, apiEndpoints).hasAuthority(write)
-                                    .anyRequest().authenticated();
-                        }
-                )
+                    String apiEndpoints = "/api/**";
+                    String admin = "ADMIN";
+                    String user = "USER";
+                    authHttp.requestMatchers("/authorized").permitAll()
+                            .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyRole(user, admin)
+                            .requestMatchers(apiEndpoints).hasRole(admin)
+                            .anyRequest().hasRole(admin);
+                })
                 .csrf(AbstractHttpConfigurer::disable) // disable forms because it's not necessary for REST APIs
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2Login(login -> login.loginPage("/oauth2/authorization/client-showsdb"))
@@ -41,19 +41,22 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
+
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
         authoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
         authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Set<String> authorities = AuthorityUtils.authorityListToSet(authoritiesConverter.convert(jwt));
-            System.out.println(authorities);
-//            if (authorities.contains("flights:write")) {
-//                authorities.add("flights:approve");
-//            }
-//            if (authorities.contains("flights:read")) {
-//                authorities.add("flights:all");
-//            }
+
+            // Get the roles from the token
+            List<String> roles = jwt.getClaimAsStringList("roles");
+            if (roles == null)
+                logger.error("Authorization server did not specify roles");
+            else
+                authorities.addAll(roles);
+            logger.debug("New authorities: %s".formatted(authorities));
             return AuthorityUtils.createAuthorityList(authorities.toArray(String[]::new));
         });
 
