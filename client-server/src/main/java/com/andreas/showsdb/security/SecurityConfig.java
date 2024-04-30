@@ -7,9 +7,12 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+
+import java.util.Set;
 
 @Configuration
 public class SecurityConfig {
@@ -34,5 +37,26 @@ public class SecurityConfig {
                 .oauth2Client(Customizer.withDefaults())
                 .oauth2ResourceServer(resourceServer -> resourceServer.jwt(Customizer.withDefaults()))
                 .build();
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        authoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
+        authenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            Set<String> authorities = AuthorityUtils.authorityListToSet(authoritiesConverter.convert(jwt));
+            System.out.println(authorities);
+//            if (authorities.contains("flights:write")) {
+//                authorities.add("flights:approve");
+//            }
+//            if (authorities.contains("flights:read")) {
+//                authorities.add("flights:all");
+//            }
+            return AuthorityUtils.createAuthorityList(authorities.toArray(String[]::new));
+        });
+
+        return authenticationConverter;
     }
 }
