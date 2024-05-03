@@ -3,3 +3,4 @@ docker-compose up -d
 echo "** Setting up Database **"
 cd ../client-server
 mvn liquibase:update
+cd ..
