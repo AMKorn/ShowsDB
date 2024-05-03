@@ -41,7 +41,7 @@ public class Messenger {
     @SneakyThrows
     public void newEpisode(EpisodeOutputDto savedEpisode) {
         ShowOutputDto show = showsService.findById(savedEpisode.getShowId());
-        sendMessage("new_episodes", "New episode released: %s S%dE%d - %s"
+        sendMessage("new_episodes", "New episode released: %s S%02dE%02d - %s"
                 .formatted(show.getName(),
                         savedEpisode.getSeasonNumber(),
                         savedEpisode.getEpisodeNumber(),
