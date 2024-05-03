@@ -1,6 +1,7 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.messages.Messenger;
 import com.andreas.showsdb.model.dto.EpisodeInputDto;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.service.EpisodesService;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +28,13 @@ import java.util.Optional;
 @RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
 public class EpisodesController {
     private final EpisodesService episodesService;
+    private final Messenger messenger;
+    private static final Logger logger = LoggerFactory.getLogger(EpisodesController.class);
 
-    public EpisodesController(EpisodesService episodesService) {
+    public EpisodesController(EpisodesService episodesService,
+                              Messenger messenger) {
         this.episodesService = episodesService;
+        this.messenger = messenger;
     }
 
     @Operation(summary = "Create an episode",
@@ -64,6 +71,7 @@ public class EpisodesController {
             throws NotFoundException {
         if (episodeInputDto == null) {
             EpisodeOutputDto savedEpisode = episodesService.createInSeason(showId, seasonNumber);
+            messenger.newEpisode(savedEpisode);
             return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
         }
 
@@ -72,12 +80,12 @@ public class EpisodesController {
         if (episodeNumber == null) {
             try {
                 episodeNumber = episodesService.findBySeason(showId, seasonNumber).stream()
-                        .max(Comparator
-                                .comparingLong(EpisodeOutputDto::getShowId)
-                                .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
-                                .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
-                        .orElseThrow()
-                        .getEpisodeNumber() + 1;
+                                        .max(Comparator
+                                                .comparingLong(EpisodeOutputDto::getShowId)
+                                                .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
+                                                .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
+                                        .orElseThrow()
+                                        .getEpisodeNumber() + 1;
             } catch (NoSuchElementException e) {
                 episodeNumber = 1;
             }
@@ -92,6 +100,7 @@ public class EpisodesController {
 
         try {
             EpisodeOutputDto savedEpisode = episodesService.save(showId, seasonNumber, episodeInputDto);
+            messenger.newEpisode(savedEpisode);
             return new ResponseEntity<>(savedEpisode, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             EpisodeInputDto finalEpisodeInputDto = episodeInputDto;

@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -51,6 +52,10 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value(value = "${showsdb.security.client.client-id}")
+    private String clientId;
+    @Value(value = "${showsdb.security.client.client-secret}")
+    public String clientSecret;
     private final UserDetailsService userDetailsService;
 
     public SecurityConfig(UserDetailsService userDetailsService) {
@@ -98,8 +103,8 @@ public class SecurityConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("client-showsdb")
-                .clientSecret("$2a$12$25K8LCD..msD33xQ3ht8i.uOjPSxMGtvqWSrmS51mnz1vWv//f2ya")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
 //                .clientSecret("{noop}secret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)

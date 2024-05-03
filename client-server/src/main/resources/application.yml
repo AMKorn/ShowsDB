@@ -44,6 +44,8 @@ spring:
     operationsSorter: method
   api-docs:
     enabled: true
+  kafka:
+    bootstrap-servers: localhost:9092
 
 logging:
   level:

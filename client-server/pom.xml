@@ -105,6 +105,12 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
             <version>6.2.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.1.4</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -120,7 +126,7 @@
                 <version>4.27.0</version>
                 <configuration>
                     <changeLogFile>db/changelog-master.xml</changeLogFile>
-                    <url>jdbc:mysql://localhost:8083/showsDB?useSSL=false&amp;serverTimezone=CET</url>
+                    <url>jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=CET</url>
                     <username>root</username>
                     <password>admin</password>
                 </configuration>

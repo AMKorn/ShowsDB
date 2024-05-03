@@ -1,8 +1,5 @@
-echo "** Setting up Database **"
-cd database
+echo "** Setting up docker network**"
 docker-compose up -d
+echo "** Setting up Database **"
 cd ../client-server
 mvn liquibase:update
-
-echo "** Starting auth server**"
-cd ../auth-server
