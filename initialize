@@ -1,0 +1,8 @@
+echo "** Setting up Database **"
+cd database
+docker-compose up -d
+cd ../client-server
+mvn liquibase:update
+
+echo "** Starting auth server**"
+cd ../auth-server
