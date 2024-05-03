@@ -1,9 +1,10 @@
 package com.andreas.showsdb.messages;
 
+import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.service.ShowsService;
-import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -38,13 +39,23 @@ public class Messenger {
         });
     }
 
-    @SneakyThrows
-    public void newEpisode(EpisodeOutputDto savedEpisode) {
-        ShowOutputDto show = showsService.findById(savedEpisode.getShowId());
+    public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
+        ShowOutputDto show = showsService.findById(episode.getShowId());
         sendMessage("new_episodes", "New episode released: %s S%02dE%02d - %s"
                 .formatted(show.getName(),
-                        savedEpisode.getSeasonNumber(),
-                        savedEpisode.getEpisodeNumber(),
-                        savedEpisode.getName()));
+                        episode.getSeasonNumber(),
+                        episode.getEpisodeNumber(),
+                        episode.getName()));
+    }
+
+    public void newSeason(SeasonOutputDto season) throws NotFoundException {
+        ShowOutputDto show = showsService.findById(season.getShowId());
+        sendMessage("new_seasons", "New season announced: %s S%02d"
+                .formatted(show.getName(), season.getSeasonNumber()));
+    }
+
+    public void newShow(ShowOutputDto show) {
+        sendMessage("new_shows", "New show added: %s"
+                .formatted(show.getName()));
     }
 }

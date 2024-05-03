@@ -1,6 +1,7 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.messages.Messenger;
 import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
@@ -27,9 +28,12 @@ public class ShowsController {
 
     private final MainCastService mainCastService;
 
-    public ShowsController(ShowsService showsService, MainCastService mainCastService) {
+    private final Messenger messenger;
+
+    public ShowsController(ShowsService showsService, MainCastService mainCastService, Messenger messenger) {
         this.showsService = showsService;
         this.mainCastService = mainCastService;
+        this.messenger = messenger;
     }
 
     @Operation(summary = "List all shows")
@@ -77,7 +81,9 @@ public class ShowsController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ShowOutputDto create(@RequestBody @Valid ShowInputDto show) {
-        return showsService.save(show);
+        ShowOutputDto savedShow = showsService.save(show);
+        messenger.newShow(savedShow);
+        return savedShow;
     }
 
     @Operation(summary = "Modify a show passed through body")

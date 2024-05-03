@@ -52,8 +52,8 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    @KafkaListener(topics = "new_episodes", groupId = "showsDB")
-    public void listenGroupFoo(String message) {
+    @KafkaListener(topics = "new_shows, new_seasons, new_episodes", groupId = "showsDB")
+    public void listenGroupShowsDB(String message) {
         logger.info("Received Message in group showsDB: {}", message);
     }
 }
