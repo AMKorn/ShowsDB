@@ -1,4 +1,21 @@
 spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:61763/showsDB?useSSL=false&serverTimezone=CET
+    username: root
+    password: admin
+  jpa:
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        # allows for the use of MySQL reserved words as property names (most notably 'name')
+        globally_quoted_identifiers: true
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  application:
+    name: ShowsDB
   security:
     oauth2:
       resourceserver:
@@ -21,3 +38,15 @@ spring:
         provider:
           spring:
             issuer-uri: "http://127.0.0.1:9000"
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+  api-docs:
+    enabled: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
