@@ -13,7 +13,7 @@ import java.util.Date;
 @Builder
 public final class EpisodeMessage {
     private String message;
-    Long showId;
+    String show;
     Integer seasonNumber;
     Integer episodeNumber;
     String name;

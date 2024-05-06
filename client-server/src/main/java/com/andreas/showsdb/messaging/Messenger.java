@@ -41,10 +41,10 @@ public class Messenger {
         });
     }
 
-    public void newEpisode(EpisodeOutputDto episode) {
+    public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
         EpisodeMessage message = EpisodeMessage.builder()
                 .message("New episode released")
-                .showId(episode.getShowId())
+                .show(showsService.findById(episode.getShowId()).getName())
                 .seasonNumber(episode.getSeasonNumber())
                 .episodeNumber(episode.getEpisodeNumber())
                 .name(episode.getName())
@@ -72,6 +72,13 @@ public class Messenger {
 
     @KafkaListener(topics = "new_episodes", groupId = "showsDB", containerFactory = "kafkaListenerContainerFactory")
     public void newEpisodeListener(EpisodeMessage message) {
-        logger.info("Received Message in group showsDB: {}", message);
+        String messageText = "[%s] %s: %s S%02dE%02d - %s"
+                .formatted(message.getReleaseDate(),
+                        message.getMessage(),
+                        message.getShow(),
+                        message.getSeasonNumber(),
+                        message.getEpisodeNumber(),
+                        message.getName());
+        logger.info("Received Message in group showsDB: {}", messageText);
     }
 }
