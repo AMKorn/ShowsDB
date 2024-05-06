@@ -4,7 +4,7 @@ spring:
   # DATASOURCE (MYSQL 8.0)
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:8083/showsDB?useSSL=false&serverTimezone=CET
+    url: jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
     username: root
     password: admin
   jpa:
