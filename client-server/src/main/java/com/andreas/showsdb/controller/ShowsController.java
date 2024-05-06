@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.messages.Messenger;
+import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;

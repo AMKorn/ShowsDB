@@ -1,7 +1,7 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.messages.Messenger;
+import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.EpisodeInputDto;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.service.EpisodesService;

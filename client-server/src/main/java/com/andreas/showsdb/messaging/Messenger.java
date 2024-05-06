@@ -1,4 +1,4 @@
-package com.andreas.showsdb.messages;
+package com.andreas.showsdb.messaging;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;

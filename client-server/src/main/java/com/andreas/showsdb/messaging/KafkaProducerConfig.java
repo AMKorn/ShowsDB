@@ -1,4 +1,4 @@
-package com.andreas.showsdb.messages;
+package com.andreas.showsdb.messaging;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
