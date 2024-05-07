@@ -2,6 +2,7 @@ package com.andreas.showsdb.messaging;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.messaging.messages.EpisodeMessage;
+import com.andreas.showsdb.messaging.messages.Message;
 import com.andreas.showsdb.messaging.messages.ShowMessage;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
@@ -17,18 +18,18 @@ import java.util.concurrent.CompletableFuture;
 @Component
 public class Messenger {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, Message> kafkaTemplate;
     private final ShowsService showsService;
 
     private static final Logger logger = LoggerFactory.getLogger(Messenger.class);
 
-    public Messenger(KafkaTemplate<String, Object> kafkaTemplate, ShowsService showsService) {
+    public Messenger(KafkaTemplate<String, Message> kafkaTemplate, ShowsService showsService) {
         this.kafkaTemplate = kafkaTemplate;
         this.showsService = showsService;
     }
 
-    public void sendMessage(String topic, Object message) {
-        CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(topic, message);
+    public void sendMessage(String topic, Message message) {
+        CompletableFuture<SendResult<String, Message>> future = kafkaTemplate.send(topic, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
                 logger.info("Sent message=[%s] with offset=[%d]"
@@ -42,7 +43,7 @@ public class Messenger {
 
     public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
         EpisodeMessage message = EpisodeMessage.builder()
-                .message("New episode released")
+                .text("New episode released")
                 .show(showsService.findById(episode.getShowId()).getName())
                 .seasonNumber(episode.getSeasonNumber())
                 .episodeNumber(episode.getEpisodeNumber())
@@ -54,7 +55,7 @@ public class Messenger {
 
     public void newShow(ShowOutputDto show) {
         ShowMessage message = ShowMessage.builder()
-                .message("New show released")
+                .text("New show released")
                 .name(show.getName())
                 .build();
         sendMessage("novelties", message);

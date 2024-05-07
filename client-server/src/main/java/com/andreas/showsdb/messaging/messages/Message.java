@@ -3,31 +3,28 @@ package com.andreas.showsdb.messaging.messages;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
 @SuperBuilder
-public class ShowMessage extends Message {
-    private String name;
+public class Message {
+    private String text;
 
-    @Override
     public Map<String, Object> toMap() {
-        Map<String, Object> map = super.toMap();
-        map.put("name", name);
+        Map<String, Object> map = new HashMap<>();
+        map.put("text", text);
         return map;
     }
 
-    public static ShowMessage fromJson(JsonNode json) {
+    public static Message fromJson(JsonNode json) {
         return builder()
                 .text(json.path("text").asText())
-                .name(json.path("name").asText())
                 .build();
     }
 }

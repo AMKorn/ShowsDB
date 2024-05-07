@@ -27,8 +27,6 @@ public class SecurityConfig {
                     String admin = "ADMIN";
                     String user = "USER";
                     authHttp.requestMatchers("/authorized").permitAll()
-//                            .requestMatchers("/swagger-ui.html").permitAll()
-//                            .requestMatchers("/swagger-ui/index.html").permitAll()
                             .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyRole(user, admin)
                             .requestMatchers(apiEndpoints).hasRole(admin)
                             .anyRequest().permitAll();

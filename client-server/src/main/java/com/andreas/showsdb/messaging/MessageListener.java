@@ -17,8 +17,9 @@ public class MessageListener {
     @KafkaHandler
     public void newEpisodeListener(EpisodeMessage message) {
         String messageText = "[%s] %s: %s S%02dE%02d - %s"
-                .formatted(message.getReleaseDate(),
-                        message.getMessage(),
+                .formatted(
+                        message.getReleaseDate(),
+                        message.getText(),
                         message.getShow(),
                         message.getSeasonNumber(),
                         message.getEpisodeNumber(),
@@ -29,7 +30,7 @@ public class MessageListener {
     @KafkaHandler
     public void newShowListener(ShowMessage message) {
         logger.info("{} {}: {}", RECEIVED_MESSAGE,
-                message.getMessage(),
+                message.getText(),
                 message.getName());
     }
 
