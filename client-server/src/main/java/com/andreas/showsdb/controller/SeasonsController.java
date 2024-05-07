@@ -2,7 +2,6 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.SeasonInputDto;
 import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.service.SeasonsService;
@@ -25,11 +24,9 @@ import java.util.Optional;
 @RequestMapping("/api/shows/{showId}/seasons")
 public class SeasonsController {
     private final SeasonsService seasonsService;
-    private final Messenger messenger;
 
-    public SeasonsController(SeasonsService seasonsService, Messenger messenger) {
+    public SeasonsController(SeasonsService seasonsService) {
         this.seasonsService = seasonsService;
-        this.messenger = messenger;
     }
 
     @Operation(summary = "Find all seasons from a show")
@@ -87,13 +84,11 @@ public class SeasonsController {
             throws NotFoundException {
         if (seasonInputDto == null || seasonInputDto.getSeasonNumber() == null) {
             SeasonOutputDto savedSeason = seasonsService.createInShow(showId);
-            messenger.newSeason(savedSeason);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         }
 
         try {
             SeasonOutputDto savedSeason = seasonsService.save(showId, seasonInputDto);
-            messenger.newSeason(savedSeason);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             Optional<SeasonOutputDto> optionalSeason = seasonsService.findByShow(showId).stream()
