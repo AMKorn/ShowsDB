@@ -2,7 +2,6 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.SeasonInputDto;
 import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.service.SeasonsService;
