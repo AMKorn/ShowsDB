@@ -25,11 +25,9 @@ import java.util.Optional;
 @RequestMapping("/api/shows/{showId}/seasons")
 public class SeasonsController {
     private final SeasonsService seasonsService;
-    private final Messenger messenger;
 
-    public SeasonsController(SeasonsService seasonsService, Messenger messenger) {
+    public SeasonsController(SeasonsService seasonsService) {
         this.seasonsService = seasonsService;
-        this.messenger = messenger;
     }
 
     @Operation(summary = "Find all seasons from a show")
@@ -87,13 +85,11 @@ public class SeasonsController {
             throws NotFoundException {
         if (seasonInputDto == null || seasonInputDto.getSeasonNumber() == null) {
             SeasonOutputDto savedSeason = seasonsService.createInShow(showId);
-            messenger.newSeason(savedSeason);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         }
 
         try {
             SeasonOutputDto savedSeason = seasonsService.save(showId, seasonInputDto);
-            messenger.newSeason(savedSeason);
             return new ResponseEntity<>(savedSeason, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             Optional<SeasonOutputDto> optionalSeason = seasonsService.findByShow(showId).stream()

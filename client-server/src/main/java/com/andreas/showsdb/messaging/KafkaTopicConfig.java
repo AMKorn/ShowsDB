@@ -22,18 +22,7 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic newEpisodes() {
-        return new NewTopic("new_episodes", 1, (short) 1);
+    public NewTopic novelties() {
+        return new NewTopic("novelties", 1, (short) 1);
     }
-
-//    @Bean
-//    public NewTopic newSeasons() {
-//        return new NewTopic("new_seasons", 1, (short) 1);
-//    }
-//
-//    @Bean
-//    public NewTopic newShows() {
-//        return new NewTopic("new_shows", 1, (short) 1);
-//    }
-
 }

@@ -1,6 +1,7 @@
 package com.andreas.showsdb.messaging;
 
 import com.andreas.showsdb.messaging.messages.EpisodeMessage;
+import com.andreas.showsdb.messaging.messages.ShowMessage;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +22,7 @@ public class KafkaProducerConfig {
     private String bootstrapAddress;
 
     @Bean
-    public ProducerFactory<String, EpisodeMessage> producerFactory() {
+    public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -32,12 +33,15 @@ public class KafkaProducerConfig {
         configProps.put(
                 ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
                 JsonSerializer.class);
-
+        configProps.put(JsonSerializer.TYPE_MAPPINGS,
+                "EpisodeMessage:%s,ShowMessage:%s".formatted(
+                        EpisodeMessage.class.getName(),
+                        ShowMessage.class.getName()));
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
     @Bean
-    public KafkaTemplate<String, EpisodeMessage> kafkaTemplate() {
+    public KafkaTemplate<String, Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 }
