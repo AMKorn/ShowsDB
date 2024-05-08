@@ -53,7 +53,9 @@ spring:
       enabled: false
 
 file:
-  input: shows-list.csv
+  input:
+    shows: shows-list.csv
+    episodes: episodes-list.csv
 
 logging:
   level:

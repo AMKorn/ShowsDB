@@ -13,6 +13,8 @@ public interface SeasonsRepository extends JpaRepository<Season, Long> {
 
     Optional<Season> findByShowIdAndNumber(long showId, int number);
 
+    Optional<Season> findFirstByShowNameAndNumber(String showName, int number);
+
     @Modifying
     @Transactional
     void deleteAllByShowId(long showId);

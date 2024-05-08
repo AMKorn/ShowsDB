@@ -22,17 +22,17 @@ import org.springframework.transaction.PlatformTransactionManager;
 import javax.sql.DataSource;
 
 @Configuration
-public class BatchConfig {
-    @Value("${file.input}")
-    private String fileInput;
+public class ShowsBatchConfig {
+    @Value("${file.input.shows}")
+    private String showsInputFile;
 
     @Bean
-    public FlatFileItemReader<Show> reader() {
+    public FlatFileItemReader<Show> showsReader() {
         String[] names = {"Name", "Country"};
         BeanWrapperFieldSetMapper<Show> mapper = new BeanWrapperFieldSetMapper<>();
         mapper.setTargetType(Show.class);
-        return new FlatFileItemReaderBuilder<Show>().name("episodesReader")
-                .resource(new ClassPathResource(fileInput))
+        return new FlatFileItemReaderBuilder<Show>().name("showsReader")
+                .resource(new ClassPathResource(showsInputFile))
                 .delimited()
                 .names(names)
                 .fieldSetMapper(mapper)
@@ -41,7 +41,7 @@ public class BatchConfig {
     }
 
     @Bean
-    public JdbcBatchItemWriter<Show> writer(DataSource dataSource) {
+    public JdbcBatchItemWriter<Show> showWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Show>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO `show`(`name`, `country`) VALUES (:name, :country)")
@@ -50,20 +50,21 @@ public class BatchConfig {
     }
 
     @Bean
-    public Job importUserJob(JobRepository jobRepository, JobCompletionNotificationListener listener, Step step1) {
-        return new JobBuilder("importUserJob", jobRepository)
+    public Job importShowJob(JobRepository jobRepository, ImportShowCompletionNotificationListener listener,
+                             Step importShowStep1) {
+        return new JobBuilder("importShowJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .flow(step1)
+                .flow(importShowStep1)
                 .end().build();
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                      JdbcBatchItemWriter<Show> writer) {
-        return new StepBuilder("step1", jobRepository)
+    public Step importShowStep1(JobRepository jobRepository, PlatformTransactionManager transactionManager,
+                                JdbcBatchItemWriter<Show> writer) {
+        return new StepBuilder("importShowStep1", jobRepository)
                 .<Show, Show>chunk(10, transactionManager)
-                .reader(reader())
+                .reader(showsReader())
                 .processor(processor())
                 .writer(writer)
                 .build();

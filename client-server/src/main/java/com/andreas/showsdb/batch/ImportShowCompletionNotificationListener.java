@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class JobCompletionNotificationListener implements JobExecutionListener {
-    private static final Logger logger = LoggerFactory.getLogger(JobCompletionNotificationListener.class);
+public class ImportShowCompletionNotificationListener implements JobExecutionListener {
+    private static final Logger logger = LoggerFactory.getLogger(ImportShowCompletionNotificationListener.class);
 
     private final JdbcTemplate jdbcTemplate;
 

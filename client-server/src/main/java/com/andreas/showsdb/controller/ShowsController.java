@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -24,14 +23,15 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/shows")
-@RequiredArgsConstructor
 public class ShowsController {
 
     private final ShowsService showsService;
@@ -39,8 +39,18 @@ public class ShowsController {
     private final MainCastService mainCastService;
 
     private final Messenger messenger;
+    @Qualifier("importShowJob")
     private final JobLauncher jobLauncher;
     private final Job job;
+
+    public ShowsController(ShowsService showsService, MainCastService mainCastService, Messenger messenger,
+                           JobLauncher jobLauncher, @Qualifier("importShowJob") Job job) {
+        this.showsService = showsService;
+        this.mainCastService = mainCastService;
+        this.messenger = messenger;
+        this.jobLauncher = jobLauncher;
+        this.job = job;
+    }
 
     @Operation(summary = "List all shows")
     @ApiResponses(value = {
@@ -141,7 +151,7 @@ public class ShowsController {
     }
 
     @PostMapping("/import")
-    public void importAll() throws BatchProcessingException{
+    public void importAll(MultipartFile file) throws BatchProcessingException {
         try {
             jobLauncher.run(job, new JobParameters());
         } catch (JobParametersInvalidException e) {
