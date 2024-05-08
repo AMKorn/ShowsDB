@@ -8,22 +8,18 @@ import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@RequiredArgsConstructor
 public class EpisodesService {
 
     private final EpisodesRepository episodesRepository;
     private final SeasonsRepository seasonsRepository;
-
-    public EpisodesService(EpisodesRepository episodesRepository,
-                           SeasonsRepository seasonsRepository) {
-        this.episodesRepository = episodesRepository;
-        this.seasonsRepository = seasonsRepository;
-    }
 
     public List<EpisodeOutputDto> findBySeason(long showId, int seasonNumber) {
         return episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber).stream()

@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,16 +21,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/actors")
+@RequiredArgsConstructor
 public class ActorsController {
 
     private final ActorsService actorsService;
-
     private final MainCastService mainCastService;
-
-    public ActorsController(ActorsService actorsService, MainCastService mainCastService) {
-        this.actorsService = actorsService;
-        this.mainCastService = mainCastService;
-    }
 
     @Operation(summary = "List all actors")
     @ApiResponses(value = {
