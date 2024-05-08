@@ -7,6 +7,7 @@ import com.andreas.showsdb.messaging.messages.ShowMessage;
 import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.service.ShowsService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -16,17 +17,13 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.CompletableFuture;
 
 @Component
+@RequiredArgsConstructor
 public class Messenger {
 
     private final KafkaTemplate<String, Message> kafkaTemplate;
     private final ShowsService showsService;
 
     private static final Logger logger = LoggerFactory.getLogger(Messenger.class);
-
-    public Messenger(KafkaTemplate<String, Message> kafkaTemplate, ShowsService showsService) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.showsService = showsService;
-    }
 
     public void sendMessage(String topic, Message message) {
         CompletableFuture<SendResult<String, Message>> future = kafkaTemplate.send(topic, message);

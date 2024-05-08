@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +23,9 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons")
+@RequiredArgsConstructor
 public class SeasonsController {
     private final SeasonsService seasonsService;
-
-    public SeasonsController(SeasonsService seasonsService) {
-        this.seasonsService = seasonsService;
-    }
 
     @Operation(summary = "Find all seasons from a show")
     @ApiResponses(value = {

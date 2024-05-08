@@ -5,19 +5,18 @@ import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.repository.ShowsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ShowsService {
 
     private final ShowsRepository showsRepository;
 
-    public ShowsService(ShowsRepository showsRepository) {
-        this.showsRepository = showsRepository;
-    }
 
     public List<ShowOutputDto> findAll() {
         return showsRepository.findAll().stream()

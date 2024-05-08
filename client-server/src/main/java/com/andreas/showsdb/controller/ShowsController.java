@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/shows")
+@RequiredArgsConstructor
 public class ShowsController {
 
     private final ShowsService showsService;
@@ -29,12 +31,6 @@ public class ShowsController {
     private final MainCastService mainCastService;
 
     private final Messenger messenger;
-
-    public ShowsController(ShowsService showsService, MainCastService mainCastService, Messenger messenger) {
-        this.showsService = showsService;
-        this.mainCastService = mainCastService;
-        this.messenger = messenger;
-    }
 
     @Operation(summary = "List all shows")
     @ApiResponses(value = {

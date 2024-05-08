@@ -10,6 +10,7 @@ import com.andreas.showsdb.repository.ActorsRepository;
 import com.andreas.showsdb.repository.MainCastRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -17,18 +18,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class MainCastService {
     private final MainCastRepository mainCastRepository;
     private final ActorsRepository actorsRepository;
     private final ShowsRepository showsRepository;
-
-    public MainCastService(MainCastRepository mainCastRepository,
-                           ActorsRepository actorsRepository,
-                           ShowsRepository showsRepository) {
-        this.mainCastRepository = mainCastRepository;
-        this.actorsRepository = actorsRepository;
-        this.showsRepository = showsRepository;
-    }
 
     public List<MainCastDto> findAll() {
         return mainCastRepository.findAll().stream()

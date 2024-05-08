@@ -5,7 +5,6 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +26,7 @@ public class Utils {
         }
     }
 
-    public static String dateToString(Date date){
+    public static String dateToString(Date date) {
         return new SimpleDateFormat(DATE_FORMAT).format(date);
     }
 

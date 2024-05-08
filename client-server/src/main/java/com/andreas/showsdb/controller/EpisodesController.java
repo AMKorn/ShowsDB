@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -26,16 +27,10 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/shows/{showId}/seasons/{seasonNumber}/episodes")
+@RequiredArgsConstructor
 public class EpisodesController {
     private final EpisodesService episodesService;
     private final Messenger messenger;
-    private static final Logger logger = LoggerFactory.getLogger(EpisodesController.class);
-
-    public EpisodesController(EpisodesService episodesService,
-                              Messenger messenger) {
-        this.episodesService = episodesService;
-        this.messenger = messenger;
-    }
 
     @Operation(summary = "Create an episode",
             description = """
