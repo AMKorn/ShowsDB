@@ -29,7 +29,6 @@ import java.util.Optional;
 public class EpisodesController {
     private final EpisodesService episodesService;
     private final Messenger messenger;
-    private static final Logger logger = LoggerFactory.getLogger(EpisodesController.class);
 
     public EpisodesController(EpisodesService episodesService,
                               Messenger messenger) {
