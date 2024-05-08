@@ -1,5 +1,6 @@
 package com.andreas.showsdb.controller;
 
+import com.andreas.showsdb.batch.BatchProcessingException;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.MainCastDto;
@@ -16,6 +17,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +39,8 @@ public class ShowsController {
     private final MainCastService mainCastService;
 
     private final Messenger messenger;
+    private final JobLauncher jobLauncher;
+    private final Job job;
 
     @Operation(summary = "List all shows")
     @ApiResponses(value = {
@@ -128,5 +138,16 @@ public class ShowsController {
     public List<MainCastDto> getMainCast(@Parameter(description = "Id of the show")
                                          @PathVariable("id") long id) {
         return mainCastService.findByShow(id);
+    }
+
+    @PostMapping("/import")
+    public void importAll() throws BatchProcessingException{
+        try {
+            jobLauncher.run(job, new JobParameters());
+        } catch (JobParametersInvalidException e) {
+            throw new BatchProcessingException(HttpStatus.BAD_REQUEST, e.getMessage());
+        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException e) {
+            throw new BatchProcessingException(HttpStatus.CONFLICT, e.getMessage());
+        }
     }
 }

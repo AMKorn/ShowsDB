@@ -46,6 +46,14 @@ spring:
     enabled: true
   kafka:
     bootstrap-servers: localhost:9092
+  batch:
+    jdbc:
+      initialize-schema: ALWAYS
+    job:
+      enabled: false
+
+file:
+  input: shows-list.csv
 
 logging:
   level:
