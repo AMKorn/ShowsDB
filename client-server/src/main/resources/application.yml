@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: ShowsDB
+
   config:
     import: "optional:vault://"
   cloud:
@@ -17,8 +20,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
-    username: root
-    password: admin
+    username: ${db-user}
+    password: ${db-password}
 
   jpa:
     generate-ddl: false
@@ -30,9 +33,6 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-
-  application:
-    name: ShowsDB
 
   security:
     oauth2:

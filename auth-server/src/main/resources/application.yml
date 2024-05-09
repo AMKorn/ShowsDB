@@ -1,12 +1,29 @@
 spring:
   application:
     name: showsdb-auth-server
+
+  config:
+    import: "optional:vault://"
+  cloud:
+    config:
+      enabled: false
+    vault:
+      enabled: true
+      uri: "http://localhost:8200"
+      authentication: token
+      token: hvs.Ew61KtKvPqj5AgLE9MQjYKqN
+      kv:
+        enabled: true
+        default-context: client-info
+        backend: kv
+
   # DATASOURCE (MYSQL 8.0)
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
-    username: root
-    password: admin
+    username: ${db-user}
+    password: ${db-password}
+
   jpa:
     generate-ddl: false
     show-sql: true
@@ -19,5 +36,5 @@ server:
 showsdb:
   security:
     client:
-      client-id: client-showsdb
-      client-secret: $2a$12$25K8LCD..msD33xQ3ht8i.uOjPSxMGtvqWSrmS51mnz1vWv//f2ya
+      client-id: ${client-id}
+      client-secret: ${client-secret}
