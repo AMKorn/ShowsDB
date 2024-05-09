@@ -10,7 +10,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: showsDB
-  
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -21,7 +21,7 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
-    ports:    
+    ports:
       - "9092:9092"
     depends_on:
       - zookeeper
@@ -33,3 +33,19 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+
+  vault-server:
+    image: hashicorp/vault:1.13.3
+    container_name: vault
+    ports:
+      - "8200:8200"
+    restart: always
+    environment:
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    volumes:
+      - ./volumes/logs:/vault/logs
+      - ./volumes/file:/vault/file
+      - ./volumes/config:/vault/config
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json

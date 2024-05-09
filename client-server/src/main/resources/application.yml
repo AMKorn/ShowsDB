@@ -1,9 +1,25 @@
 spring:
+  config:
+    import: "optional:vault://"
+  cloud:
+    config:
+      enabled: false
+    vault:
+      enabled: true
+      uri: "http://localhost:8200"
+      authentication: token
+      token: hvs.Ew61KtKvPqj5AgLE9MQjYKqN
+      kv:
+        enabled: true
+        default-context: client-info
+        backend: kv
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
     username: root
     password: admin
+
   jpa:
     generate-ddl: false
     show-sql: true
@@ -14,8 +30,10 @@ spring:
     hibernate:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
   application:
     name: ShowsDB
+
   security:
     oauth2:
       resourceserver:
@@ -25,8 +43,8 @@ spring:
         registration:
           client-showsdb:
             provider: spring
-            client-id: client-showsdb
-            client-secret: secret
+            client-id: ${client-id}
+            client-secret: ${client-secret}
             authorization-grant-type: authorization_code
             redirect-uri: "http://127.0.0.1:8080/authorized"
             scope:
@@ -38,14 +56,18 @@ spring:
         provider:
           spring:
             issuer-uri: "http://127.0.0.1:9000"
+
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
     operationsSorter: method
+
   api-docs:
     enabled: true
+
   kafka:
     bootstrap-servers: localhost:9092
+
   batch:
     jdbc:
       initialize-schema: ALWAYS
@@ -64,4 +86,4 @@ logging:
         SQL: debug
 
 showsdb:
-  env: dev
+  env: prod
