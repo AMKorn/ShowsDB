@@ -22,12 +22,27 @@ public class ImportShowCompletionNotificationListener implements JobExecutionLis
         if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
             logger.info("!!! JOB FINISHED! Time to verify the results");
 
-            String query = "SELECT `name`, `country` FROM `show`";
-            jdbcTemplate.query(query, (rs, row) -> Show.builder()
-                            .name(rs.getString(1))
-                            .country(rs.getString(2))
-                            .build())
-                    .forEach(show -> logger.info("Found < {} > in the database.", show));
+            String jobName = jobExecution.getJobInstance().getJobName();
+            switch (jobName) {
+                case "importShowJob" -> showImportedShows();
+                case "importEpisodeJob" -> showImportedEpisodes();
+                default -> logger.info("Nothing to verify");
+            }
         }
+    }
+
+    private void showImportedEpisodes() {
+        String query = "SELECT `name` FROM `episode`";
+        jdbcTemplate.query(query, (rs, rowNum) -> rs.getString(1))
+                .forEach(episode -> logger.info("Found < {} > in the database.", episode));
+    }
+
+    private void showImportedShows() {
+        String query = "SELECT `name`, `country` FROM `show`";
+        jdbcTemplate.query(query, (rs, row) -> Show.builder()
+                        .name(rs.getString(1))
+                        .country(rs.getString(2))
+                        .build())
+                .forEach(show -> logger.info("Found < {} > in the database.", show));
     }
 }

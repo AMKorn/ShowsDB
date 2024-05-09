@@ -1,13 +1,15 @@
 package com.andreas.showsdb.batch;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.model.Episode;
+import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -25,15 +27,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.util.Date;
 
 @Configuration
 public class EpisodesBatchConfig {
     @Value("${file.input.episodes}")
     private String episodesInputFile;
+
+    private static final Logger logger = LoggerFactory.getLogger(EpisodesBatchConfig.class);
 
     @Bean
     public FlatFileItemReader<EpisodeBatchInput> episodesReader() {
@@ -54,7 +58,8 @@ public class EpisodesBatchConfig {
         return new JdbcBatchItemWriterBuilder<EpisodeBatchInsert>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
                 .sql("INSERT INTO `episode`(`season`, `episode_number`, `name`) " +
-                     "VALUES (:season, :episodeNumber, :name)")
+                     "VALUES (:season, :episodeNumber, :name) " +
+                     "ON DUPLICATE KEY UPDATE `name`= :name")
                 .dataSource(dataSource)
                 .build();
     }
@@ -83,16 +88,21 @@ public class EpisodesBatchConfig {
 
     @Bean
     public ItemProcessor<EpisodeBatchInput, EpisodeBatchInsert> episodeProcessor(ShowsRepository showsRepository,
-                                                                      SeasonsRepository seasonsRepository) {
+                                                                                 SeasonsRepository seasonsRepository) {
         return episode -> {
-            Long seasonId = seasonsRepository.findFirstByShowNameAndNumber(episode.show, episode.season)
-                    .orElseThrow(NotFoundException::new)
-                    .getId();
-            return EpisodeBatchInsert.builder()
-                    .season(seasonId)
-                    .episodeNumber(episode.episode)
-                    .name(episode.name)
-                    .build();
+            try {
+                Long seasonId = seasonsRepository.findFirstByShowNameAndNumber(episode.show, episode.season)
+                        .orElseThrow(NotFoundException::new)
+                        .getId();
+                return EpisodeBatchInsert.builder()
+                        .season(seasonId)
+                        .episodeNumber(episode.episode)
+                        .name(episode.name)
+                        .build();
+            } catch (NotFoundException e) {
+                logger.error("Could not find %s : S%02d".formatted(episode.show, episode.season));
+                return null;
+            }
         };
     }
 

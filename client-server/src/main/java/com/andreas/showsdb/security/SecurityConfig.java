@@ -2,6 +2,7 @@ package com.andreas.showsdb.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,16 +21,23 @@ import java.util.Set;
 @Configuration
 public class SecurityConfig {
 
+    @Value("${showsdb.env}")
+    private String env;
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests(authHttp -> {
-                    String apiEndpoints = "/api/**";
-                    String admin = "ADMIN";
-                    String user = "USER";
-                    authHttp.requestMatchers("/authorized").permitAll()
-                            .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyRole(user, admin)
-                            .requestMatchers(apiEndpoints).hasRole(admin)
-                            .anyRequest().permitAll();
+                    if (!env.equals("dev")) {
+                        String apiEndpoints = "/api/**";
+                        String admin = "ADMIN";
+                        String user = "USER";
+                        authHttp.requestMatchers("/authorized").permitAll()
+                                .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyRole(user, admin)
+                                .requestMatchers(apiEndpoints).hasRole(admin)
+                                .anyRequest().permitAll();
+                    } else {
+                        authHttp.anyRequest().permitAll();
+                    }
                 })
                 .csrf(AbstractHttpConfigurer::disable) // disable forms because it's not necessary for REST APIs
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

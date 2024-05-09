@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersInvalidException;
@@ -32,6 +33,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/shows")
+@RequiredArgsConstructor
 public class ShowsController {
 
     private final ShowsService showsService;
@@ -39,18 +41,15 @@ public class ShowsController {
     private final MainCastService mainCastService;
 
     private final Messenger messenger;
-    @Qualifier("importShowJob")
-    private final JobLauncher jobLauncher;
-    private final Job job;
 
-    public ShowsController(ShowsService showsService, MainCastService mainCastService, Messenger messenger,
-                           JobLauncher jobLauncher, @Qualifier("importShowJob") Job job) {
-        this.showsService = showsService;
-        this.mainCastService = mainCastService;
-        this.messenger = messenger;
-        this.jobLauncher = jobLauncher;
-        this.job = job;
-    }
+//    public ShowsController(ShowsService showsService, MainCastService mainCastService, Messenger messenger,
+//                           JobLauncher jobLauncher, @Qualifier("importShowJob") Job job) {
+//        this.showsService = showsService;
+//        this.mainCastService = mainCastService;
+//        this.messenger = messenger;
+//        this.jobLauncher = jobLauncher;
+//        this.job = job;
+//    }
 
     @Operation(summary = "List all shows")
     @ApiResponses(value = {
@@ -148,16 +147,5 @@ public class ShowsController {
     public List<MainCastDto> getMainCast(@Parameter(description = "Id of the show")
                                          @PathVariable("id") long id) {
         return mainCastService.findByShow(id);
-    }
-
-    @PostMapping("/import")
-    public void importAll(MultipartFile file) throws BatchProcessingException {
-        try {
-            jobLauncher.run(job, new JobParameters());
-        } catch (JobParametersInvalidException e) {
-            throw new BatchProcessingException(HttpStatus.BAD_REQUEST, e.getMessage());
-        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException e) {
-            throw new BatchProcessingException(HttpStatus.CONFLICT, e.getMessage());
-        }
     }
 }

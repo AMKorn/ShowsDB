@@ -62,3 +62,6 @@ logging:
     org:
       hibernate:
         SQL: debug
+
+showsdb:
+  env: dev
