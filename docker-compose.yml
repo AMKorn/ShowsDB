@@ -3,6 +3,8 @@ services:
   # Database. mysql -P 8083 --protocol=tcp -u root -p
   mysql:
     image: mysql:latest
+    networks:
+      - showsDB-net
     ports:
       - 8083:3306
     volumes:
@@ -21,6 +23,8 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
+    networks:
+      - showsDB-net
     ports:
       - "9092:9092"
     depends_on:
@@ -37,6 +41,8 @@ services:
   vault-server:
     image: hashicorp/vault:1.13.3
     container_name: vault
+    networks:
+      - showsDB-net
     ports:
       - "8200:8200"
     restart: always
@@ -49,3 +55,18 @@ services:
     cap_add:
       - IPC_LOCK
     entrypoint: vault server -config=/vault/config/vault.json
+
+  auth-server:
+    image: auth-server:latest
+    container_name: auth-server
+    networks:
+      - showsDB-net
+    ports:
+      - "9000:9000"
+    depends_on:
+      - mysql
+      - vault-server
+
+networks:
+  showsDB-net:
+    driver: bridge
