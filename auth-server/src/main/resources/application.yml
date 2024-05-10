@@ -9,7 +9,7 @@ spring:
       enabled: false
     vault:
       enabled: true
-      uri: "http://localhost:8200"
+      uri: "http://vault-server:8200"
       authentication: token
       token: hvs.Ew61KtKvPqj5AgLE9MQjYKqN
       kv:
@@ -20,7 +20,7 @@ spring:
   # DATASOURCE (MYSQL 8.0)
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
+    url: jdbc:mysql://database:3306/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
     username: ${db-user}
     password: ${db-password}
 

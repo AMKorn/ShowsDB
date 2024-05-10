@@ -27,7 +27,6 @@ After running, you can open the swagger documentation by going to localhost:8080
     mvn liquibase:update
     ```
 
-4. Run the auth server main
-5. Run the client server main
+4. Run the client server main
 
 The script `initialize` does steps 2 and 3 for you
