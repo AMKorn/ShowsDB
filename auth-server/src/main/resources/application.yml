@@ -37,5 +37,7 @@ server:
 showsdb:
   security:
     client:
+      client-uri: "http://192.168.1.103:8080"
       client-id: ${client-id}
       client-secret: ${client-secret}
+      issuer-uri: "http://auth-server:9000"

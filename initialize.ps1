@@ -1,5 +1,6 @@
 param(
     [switch]$a,
+    [switch]$c,
     [switch]$d
 )
 if($a){
@@ -7,6 +8,13 @@ if($a){
     Set-Location auth-server
     mvn clean package -DskipTests
     docker build --tag=auth-server:latest .
+    Set-Location ..
+}
+if($c){
+    Write-Output "** Compiling main ShowsDB server **"
+    Set-Location client-server
+    mvn clean package -DskipTests
+    docker build --tag=client-server:latest .
     Set-Location ..
 }
 Write-Output "** Setting up docker network**"

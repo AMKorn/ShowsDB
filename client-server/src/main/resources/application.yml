@@ -9,7 +9,7 @@ spring:
       enabled: false
     vault:
       enabled: true
-      uri: "http://localhost:8200"
+      uri: "http://192.168.1.103:8200"
       authentication: token
       token: hvs.Ew61KtKvPqj5AgLE9MQjYKqN
       kv:
@@ -19,7 +19,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
+    url: jdbc:mysql://database:3306/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
     username: ${db-user}
     password: ${db-password}
 
@@ -38,7 +38,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "http://127.0.0.1:9000"
+          issuer-uri: "http://auth-server:9000"
       client:
         registration:
           client-showsdb:
@@ -46,7 +46,7 @@ spring:
             client-id: ${client-id}
             client-secret: ${client-secret}
             authorization-grant-type: authorization_code
-            redirect-uri: "http://127.0.0.1:8080/authorized"
+            redirect-uri: "http://192.168.1.103:8080/authorized"
             scope:
               - openid
               - profile
@@ -55,7 +55,7 @@ spring:
             client-name: client-showsdb
         provider:
           spring:
-            issuer-uri: "http://127.0.0.1:9000"
+            issuer-uri: "http://192.168.1.103:9000"
 
   swagger-ui:
     enabled: true
@@ -66,7 +66,7 @@ spring:
     enabled: true
 
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: kafka:9092
 
   batch:
     jdbc:
@@ -82,6 +82,8 @@ file:
 logging:
   level:
     org:
+      springframework:
+        security: debug
       hibernate:
         SQL: debug
 
