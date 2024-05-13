@@ -27,6 +27,7 @@ After running, you can open the swagger documentation by going to localhost:8080
     mvn liquibase:update
     ```
 
-4. Run the client server main
-
-The script `initialize` does steps 2 and 3 for you
+The script `initialize` does steps 2 and 3 for you. It has three possible flags, which should all be passed when running for the first time:
+* `-a` : Re-compiles the authentication server
+* `-c` : Re-compiles the client server
+* `-d` : Migrates the database.
