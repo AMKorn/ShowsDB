@@ -11,7 +11,7 @@ spring:
       enabled: true
       uri: "http://vault-server:8200"
       authentication: token
-      token: hvs.Ew61KtKvPqj5AgLE9MQjYKqN
+      token: ${VAULT_TOKEN}
       kv:
         enabled: true
         default-context: client-info
