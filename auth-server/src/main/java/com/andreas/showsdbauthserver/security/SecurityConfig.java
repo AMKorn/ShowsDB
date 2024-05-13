@@ -52,6 +52,8 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value(value = "${showsdb.security.client.client-uri}")
+    private String clientUrl;
     @Value(value = "${showsdb.security.client.client-id}")
     private String clientId;
     @Value(value = "${showsdb.security.client.client-secret}")
@@ -109,9 +111,9 @@ public class SecurityConfig {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/client-showsdb") // this is actually client name
-                .redirectUri("http://127.0.0.1:8080/authorized") // endpoint where we will get the authorization code
-                .postLogoutRedirectUri("http://127.0.0.1:8080/")
+                .redirectUri(clientUrl + "/login/oauth2/code/client-showsdb") // this is actually client name
+                .redirectUri(clientUrl + "/authorized") // endpoint where we will get the authorization code
+                .postLogoutRedirectUri(clientUrl + "/")
                 .scope("read")
                 .scope("write")
                 .scope(OidcScopes.OPENID)

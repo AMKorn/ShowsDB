@@ -37,5 +37,6 @@ server:
 showsdb:
   security:
     client:
+      client-uri: "http://server:8080"
       client-id: ${client-id}
       client-secret: ${client-secret}
