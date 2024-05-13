@@ -1,5 +1,6 @@
 param(
-    [switch]$a
+    [switch]$a,
+    [switch]$d
 )
 if($a){
     Write-Output "** Compiling auth server **"
@@ -10,7 +11,9 @@ if($a){
 }
 Write-Output "** Setting up docker network**"
 docker-compose up -d
-Write-Output "** Setting up Database **"
-Set-Location client-server
-mvn liquibase:update
-Set-Location ..
+if($d){
+    Write-Output "** Setting up Database **"
+    Set-Location client-server
+    mvn liquibase:update
+    Set-Location ..
+}
