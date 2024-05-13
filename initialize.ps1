@@ -14,7 +14,7 @@ if($c){
     Write-Output "** Compiling main ShowsDB server **"
     Set-Location client-server
     mvn clean package -DskipTests
-    docker build --tag=showsdb-server:latest .
+    docker build --tag=client-server:latest .
     Set-Location ..
 }
 Write-Output "** Setting up docker network**"

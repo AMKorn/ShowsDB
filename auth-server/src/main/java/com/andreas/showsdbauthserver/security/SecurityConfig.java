@@ -139,6 +139,9 @@ public class SecurityConfig {
                             .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
                     logger.info("Adding roles to jwt claims: %s".formatted(roles));
                     claims.put("roles", roles);
+
+                    claims.put("iss", "http://192.168.1.103:9000");
+
                     logger.info("New context claims: %s".formatted(claims));
                 });
             }

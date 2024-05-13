@@ -60,9 +60,9 @@ services:
       - database
       - vault-server
 
-  showsdb-server:
-    image: showsdb-server:latest
-    container_name: showsdb-server
+  client-server:
+    image: client-server:latest
+    container_name: client-server
     ports:
       - "8080:8080"
     depends_on:

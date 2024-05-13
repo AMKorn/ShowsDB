@@ -64,7 +64,7 @@ public class SecurityConfig {
                 logger.error("Authorization server did not specify roles");
             else
                 authorities.addAll(roles);
-            logger.debug("New authorities: %s".formatted(authorities));
+            logger.info("New authorities: %s".formatted(authorities));
             return AuthorityUtils.createAuthorityList(authorities.toArray(String[]::new));
         });
 
