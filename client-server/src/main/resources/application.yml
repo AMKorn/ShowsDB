@@ -82,6 +82,8 @@ file:
 logging:
   level:
     org:
+      springframework:
+        security: debug
       hibernate:
         SQL: debug
 

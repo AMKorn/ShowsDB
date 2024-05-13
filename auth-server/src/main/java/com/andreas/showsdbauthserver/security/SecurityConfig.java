@@ -52,6 +52,8 @@ import java.util.stream.Collectors;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value(value = "${showsdb.security.client.issuer-uri}")
+    private String issuerUri;
     @Value(value = "${showsdb.security.client.client-uri}")
     private String clientUrl;
     @Value(value = "${showsdb.security.client.client-id}")
@@ -140,7 +142,7 @@ public class SecurityConfig {
                     logger.info("Adding roles to jwt claims: %s".formatted(roles));
                     claims.put("roles", roles);
 
-                    claims.put("iss", "http://192.168.1.103:9000");
+                    claims.put("iss", issuerUri);
 
                     logger.info("New context claims: %s".formatted(claims));
                 });
