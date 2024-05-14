@@ -1,6 +1,5 @@
 package com.andreas.showsdb.controller;
 
-import com.andreas.showsdb.batch.BatchProcessingException;
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.MainCastDto;
@@ -17,17 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,15 +31,6 @@ public class ShowsController {
     private final MainCastService mainCastService;
 
     private final Messenger messenger;
-
-//    public ShowsController(ShowsService showsService, MainCastService mainCastService, Messenger messenger,
-//                           JobLauncher jobLauncher, @Qualifier("importShowJob") Job job) {
-//        this.showsService = showsService;
-//        this.mainCastService = mainCastService;
-//        this.messenger = messenger;
-//        this.jobLauncher = jobLauncher;
-//        this.job = job;
-//    }
 
     @Operation(summary = "List all shows")
     @ApiResponses(value = {
