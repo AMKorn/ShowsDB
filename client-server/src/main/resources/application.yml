@@ -9,7 +9,7 @@ spring:
       enabled: false
     vault:
       enabled: true
-      uri: "http://192.168.1.103:8200"
+      uri: "http://${IP}:8200"
       authentication: token
       token: hvs.Ew61KtKvPqj5AgLE9MQjYKqN
       kv:
@@ -46,7 +46,7 @@ spring:
             client-id: ${client-id}
             client-secret: ${client-secret}
             authorization-grant-type: authorization_code
-            redirect-uri: "http://192.168.1.103:8080/authorized"
+            redirect-uri: "http://${IP}:8080/authorized"
             scope:
               - openid
               - profile
@@ -55,7 +55,7 @@ spring:
             client-name: client-showsdb
         provider:
           spring:
-            issuer-uri: "http://192.168.1.103:9000"
+            issuer-uri: "http://${IP}:9000"
 
   swagger-ui:
     enabled: true

@@ -59,6 +59,8 @@ services:
     depends_on:
       - database
       - vault-server
+    environment:
+      - IP=${privateip}
 
   client-server:
     image: client-server:latest
@@ -70,3 +72,5 @@ services:
       - vault-server
       - auth-server
       - kafka
+    environment:
+      - IP=${privateip}
