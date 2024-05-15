@@ -19,7 +19,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://database:3306/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
+    url: jdbc:mysql://${DB-PATH}/showsDB?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=CET
     username: ${db-user}
     password: ${db-password}
 
@@ -38,7 +38,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "http://auth-server:9000"
+          issuer-uri: "http://${IP}:9000"
       client:
         registration:
           client-showsdb:
@@ -66,7 +66,7 @@ spring:
     enabled: true
 
   kafka:
-    bootstrap-servers: kafka:9092
+    bootstrap-servers: "http://${IP}:9092"
 
   batch:
     jdbc:
@@ -88,4 +88,4 @@ logging:
         SQL: debug
 
 showsdb:
-  env: prod
+  env: ${ENV}

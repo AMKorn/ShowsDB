@@ -30,7 +30,13 @@ public class EpisodeMessage extends Message {
         map.put("seasonNumber", seasonNumber);
         map.put("episodeNumber", episodeNumber);
         map.put("name", name);
-        map.put("releaseDate", Utils.dateToString(releaseDate));
+        String releaseDateStr;
+        try {
+            releaseDateStr = Utils.dateToString(releaseDate);
+        } catch (Exception ignored) {
+            releaseDateStr = "TBA";
+        }
+        map.put("releaseDate", releaseDateStr);
         return map;
     }
 

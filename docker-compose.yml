@@ -74,3 +74,5 @@ services:
       - kafka
     environment:
       - IP=${privateip}
+      - ENV=prod
+      - DB-PATH=database:3306

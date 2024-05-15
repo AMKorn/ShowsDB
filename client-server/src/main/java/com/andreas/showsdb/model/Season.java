@@ -13,7 +13,7 @@ import java.util.List;
 @Table(
         name = "season",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"show", "seasonNumber"})
+                @UniqueConstraint(columnNames = {"show", "season_number"})
         }
 )
 @Data

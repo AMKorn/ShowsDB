@@ -40,7 +40,7 @@ showsdb:
       client-uri: "http://${IP}:8080"
       client-id: ${client-id}
       client-secret: ${client-secret}
-      issuer-uri: "http://auth-server:9000"
+      issuer-uri: "http://${IP}:9000"
 
 logging:
   level:

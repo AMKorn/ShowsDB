@@ -14,7 +14,7 @@ import java.util.Date;
 @Table(
         name = "episode",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"season", "episodeNumber"})
+                @UniqueConstraint(columnNames = {"season", "episode_number"})
         }
 )
 @Data
