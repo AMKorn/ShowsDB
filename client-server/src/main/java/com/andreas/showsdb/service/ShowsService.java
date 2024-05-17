@@ -1,7 +1,6 @@
 package com.andreas.showsdb.service;
 
 import com.andreas.showsdb.exception.NotFoundException;
-import com.andreas.showsdb.exception.ShowStateMachineException;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.model.Episode;
 import com.andreas.showsdb.model.Season;

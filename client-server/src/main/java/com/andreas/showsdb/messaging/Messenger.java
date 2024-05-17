@@ -31,7 +31,7 @@ public class Messenger {
     public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
         LocalDate releaseDate = episode.getReleaseDate();
         Date date = null;
-        if(releaseDate != null) {
+        if (releaseDate != null) {
             Instant instant = releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
             date = Date.from(instant);
         }

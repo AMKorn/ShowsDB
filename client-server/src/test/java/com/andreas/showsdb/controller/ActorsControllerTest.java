@@ -19,10 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,11 +27,11 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ActorsControllerTest {
+    private final ObjectMapper mapper = new ObjectMapper();
     @Autowired
     private TestRestTemplate client;
     @LocalServerPort
     private int port;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeAll
     void beforeAll() throws URISyntaxException {
