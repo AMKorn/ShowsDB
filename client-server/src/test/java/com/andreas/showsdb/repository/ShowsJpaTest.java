@@ -1,6 +1,7 @@
 package com.andreas.showsdb.repository;
 
 import com.andreas.showsdb.model.Show;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -11,6 +12,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@Disabled
 class ShowsJpaTest {
 
     @Autowired

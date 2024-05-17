@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 //@Disabled
 class MainCastControllerTest {
 
@@ -35,25 +34,27 @@ class MainCastControllerTest {
 
     @Test
     @Order(1)
+    void testGetMainCasts() throws URISyntaxException {
+        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
+        MainCastDto[] mainCasts = response.getBody();
+        assertNotNull(mainCasts);
+        assertEquals(2, mainCasts.length);
+        assertEquals(1, mainCasts[0].getShowId());
+        assertEquals(1, mainCasts[0].getActorId());
+        assertEquals("Nandor The Relentless", mainCasts[0].getCharacter());
+        assertEquals(2, mainCasts[1].getShowId());
+        assertEquals(2, mainCasts[1].getActorId());
+        assertEquals("Eleanor Shellstrop", mainCasts[1].getCharacter());
+    }
+
+    @Test
+    @Order(2)
     void testAddShowToActor() throws URISyntaxException {
-        ResponseEntity<ShowOutputDto> showResponse = client.getForEntity(createUri("/api/shows/1"), ShowOutputDto.class);
-        ShowOutputDto show = showResponse.getBody();
-        assertNotNull(show);
-        ActorInputDto actorInputDto = ActorInputDto.builder()
-                .name("Kayvan Novak")
-                .country("United Kingdom")
-                .birthDate(Utils.parseDate("23/11/1978"))
-                .build();
-
-        ResponseEntity<ActorOutputDto> actorResponse = client.postForEntity(createUri("/api/actors"), actorInputDto, ActorOutputDto.class);
-        ActorOutputDto actorOutputDto = actorResponse.getBody();
-
-        assertNotNull(actorOutputDto);
 
         MainCastDto mainCastInput = MainCastDto.builder()
-                .actorId(actorOutputDto.getId())
-                .showId(show.getId())
-                .character("Nandor the Relentless")
+                .actorId(3L)
+                .showId(1L)
+                .character("The Guide")
                 .build();
 
         ResponseEntity<MainCastDto> response =
@@ -64,18 +65,18 @@ class MainCastControllerTest {
 
         MainCastDto mainCastResponse = response.getBody();
         assertNotNull(mainCastResponse);
-        assertEquals(actorOutputDto.getId(), mainCastResponse.getActorId());
-        assertEquals(show.getId(), mainCastResponse.getShowId());
-        assertEquals("Nandor the Relentless", mainCastResponse.getCharacter());
+        assertEquals(mainCastInput.getActorId(), mainCastResponse.getActorId());
+        assertEquals(mainCastInput.getShowId(), mainCastResponse.getShowId());
+        assertEquals("The Guide", mainCastResponse.getCharacter());
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     void testAddRepeatedShowToActor() throws URISyntaxException, JsonProcessingException {
         MainCastDto mainCastDto = MainCastDto.builder()
                 .actorId(1L)
                 .showId(1L)
-                .character("Nandor the Relentless")
+                .character("Nandor The Relentless")
                 .build();
 
         ResponseEntity<String> response =
@@ -88,18 +89,6 @@ class MainCastControllerTest {
         JsonNode json = objectMapper.readTree(response.getBody());
         assertEquals("That actor is already in that show",
                 json.path("message").asText());
-    }
-
-    @Test
-    @Order(3)
-    void testGetMainCasts() throws URISyntaxException {
-        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
-        MainCastDto[] mainCasts = response.getBody();
-        assertNotNull(mainCasts);
-        assertEquals(1, mainCasts.length);
-        assertEquals(1, mainCasts[0].getShowId());
-        assertEquals(1, mainCasts[0].getActorId());
-        assertEquals("Nandor the Relentless", mainCasts[0].getCharacter());
     }
 
     @Test
@@ -116,7 +105,7 @@ class MainCastControllerTest {
         assertEquals(1, mainCasts.length);
         assertEquals(1, mainCasts[0].getShowId());
         assertEquals(1, mainCasts[0].getActorId());
-        assertEquals("Nandor the Relentless", mainCasts[0].getCharacter());
+        assertEquals("Nandor The Relentless", mainCasts[0].getCharacter());
     }
 
     @Test
@@ -129,10 +118,13 @@ class MainCastControllerTest {
 
         MainCastDto[] mainCasts = response.getBody();
         assertNotNull(mainCasts);
-        assertEquals(1, mainCasts.length);
+        assertEquals(2, mainCasts.length);
         assertEquals(1, mainCasts[0].getShowId());
         assertEquals(1, mainCasts[0].getActorId());
-        assertEquals("Nandor the Relentless", mainCasts[0].getCharacter());
+        assertEquals("Nandor The Relentless", mainCasts[0].getCharacter());
+        assertEquals(1, mainCasts[1].getShowId());
+        assertEquals(3, mainCasts[1].getActorId());
+        assertEquals("The Guide", mainCasts[1].getCharacter());
     }
 
     @Test
@@ -200,49 +192,11 @@ class MainCastControllerTest {
 
     @Test
     @Order(9)
-    void testAddSecondMainCast() throws URISyntaxException {
-        ActorInputDto actorInputDto = ActorInputDto.builder()
-                .name("Kristen Bell")
-                .country("United States")
-                .build();
-        ResponseEntity<ActorOutputDto> actorResponseEntity = client.postForEntity(createUri("/api/actors"),
-                actorInputDto, ActorOutputDto.class);
-        ActorOutputDto actor = actorResponseEntity.getBody();
-        assertNotNull(actor);
-        ShowInputDto showInputDto = ShowInputDto.builder()
-                .name("The Good Place")
-                .build();
-        ResponseEntity<ShowOutputDto> showResponseEntity = client.postForEntity(createUri("/api/shows"), showInputDto, ShowOutputDto.class);
-        ShowOutputDto show = showResponseEntity.getBody();
-        assertNotNull(show);
-        MainCastDto mainCastDto = MainCastDto.builder()
-                .actorId(actor.getId())
-                .showId(show.getId())
-                .character("Eleanor Shellstrop")
-                .build();
-        client.postForEntity(createUri("/api/main-cast"), mainCastDto, Void.class);
-
-
-        ResponseEntity<MainCastDto[]> response = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
-
-        MainCastDto[] mainCasts = response.getBody();
-        assertNotNull(mainCasts);
-        assertEquals(2, mainCasts.length);
-        assertEquals(1, mainCasts[0].getShowId());
-        assertEquals(1, mainCasts[0].getActorId());
-        assertEquals("Nandor, the Relentless", mainCasts[0].getCharacter());
-        assertEquals(show.getId(), mainCasts[1].getShowId());
-        assertEquals(actor.getId(), mainCasts[1].getActorId());
-        assertEquals("Eleanor Shellstrop", mainCasts[1].getCharacter());
-    }
-
-    @Test
-    @Order(10)
     void deleteMainCast() throws URISyntaxException {
         ResponseEntity<MainCastDto[]> response1 = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
         MainCastDto[] mainCasts1 = response1.getBody();
         assertNotNull(mainCasts1);
-        assertEquals(2, mainCasts1.length);
+        assertEquals(3, mainCasts1.length);
 
         long actorId = mainCasts1[1].getActorId();
         long showId = mainCasts1[1].getShowId();
@@ -252,7 +206,7 @@ class MainCastControllerTest {
         ResponseEntity<MainCastDto[]> response2 = client.getForEntity(createUri("/api/main-cast"), MainCastDto[].class);
         MainCastDto[] mainCasts2 = response2.getBody();
         assertNotNull(mainCasts2);
-        assertEquals(1, mainCasts2.length);
+        assertEquals(2, mainCasts2.length);
     }
 
     private URI createUri(String uri) throws URISyntaxException {

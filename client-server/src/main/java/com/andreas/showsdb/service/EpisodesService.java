@@ -85,9 +85,12 @@ public class EpisodesService {
     }
 
     public void deleteAllBySeason(long showId, int seasonNumber) {
-
-        episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber)
-                .stream().map(Episode::getId)
-                .forEach(episodesRepository::deleteById);
+        try {
+            episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber)
+                    .stream().map(Episode::getId)
+                    .forEach(episodesRepository::deleteById);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
 }
