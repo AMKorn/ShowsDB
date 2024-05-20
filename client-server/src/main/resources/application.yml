@@ -69,7 +69,7 @@ spring:
     enabled: true
 
   kafka:
-    bootstrap-servers: "http://${IP}:9092"
+    bootstrap-servers: "http://${IP}:${KAFKA_PORT}"
 
   batch:
     jdbc:
