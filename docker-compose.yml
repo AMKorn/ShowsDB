@@ -78,3 +78,4 @@ services:
       - ENV=prod
       - DB-PATH=database:3306
       - KAFKA_PORT=9092
+      - FILES_PATH=ShowsDB\

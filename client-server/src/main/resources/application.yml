@@ -92,3 +92,4 @@ logging:
 
 showsdb:
   env: ${ENV}
+  files: ${FILES_PATH}

@@ -25,4 +25,9 @@ public class KafkaTopicConfig {
     public NewTopic novelties() {
         return new NewTopic("novelties", 1, (short) 1);
     }
+
+    @Bean
+    public NewTopic internal() {
+        return new NewTopic("internal", 1, (short) 1);
+    }
 }
