@@ -3,7 +3,6 @@ package com.andreas.showsdb.controller;
 import com.andreas.showsdb.model.dto.ActorInputDto;
 import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.util.Utils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -90,7 +89,7 @@ class ActorsControllerTest {
 
     @Test
     @Order(5)
-    void testGetNonexistentActor() throws URISyntaxException, JsonProcessingException {
+    void testGetNonexistentActor() throws URISyntaxException {
         ResponseEntity<String> response = client.getForEntity(createUri("/api/actors/9"), String.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
