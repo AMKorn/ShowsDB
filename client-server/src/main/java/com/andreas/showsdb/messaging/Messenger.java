@@ -1,6 +1,7 @@
 package com.andreas.showsdb.messaging;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.messaging.messages.BatchOrder;
 import com.andreas.showsdb.messaging.messages.EpisodeMessage;
 import com.andreas.showsdb.messaging.messages.Message;
 import com.andreas.showsdb.messaging.messages.ShowMessage;
@@ -14,6 +15,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -24,19 +26,6 @@ public class Messenger {
     private final ShowsService showsService;
 
     private static final Logger logger = LoggerFactory.getLogger(Messenger.class);
-
-    public void sendMessage(String topic, Message message) {
-        CompletableFuture<SendResult<String, Message>> future = kafkaTemplate.send(topic, message);
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
-                logger.info("Sent message=[%s] with offset=[%d]"
-                        .formatted(message, result.getRecordMetadata().offset()));
-            } else {
-                logger.info("Unable to send message=[%s] due to : %s"
-                        .formatted(message, ex.getMessage()));
-            }
-        });
-    }
 
     public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
         EpisodeMessage message = EpisodeMessage.builder()
@@ -56,5 +45,26 @@ public class Messenger {
                 .name(show.getName())
                 .build();
         sendMessage("novelties", message);
+    }
+
+    public void sendBatchOrder(String importJob, String file){
+        BatchOrder batchOrder = BatchOrder.builder()
+                .text(importJob)
+                .filePath(file)
+                .build();
+        sendMessage("batch-order", batchOrder);
+    }
+
+    private void sendMessage(String topic, Message message) {
+        CompletableFuture<SendResult<String, Message>> future = kafkaTemplate.send(topic, message);
+        future.whenComplete((result, ex) -> {
+            if (ex == null) {
+                logger.info("Sent message=[%s] with offset=[%d]"
+                        .formatted(message, result.getRecordMetadata().offset()));
+            } else {
+                logger.info("Unable to send message=[%s] due to : %s"
+                        .formatted(message, ex.getMessage()));
+            }
+        });
     }
 }

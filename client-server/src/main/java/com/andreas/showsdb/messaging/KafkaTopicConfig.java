@@ -27,7 +27,7 @@ public class KafkaTopicConfig {
     }
 
     @Bean
-    public NewTopic internal() {
-        return new NewTopic("internal", 1, (short) 1);
+    public NewTopic batchOrder() {
+        return new NewTopic("batch-order", 1, (short) 1);
     }
 }

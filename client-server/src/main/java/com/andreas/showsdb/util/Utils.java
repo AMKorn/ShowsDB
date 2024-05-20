@@ -55,8 +55,11 @@ public class Utils {
         String finalName = "%s%s".formatted(randomAlphaNumeric(8), originalName.replace(" ", "-"));
         try {
             File file = new File(path + finalName);
-            multipartFile.transferTo(file);
-            return finalName;
+            if(file.mkdirs()) {
+                multipartFile.transferTo(file);
+                logger.info("Created file: {}", finalName);
+                return finalName;
+            } else throw new ShowsDatabaseException("Error creating directory", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
             throw new ShowsDatabaseException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

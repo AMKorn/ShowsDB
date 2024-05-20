@@ -1,5 +1,6 @@
 package com.andreas.showsdb.messaging;
 
+import com.andreas.showsdb.messaging.messages.BatchOrder;
 import com.andreas.showsdb.messaging.messages.EpisodeMessage;
 import com.andreas.showsdb.messaging.messages.Message;
 import com.andreas.showsdb.messaging.messages.ShowMessage;
@@ -23,6 +24,7 @@ public class MessageDeserializer implements Deserializer<Message> {
             switch (messageClass) {
                 case "ShowMessage" -> message = ShowMessage.fromJson(jsonNode);
                 case "EpisodeMessage" -> message = EpisodeMessage.fromJson(jsonNode);
+                case "BatchOrder" -> message = BatchOrder.fromJson(jsonNode);
                 default -> message = Message.fromJson(jsonNode);
             }
             return message;
