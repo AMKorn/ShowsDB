@@ -34,7 +34,7 @@ public class EpisodesController {
             description = """
                     Creates an empty episode whose episode number is the one after the last episode
                     (highest episode number in a season).
-                                        
+                                       \s
                     Alternatively, can create an episode passed through body, in which case it checks for duplicates
                     (same show, same season, same episode number). If a duplicate is found, the episode is not created
                     but is sent as part of the response body.""")
