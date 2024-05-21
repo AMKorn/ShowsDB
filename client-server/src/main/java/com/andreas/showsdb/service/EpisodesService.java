@@ -9,6 +9,8 @@ import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class EpisodesService {
+    private static final Logger logger = LoggerFactory.getLogger(EpisodesService.class);
 
     private final EpisodesRepository episodesRepository;
     private final SeasonsRepository seasonsRepository;
@@ -90,7 +93,7 @@ public class EpisodesService {
                     .stream().map(Episode::getId)
                     .forEach(episodesRepository::deleteById);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 }
