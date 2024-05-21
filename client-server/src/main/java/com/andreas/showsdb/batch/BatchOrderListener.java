@@ -1,19 +1,11 @@
 package com.andreas.showsdb.batch;
 
-import com.andreas.showsdb.controller.ImportController;
 import com.andreas.showsdb.messaging.messages.BatchOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecutionException;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -21,6 +13,9 @@ import org.springframework.stereotype.Component;
 @Component
 @KafkaListener(groupId = "showsDB", topics = "batch-order")
 public class BatchOrderListener {
+    public static final String SHOWS = "shows";
+    public static final String EPISODES = "episodes";
+
     private static final Logger logger = LoggerFactory.getLogger(BatchOrderListener.class);
     private static final String RECEIVED_MESSAGE = "Received new batch order:";
 
@@ -42,12 +37,15 @@ public class BatchOrderListener {
     public void batchOrderListener(BatchOrder message) {
         logger.info("{} {}", RECEIVED_MESSAGE, message);
         Job jobToDo = switch (message.getText()) {
-            case "shows" -> showJob;
-            case "episodes" -> episodeJob;
+            case SHOWS -> showJob;
+            case EPISODES -> episodeJob;
             default -> throw new IllegalStateException("Unexpected value: " + message.getText());
         };
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filepath", message.getFilepath())
+                .toJobParameters();
         try {
-            jobLauncher.run(jobToDo, new JobParameters());
+            jobLauncher.run(jobToDo, jobParameters);
         } catch (JobExecutionException e) {
             logger.error("Error while importing: {}", e.getMessage());
         }

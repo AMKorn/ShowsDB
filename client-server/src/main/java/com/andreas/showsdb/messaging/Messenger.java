@@ -15,7 +15,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -50,7 +49,7 @@ public class Messenger {
     public void sendBatchOrder(String importJob, String file){
         BatchOrder batchOrder = BatchOrder.builder()
                 .text(importJob)
-                .filePath(file)
+                .filepath(file)
                 .build();
         sendMessage("batch-order", batchOrder);
     }

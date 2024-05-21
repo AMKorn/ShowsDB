@@ -58,7 +58,7 @@ public class Utils {
             if(file.mkdirs()) {
                 multipartFile.transferTo(file);
                 logger.info("Created file: {}", finalName);
-                return finalName;
+                return path + finalName;
             } else throw new ShowsDatabaseException("Error creating directory", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
             throw new ShowsDatabaseException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

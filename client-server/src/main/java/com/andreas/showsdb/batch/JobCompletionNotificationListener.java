@@ -10,10 +10,15 @@ import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
-public class ImportShowCompletionNotificationListener implements JobExecutionListener {
-    private static final Logger logger = LoggerFactory.getLogger(ImportShowCompletionNotificationListener.class);
+public class JobCompletionNotificationListener implements JobExecutionListener {
+    private static final Logger logger = LoggerFactory.getLogger(JobCompletionNotificationListener.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -27,6 +32,18 @@ public class ImportShowCompletionNotificationListener implements JobExecutionLis
                 case "importShowJob" -> showImportedShows();
                 case "importEpisodeJob" -> showImportedEpisodes();
                 default -> logger.info("Nothing to verify");
+            }
+        } else if (jobExecution.getStatus() == BatchStatus.FAILED) {
+            logger.error("FAILURE STATE! Job could not be completed.");
+        }
+        String filepath = jobExecution.getJobParameters().getString("filepath");
+        if (filepath != null) {
+            logger.info("Removing file from file system");
+            File file = new File(filepath);
+            try {
+                Files.deleteIfExists(file.toPath());
+            } catch (IOException e) {
+                logger.error("Could not delete file {}, please make sure to remove it manually.", filepath);
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.andreas.showsdb.messaging.messages;
 
-import com.andreas.showsdb.util.Utils;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,19 +15,19 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @SuperBuilder
 public class BatchOrder extends Message {
-    String filePath;
+    String filepath;
 
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = super.toMap();
-        map.put("filePath", filePath);
+        map.put("filepath", filepath);
         return map;
     }
 
     public static BatchOrder fromJson(JsonNode json) {
         return builder()
                 .text(json.path("text").asText())
-                .filePath(json.path("filePath").asText())
+                .filepath(json.path("filepath").asText())
                 .build();
     }
 }
