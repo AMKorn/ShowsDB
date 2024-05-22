@@ -47,4 +47,16 @@ public class ShowsService {
     public void deleteById(long id) {
         showsRepository.deleteById(id);
     }
+
+    public String getAsCsvFile() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Name,Country,Show").append("\n");
+        findAll().forEach(show -> sb.append(show.getName())
+                .append(",")
+                .append(show.getCountry())
+                .append(",")
+                .append(show.getNumberOfSeasons())
+                .append("\n"));
+        return sb.toString();
+    }
 }
