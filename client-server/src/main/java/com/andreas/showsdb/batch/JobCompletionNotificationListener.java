@@ -54,10 +54,11 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
     }
 
     private void showImportedShows() {
-        String query = "SELECT `name`, `country` FROM `show`";
+        String query = "SELECT `id`, `name`, `country` FROM `show`";
         jdbcTemplate.query(query, (rs, row) -> Show.builder()
-                        .name(rs.getString(1))
-                        .country(rs.getString(2))
+                        .id(rs.getLong(1))
+                        .name(rs.getString(2))
+                        .country(rs.getString(3))
                         .build())
                 .forEach(show -> logger.info("Found < {} > in the database.", show));
     }

@@ -69,3 +69,6 @@ create table `main_cast` (
 --changeset andreas:10 labels:actors,shows
 insert into `main_cast` values (1, 1, 'Nandor The Relentless'), (2, 2, 'Eleanor Shellstrop');
 --rollback delete from `main_cast` where (`idActor`, `idShow`) = (1,1) or (`idActor`, `idShow`) = (2,2)
+
+--changeset andreas:17 labels:shows
+alter table `show` add constraint `unique_name` unique (`name`);
