@@ -26,8 +26,9 @@ public class ImportController {
 
     @Operation(summary = "Upload a file of shows to be exported in batch",
             description = """
-                    Upload a csv file, with headers Name and Country. The file will be uploaded, used by the batch
-                    import system and later deleted. Shows with names already in the database will be ignored.
+                    Upload a csv file, with headers Name, Country and Seasons. The file will be uploaded, used by the
+                    batch import system and later deleted. Shows with names already in the database will be ignored, and
+                    any seasons up to the number of seasons will be created.
                     """)
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
