@@ -1,12 +1,15 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.batch.BatchOrderListener;
+import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.service.ShowsService;
 import com.andreas.showsdb.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +24,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class ImportController {
-    private static final String XLS_FILE_FORMAT = "application/vnd.ms-excel";
-    private static final String XLSX_FILE_FORMAT = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    private static final String XLS_CONTENT_TYPE = "application/vnd.ms-excel";
+    private static final String CSV_CONTENT_TYPE = "text/csv";
 
     private final Messenger messenger;
     private final ShowsService showsService;
@@ -52,18 +55,30 @@ public class ImportController {
                     Download a file in the stated format, which includes the name, country and number of seasons of a
                     show. The default value is csv, but it also accepts xls
                     """)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "File downloaded as csv",
+                    content = @Content(mediaType = CSV_CONTENT_TYPE,
+                            schema = @Schema(implementation = String.class))
+            ),
+            @ApiResponse(responseCode = "400",
+                    description = "File format not supported",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ExceptionMessage.class))
+            )
+    })
     @GetMapping("/imports/shows")
     public ResponseEntity<byte[]> exportShows(@Parameter(description = "File format")
                                               @RequestParam(value = "format", required = false) String mode)
             throws ShowsDatabaseException {
         if (mode == null || mode.equals("csv")) {
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "text/csv")
+                    .header(HttpHeaders.CONTENT_TYPE, CSV_CONTENT_TYPE)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Shows.csv")
                     .body(showsService.getAsCsvFile());
         } else if (mode.equals("xls")) {
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, XLS_FILE_FORMAT)
+                    .header(HttpHeaders.CONTENT_TYPE, XLS_CONTENT_TYPE)
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=Shows.xls")
                     .body(showsService.getAsXlsFile());
         }
