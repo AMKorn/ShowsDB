@@ -54,7 +54,7 @@ public class SeasonsController {
             description = """
                     Creates an empty season whose season number is the one after the last season
                     (highest season number in a show).
-                                        
+                    
                     Alternatively, can create a season passed through body, in which case it checks for duplicates
                     (same show, same season number). If a duplicate is found, the season is not created
                     but is sent as part of the response body.""")

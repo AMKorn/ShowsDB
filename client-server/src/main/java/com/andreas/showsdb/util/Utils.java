@@ -65,7 +65,7 @@ public class Utils {
         }
     }
 
-    private static String randomAlphaNumeric(int count) {
+    public static String randomAlphaNumeric(int count) {
         try {
             String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
             StringBuilder sb = new StringBuilder();

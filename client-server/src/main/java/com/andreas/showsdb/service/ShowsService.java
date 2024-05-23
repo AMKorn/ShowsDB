@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +82,7 @@ public class ShowsService {
             List<ShowOutputDto> shows = findAll();
             for (int i = 0, showsSize = shows.size(); i < showsSize; i++) {
                 ShowOutputDto show = shows.get(i);
-                Row row = sheet.createRow(i+1);
+                Row row = sheet.createRow(i + 1);
                 row.createCell(0).setCellValue(show.getName());
                 row.createCell(1).setCellValue(show.getCountry());
                 row.createCell(2).setCellValue(show.getNumberOfSeasons());

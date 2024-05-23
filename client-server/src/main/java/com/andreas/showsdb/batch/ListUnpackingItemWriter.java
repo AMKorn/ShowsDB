@@ -24,7 +24,7 @@ public class ListUnpackingItemWriter<T> implements ItemWriter<List<T>>, ItemStre
         consolidatedList.forEach(ts -> logger.info(ts.toString()));
         try {
             delegate.write(consolidatedList);
-        } catch (EmptyResultDataAccessException ignore){
+        } catch (EmptyResultDataAccessException ignore) {
             // No need to do anything, just keep going
         }
     }
@@ -42,15 +42,15 @@ public class ListUnpackingItemWriter<T> implements ItemWriter<List<T>>, ItemStre
     }
 
     @Override
-    public void update(ExecutionContext executionContext) throws ItemStreamException{
-        if(delegate instanceof ItemStream itemStream) {
+    public void update(ExecutionContext executionContext) throws ItemStreamException {
+        if (delegate instanceof ItemStream itemStream) {
             itemStream.update(executionContext);
         }
     }
 
     @Override
     public void close() throws ItemStreamException {
-        if(delegate instanceof ItemStream itemStream){
+        if (delegate instanceof ItemStream itemStream) {
             itemStream.close();
         }
     }
