@@ -52,6 +52,11 @@ services:
       - IPC_LOCK
     entrypoint: vault server -config=/vault/config/vault.json
 
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
   auth-server:
     image: auth-server:latest
     container_name: auth-server

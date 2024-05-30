@@ -7,6 +7,7 @@ import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.repository.ActorsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,12 +18,14 @@ import java.util.Optional;
 public class ActorsService {
     private final ActorsRepository actorsRepository;
 
+    @Cacheable("findAllActors")
     public List<ActorOutputDto> findAll() {
         return actorsRepository.findAll().stream()
                 .map(Actor::getInfoDto)
                 .toList();
     }
 
+    @Cacheable("findActorById")
     public ActorOutputDto findById(long id) throws NotFoundException {
         return actorsRepository.findById(id)
                 .orElseThrow(NotFoundException::new)

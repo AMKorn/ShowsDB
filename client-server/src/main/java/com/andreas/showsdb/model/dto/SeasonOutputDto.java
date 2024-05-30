@@ -3,12 +3,15 @@ package com.andreas.showsdb.model.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
-@Value
+import java.io.Serializable;
+
+@Data
 @Builder
-public class SeasonOutputDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class SeasonOutputDto implements Serializable {
     @NotNull(message = "Show ID must not be null")
     Long showId;
     @NotNull(message = "Season number must not be null")

@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class ShowsService {
 
     private final ShowsRepository showsRepository;
 
-
+    @Cacheable("findAllShows")
     public List<ShowOutputDto> findAll() {
         return showsRepository.findAll().stream()
                 .map(Show::getInfoDto)

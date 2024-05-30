@@ -159,7 +159,11 @@
             <artifactId>poi</artifactId>
             <version>5.2.5</version>
         </dependency>
-        
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -175,6 +179,8 @@
                 <version>4.27.0</version>
                 <configuration>
                     <changeLogFile>db/changelog-master.xml</changeLogFile>
+                    <!--<outputChangeLogFile>db/changelog.xml</outputChangeLogFile>-->
+                    <!--<diffTypes>data</diffTypes>-->
                     <url>jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=CET</url>
                     <username>root</username>
                     <password>admin</password>

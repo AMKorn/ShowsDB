@@ -77,6 +77,11 @@ spring:
     job:
       enabled: false
 
+  redis:
+    host: ${IP}
+    port: 6379
+    ttl: 10000
+
 logging:
   level:
     org:

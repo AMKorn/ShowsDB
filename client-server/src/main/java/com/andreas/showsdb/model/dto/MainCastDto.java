@@ -2,12 +2,15 @@ package com.andreas.showsdb.model.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
-@Value
+import java.io.Serializable;
+
+@Data
 @Builder
-public class MainCastDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class MainCastDto implements Serializable {
     @NotNull(message = "Actor id must not be null")
     Long actorId;
     @NotNull(message = "Show id must not be null")

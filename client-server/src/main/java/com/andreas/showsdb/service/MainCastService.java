@@ -11,6 +11,7 @@ import com.andreas.showsdb.repository.MainCastRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,7 @@ public class MainCastService {
     private final ActorsRepository actorsRepository;
     private final ShowsRepository showsRepository;
 
+    @Cacheable("findAllMainCasts")
     public List<MainCastDto> findAll() {
         return mainCastRepository.findAll().stream()
                 .map(MainCast::getInfoDto)
@@ -63,12 +65,14 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
+    @Cacheable("findActorShows")
     public List<MainCastDto> findByActor(long actorId) {
         return mainCastRepository.findByActorId(actorId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
+    @Cacheable("findShowActors")
     public List<MainCastDto> findByShow(long showId) {
         return mainCastRepository.findByShowId(showId).stream()
                 .map(MainCast::getInfoDto)
