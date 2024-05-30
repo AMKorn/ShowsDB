@@ -7,6 +7,7 @@ import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.repository.ActorsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -32,12 +33,14 @@ public class ActorsService {
                 .getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
     public ActorOutputDto save(@Valid ActorInputDto actorInputDto) {
         Actor actor = Actor.translateFromDto(actorInputDto);
         Actor saved = actorsRepository.save(actor);
         return saved.getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
     public ActorOutputDto modify(@Valid ActorOutputDto actorOutputDto) throws NotFoundException {
         Optional<Actor> optionalActor = actorsRepository.findById(actorOutputDto.getId());
         if (optionalActor.isEmpty()) {
@@ -49,6 +52,7 @@ public class ActorsService {
         return saved.getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
     public void deleteById(long id) {
         actorsRepository.deleteById(id);
     }

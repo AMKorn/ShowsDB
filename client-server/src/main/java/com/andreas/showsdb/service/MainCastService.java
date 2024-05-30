@@ -11,6 +11,7 @@ import com.andreas.showsdb.repository.MainCastRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class MainCastService {
                 .toList();
     }
 
+    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors"}, allEntries = true)
     public MainCastDto save(@Valid MainCastDto mainCastDto) throws ShowsDatabaseException {
         Actor actor = actorsRepository.findById(mainCastDto.getActorId())
                 .orElseThrow(() -> new NotFoundException("Actor not found"));
@@ -54,6 +56,7 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors"}, allEntries = true)
     public MainCastDto modify(@Valid MainCastDto mainCastDto) throws NotFoundException {
 
         MainCast mainCast = mainCastRepository.findDistinctByActorIdAndShowId(mainCastDto.getActorId(),
@@ -79,6 +82,7 @@ public class MainCastService {
                 .toList();
     }
 
+    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors"}, allEntries = true)
     public void delete(Long actorId, Long showId) {
         mainCastRepository.deleteDistinctByActorIdAndShowId(actorId, showId);
     }

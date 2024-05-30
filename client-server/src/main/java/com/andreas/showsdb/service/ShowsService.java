@@ -11,6 +11,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,17 +35,20 @@ public class ShowsService {
                 .toList();
     }
 
+    @Cacheable("findShowById")
     public ShowOutputDto findById(long id) throws NotFoundException {
         return showsRepository.findById(id)
                 .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findAllShows", "findShowById"}, allEntries = true)
     public ShowOutputDto save(ShowInputDto showInputDto) {
         Show show = Show.translateFromDto(showInputDto);
         return showsRepository.save(show).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findAllShows", "findShowById"}, allEntries = true)
     public ShowOutputDto modify(ShowOutputDto showOutputDto) throws NotFoundException {
         Optional<Show> optionalShow = showsRepository.findById(showOutputDto.getId());
         if (optionalShow.isEmpty()) throw new NotFoundException();
@@ -54,6 +58,7 @@ public class ShowsService {
         return saved.getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findAllShows", "findShowById"}, allEntries = true)
     public void deleteById(long id) {
         showsRepository.deleteById(id);
     }

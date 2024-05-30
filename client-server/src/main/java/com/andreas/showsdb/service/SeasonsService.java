@@ -9,6 +9,7 @@ import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,7 @@ public class SeasonsService {
                 .getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
     public SeasonOutputDto save(long showId, @Valid SeasonInputDto seasonInputDto) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
@@ -45,6 +47,7 @@ public class SeasonsService {
         return seasonsRepository.save(season).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
     public SeasonOutputDto createInShow(long showId) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
@@ -66,10 +69,12 @@ public class SeasonsService {
         return seasonsRepository.save(season).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
     public void delete(long showId, int seasonNumber) {
         seasonsRepository.deleteByShowIdAndNumber(showId, seasonNumber);
     }
 
+    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
     public void deleteByShow(long showId) {
         seasonsRepository.deleteAllByShowId(showId);
     }
