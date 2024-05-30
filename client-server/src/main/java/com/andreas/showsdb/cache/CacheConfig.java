@@ -1,6 +1,10 @@
 package com.andreas.showsdb.cache;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -24,12 +28,16 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory redisConnectionFactory, ObjectMapper mapper) {
+        ObjectMapper newMapper = mapper.copy();
+        newMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        newMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.EVERYTHING,
+                JsonTypeInfo.As.WRAPPER_ARRAY);
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
                 .serializeValuesWith(
                         SerializationPair.fromSerializer(
-                                new GenericJackson2JsonRedisSerializer(mapper)
+                                new GenericJackson2JsonRedisSerializer(newMapper)
                         )
                 );
         return RedisCacheManager.builder(redisConnectionFactory)
