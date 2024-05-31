@@ -1,6 +1,8 @@
 type Query {
     shows: [Show]
     showById(id: ID!): Show
+    seasons(showId: ID!): [Season]
+    season(showId: ID!, seasonNumber: Int): Season
 }
 
 type Mutation {
@@ -12,6 +14,12 @@ type Show {
     name: String!
     country: String
     numberOfSeasons: Int
+    numberOfEpisodes: Int
+}
+
+type Season {
+    showId: ID!
+    seasonNumber: Int!
     numberOfEpisodes: Int
 }
 

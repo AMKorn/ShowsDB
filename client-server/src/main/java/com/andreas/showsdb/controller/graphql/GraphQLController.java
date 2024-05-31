@@ -1,8 +1,10 @@
 package com.andreas.showsdb.controller.graphql;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.model.dto.SeasonOutputDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
+import com.andreas.showsdb.service.SeasonsService;
 import com.andreas.showsdb.service.ShowsService;
 import graphql.GraphQLError;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.List;
 public class GraphQLController {
 
     private final ShowsService showsService;
+    private final SeasonsService seasonsService;
 
     @QueryMapping
     List<ShowOutputDto> shows() {
@@ -38,6 +41,20 @@ public class GraphQLController {
     @MutationMapping
     ShowOutputDto addShow(@Argument ShowInputDto show) {
         return showsService.save(show);
+    }
+
+    @QueryMapping
+    List<SeasonOutputDto> seasons(@Argument Long showId) {
+        return seasonsService.findByShow(showId);
+    }
+
+    @QueryMapping
+    SeasonOutputDto season(@Argument Long showId, @Argument Integer seasonNumber) {
+        try {
+            return seasonsService.findByShowAndNumber(showId, seasonNumber);
+        } catch (NotFoundException e) {
+            return null;
+        }
     }
 
     @GraphQlExceptionHandler

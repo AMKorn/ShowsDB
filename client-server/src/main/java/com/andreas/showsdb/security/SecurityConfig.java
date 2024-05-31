@@ -34,6 +34,8 @@ public class SecurityConfig {
                         authHttp.requestMatchers("/authorized").permitAll()
                                 .requestMatchers(HttpMethod.GET, apiEndpoints).hasAnyRole(user, admin)
                                 .requestMatchers(apiEndpoints).hasRole(admin)
+                                .requestMatchers("/graphql").hasRole(admin)
+                                .requestMatchers("/graphiql").hasRole(admin)
                                 .anyRequest().permitAll();
                     } else {
                         authHttp.anyRequest().permitAll();
