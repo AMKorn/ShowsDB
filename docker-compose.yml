@@ -11,6 +11,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: showsDB
+    networks:
+      - showsdb
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -18,6 +20,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - showsdb
 
   kafka:
     image: confluentinc/cp-kafka:7.0.1
@@ -36,6 +40,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     restart: on-failure
+    networks:
+      - showsdb
 
   vault-server:
     image: hashicorp/vault:1.13.3
@@ -52,11 +58,18 @@ services:
     cap_add:
       - IPC_LOCK
     entrypoint: vault server -config=/vault/config/vault.json
+    networks:
+      - showsdb
 
   redis:
     image: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./volumes/config/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
+    networks:
+      - showsdb
 
   auth-server:
     image: auth-server:latest
@@ -68,6 +81,8 @@ services:
       - vault-server
     environment:
       - IP=${privateip}
+    networks:
+      - showsdb
 
   client-server:
     image: client-server:latest
@@ -79,9 +94,16 @@ services:
       - vault-server
       - auth-server
       - kafka
+      - redis
     environment:
       - IP=${privateip}
       - ENV=prod
       - DB-PATH=database:3306
       - KAFKA_PORT=9092
       - FILES_PATH=/ShowsDB/
+      - REDIS=${privateip}
+    networks:
+      - showsdb
+
+networks:
+  showsdb:
