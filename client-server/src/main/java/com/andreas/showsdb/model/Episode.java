@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Entity
@@ -47,7 +49,11 @@ public class Episode implements Comparable<Episode> {
                 .seasonNumber(season.getNumber())
                 .episodeNumber(number)
                 .name(name)
-                .releaseDate(releaseDate)
+                .releaseDate(releaseDate != null ?
+                        releaseDate.toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                        : null)
                 .build();
     }
 

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Value
 @Builder
@@ -21,5 +21,5 @@ public class EpisodeOutputDto {
     Integer episodeNumber;
     @Size(max = 255, message = "Episode name must not be longer than 255 characters")
     String name;
-    Date releaseDate;
+    LocalDate releaseDate;
 }

@@ -1,8 +1,12 @@
+scalar Date
+
 type Query {
     shows: [Show]
     showById(id: ID!): Show
     seasons(showId: ID!): [Season]
     season(showId: ID!, seasonNumber: Int): Season
+    episodes(showId: ID!, seasonNumber: Int): [Episode]
+    episode(showId: ID!, seasonNumber: Int, episodeNumber: Int): Episode
 }
 
 type Mutation {
@@ -23,7 +27,16 @@ type Season {
     numberOfEpisodes: Int
 }
 
+type Episode {
+    showId: ID!
+    seasonNumber: Int!
+    episodeNumber: Int!
+    name: String
+    releaseDate: Date
+}
+
 input ShowInput {
     name: String!
     country: String
 }
+
