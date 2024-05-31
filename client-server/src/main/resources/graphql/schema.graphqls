@@ -9,6 +9,10 @@ type Query {
     episode(showId: ID!, seasonNumber: Int, episodeNumber: Int): Episode
     actors: [Actor]
     actorById(id: ID!): Actor
+    mainCasts: [MainCast]
+    actorShows(actorId: ID!): [MainCast]
+    showActors(showId: ID!): [MainCast]
+    character(actorId: ID!, showId: ID!): MainCast
 }
 
 type Mutation {
@@ -42,6 +46,12 @@ type Actor {
     name: String!
     country: String
     birthDate: Date
+}
+
+type MainCast {
+    actorId: ID!
+    showId: ID!
+    character: String!
 }
 
 input ShowInput {

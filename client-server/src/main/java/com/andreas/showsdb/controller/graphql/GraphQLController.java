@@ -2,10 +2,7 @@ package com.andreas.showsdb.controller.graphql;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.*;
-import com.andreas.showsdb.service.ActorsService;
-import com.andreas.showsdb.service.EpisodesService;
-import com.andreas.showsdb.service.SeasonsService;
-import com.andreas.showsdb.service.ShowsService;
+import com.andreas.showsdb.service.*;
 import graphql.GraphQLError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -25,6 +22,7 @@ public class GraphQLController {
     private final SeasonsService seasonsService;
     private final EpisodesService episodesService;
     private final ActorsService actorsService;
+    private final MainCastService mainCastService;
 
     @QueryMapping
     List<ShowOutputDto> shows() {
@@ -74,14 +72,38 @@ public class GraphQLController {
     }
 
     @QueryMapping
-    List<ActorOutputDto> actors(){
+    List<ActorOutputDto> actors() {
         return actorsService.findAll();
     }
 
     @QueryMapping
-    ActorOutputDto actorById(@Argument Long id){
+    ActorOutputDto actorById(@Argument Long id) {
         try {
             return actorsService.findById(id);
+        } catch (NotFoundException e) {
+            return null;
+        }
+    }
+
+    @QueryMapping
+    List<MainCastDto> mainCasts() {
+        return mainCastService.findAll();
+    }
+
+    @QueryMapping
+    List<MainCastDto> actorShows(@Argument Long actorId) {
+        return mainCastService.findByActor(actorId);
+    }
+
+    @QueryMapping
+    List<MainCastDto> showActors(@Argument Long showId) {
+        return mainCastService.findByShow(showId);
+    }
+
+    @QueryMapping
+    MainCastDto character(@Argument Long actorId, @Argument Long showId) {
+        try {
+            return mainCastService.findByActorAndShow(actorId, showId);
         } catch (NotFoundException e) {
             return null;
         }

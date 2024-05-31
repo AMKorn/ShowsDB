@@ -75,6 +75,12 @@ public class MainCastService {
                 .toList();
     }
 
+    public MainCastDto findByActorAndShow(Long actorId, Long showId) throws NotFoundException {
+        return mainCastRepository.findDistinctByActorIdAndShowId(actorId, showId)
+                .orElseThrow(NotFoundException::new)
+                .getInfoDto();
+    }
+
     public void delete(Long actorId, Long showId) {
         mainCastRepository.deleteDistinctByActorIdAndShowId(actorId, showId);
     }
