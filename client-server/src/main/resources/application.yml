@@ -77,6 +77,10 @@ spring:
     job:
       enabled: false
 
+  graphql:
+    graphiql:
+      enabled: true
+
 logging:
   level:
     org:

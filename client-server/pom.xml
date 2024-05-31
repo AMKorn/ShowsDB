@@ -159,7 +159,13 @@
             <artifactId>poi</artifactId>
             <version>5.2.5</version>
         </dependency>
-        
+
+        <!-- https://mvnrepository.com/artifact/org.springframework.graphql/spring-graphql -->
+        <dependency>
+            <groupId>org.springframework.graphql</groupId>
+            <artifactId>spring-graphql</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

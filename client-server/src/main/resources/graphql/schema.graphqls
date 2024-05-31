@@ -1,0 +1,21 @@
+type Query {
+    shows: [Show]
+    showById(id: ID!): Show
+}
+
+type Mutation {
+    addShow(show: ShowInput): Show
+}
+
+type Show {
+    id: ID!
+    name: String!
+    country: String
+    numberOfSeasons: Int
+    numberOfEpisodes: Int
+}
+
+input ShowInput {
+    name: String!
+    country: String
+}
