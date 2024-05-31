@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Value;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 @Value
 @Builder
@@ -18,5 +18,5 @@ public class ActorOutputDto {
     @Size(max = 255, message = "Country must not be longer than 255 characters")
     String country;
     @Past(message = "Actor must have been born")
-    Date birthDate;
+    LocalDate birthDate;
 }

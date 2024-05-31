@@ -15,7 +15,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
 @Component
@@ -28,13 +31,16 @@ public class Messenger {
     private static final Logger logger = LoggerFactory.getLogger(Messenger.class);
 
     public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
+        LocalDate releaseDate = episode.getReleaseDate();
+        Instant instant = releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
         EpisodeMessage message = EpisodeMessage.builder()
                 .text("New episode released")
                 .show(showsService.findById(episode.getShowId()).getName())
                 .seasonNumber(episode.getSeasonNumber())
                 .episodeNumber(episode.getEpisodeNumber())
                 .name(episode.getName())
-                .releaseDate(Date.valueOf(episode.getReleaseDate()))
+                .releaseDate(date)
                 .build();
         sendMessage("novelties", message);
     }
@@ -47,7 +53,7 @@ public class Messenger {
         sendMessage("novelties", message);
     }
 
-    public void sendBatchOrder(String importJob, String file){
+    public void sendBatchOrder(String importJob, String file) {
         BatchOrder batchOrder = BatchOrder.builder()
                 .text(importJob)
                 .filepath(file)

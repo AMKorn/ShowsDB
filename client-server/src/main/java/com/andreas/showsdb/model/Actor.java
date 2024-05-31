@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.Set;
 
@@ -39,12 +42,15 @@ public class Actor {
     }
 
     public static Actor translateFromDto(@Valid ActorOutputDto dto) {
+        LocalDate dtoBirthDate = dto.getBirthDate();
+        Instant instant = dtoBirthDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Date date = Date.from(instant);
         return Actor.builder()
                 .id(dto.getId())
                 .name(dto.getName())
                 .country(dto.getCountry())
                 .country(dto.getCountry())
-                .birthDate(dto.getBirthDate())
+                .birthDate(date)
                 .build();
     }
 
@@ -53,7 +59,11 @@ public class Actor {
                 .id(id)
                 .name(name)
                 .country(country)
-                .birthDate(birthDate)
+                .birthDate(birthDate != null ?
+                        birthDate.toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                        : null)
                 .build();
     }
 }
