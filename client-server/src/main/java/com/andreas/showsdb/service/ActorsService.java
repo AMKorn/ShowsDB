@@ -19,28 +19,28 @@ import java.util.Optional;
 public class ActorsService {
     private final ActorsRepository actorsRepository;
 
-    @Cacheable("findAllActors")
+    @Cacheable("actors-cache")
     public List<ActorOutputDto> findAll() {
         return actorsRepository.findAll().stream()
                 .map(Actor::getInfoDto)
                 .toList();
     }
 
-    @Cacheable("findActorById")
+    @Cacheable("actors-cache")
     public ActorOutputDto findById(long id) throws NotFoundException {
         return actorsRepository.findById(id)
                 .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
+    @CacheEvict(cacheNames = {"actors-cache"}, allEntries = true)
     public ActorOutputDto save(@Valid ActorInputDto actorInputDto) {
         Actor actor = Actor.translateFromDto(actorInputDto);
         Actor saved = actorsRepository.save(actor);
         return saved.getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
+    @CacheEvict(cacheNames = {"actors-cache"}, allEntries = true)
     public ActorOutputDto modify(@Valid ActorOutputDto actorOutputDto) throws NotFoundException {
         Optional<Actor> optionalActor = actorsRepository.findById(actorOutputDto.getId());
         if (optionalActor.isEmpty()) {
@@ -52,7 +52,7 @@ public class ActorsService {
         return saved.getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
+    @CacheEvict(cacheNames = {"actors-cache"}, allEntries = true)
     public void deleteById(long id) {
         actorsRepository.deleteById(id);
     }

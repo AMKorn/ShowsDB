@@ -26,15 +26,14 @@ public class MainCastService {
     private final ActorsRepository actorsRepository;
     private final ShowsRepository showsRepository;
 
-    @Cacheable("findAllMainCasts")
+    @Cacheable("main-cast-cache")
     public List<MainCastDto> findAll() {
         return mainCastRepository.findAll().stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
-    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors", "findByActorAndShow"},
-            allEntries = true)
+    @CacheEvict(cacheNames = {"main-cast-cache", "main-cast-cache-actor", "main-cast-cache-show"}, allEntries = true)
     public MainCastDto save(@Valid MainCastDto mainCastDto) throws ShowsDatabaseException {
         Actor actor = actorsRepository.findById(mainCastDto.getActorId())
                 .orElseThrow(() -> new NotFoundException("Actor not found"));
@@ -57,8 +56,7 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors", "findByActorAndShow"},
-            allEntries = true)
+    @CacheEvict(cacheNames = {"main-cast-cache", "main-cast-cache-actor", "main-cast-cache-show"}, allEntries = true)
     public MainCastDto modify(@Valid MainCastDto mainCastDto) throws NotFoundException {
 
         MainCast mainCast = mainCastRepository.findDistinctByActorIdAndShowId(mainCastDto.getActorId(),
@@ -70,29 +68,28 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
-    @Cacheable("findActorShows")
+    @Cacheable("main-cast-cache-actor")
     public List<MainCastDto> findByActor(long actorId) {
         return mainCastRepository.findByActorId(actorId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
-    @Cacheable("findShowActors")
+    @Cacheable("main-cast-cache-show")
     public List<MainCastDto> findByShow(long showId) {
         return mainCastRepository.findByShowId(showId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
-    @Cacheable("findByActorAndShow")
+    @Cacheable("main-cast-cache")
     public MainCastDto findByActorAndShow(Long actorId, Long showId) throws NotFoundException {
         return mainCastRepository.findDistinctByActorIdAndShowId(actorId, showId)
                 .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors", "findByActorAndShow"},
-            allEntries = true)
+    @CacheEvict(cacheNames = {"main-cast-cache", "main-cast-cache-actor", "main-cast-cache-show"}, allEntries = true)
     public void delete(Long actorId, Long showId) {
         mainCastRepository.deleteDistinctByActorIdAndShowId(actorId, showId);
     }

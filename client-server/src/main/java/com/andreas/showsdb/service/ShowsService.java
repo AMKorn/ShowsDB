@@ -28,27 +28,27 @@ public class ShowsService {
 
     private final ShowsRepository showsRepository;
 
-    @Cacheable("findAllShows")
+    @Cacheable("shows-cache")
     public List<ShowOutputDto> findAll() {
         return showsRepository.findAll().stream()
                 .map(Show::getInfoDto)
                 .toList();
     }
 
-    @Cacheable("findShowById")
+    @Cacheable("shows-cache")
     public ShowOutputDto findById(long id) throws NotFoundException {
         return showsRepository.findById(id)
                 .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findAllShows", "findShowById"}, allEntries = true)
+    @CacheEvict(cacheNames = {"shows-cache"}, allEntries = true)
     public ShowOutputDto save(ShowInputDto showInputDto) {
         Show show = Show.translateFromDto(showInputDto);
         return showsRepository.save(show).getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findAllShows", "findShowById"}, allEntries = true)
+    @CacheEvict(cacheNames = {"shows-cache"}, allEntries = true)
     public ShowOutputDto modify(ShowOutputDto showOutputDto) throws NotFoundException {
         Optional<Show> optionalShow = showsRepository.findById(showOutputDto.getId());
         if (optionalShow.isEmpty()) throw new NotFoundException();
@@ -58,7 +58,7 @@ public class ShowsService {
         return saved.getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findAllShows", "findShowById"}, allEntries = true)
+    @CacheEvict(cacheNames = {"shows-cache"}, allEntries = true)
     public void deleteById(long id) {
         showsRepository.deleteById(id);
     }

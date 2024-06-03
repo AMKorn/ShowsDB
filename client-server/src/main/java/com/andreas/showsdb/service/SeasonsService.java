@@ -22,20 +22,20 @@ public class SeasonsService {
     private final ShowsRepository showsRepository;
     private final SeasonsRepository seasonsRepository;
 
-    @Cacheable("findShowSeasons")
+    @Cacheable("seasons-cache")
     public List<SeasonOutputDto> findByShow(long showId) {
         return seasonsRepository.findByShowId(showId).stream()
                 .map(Season::getInfoDto).toList();
     }
 
-    @Cacheable("findSeason")
+    @Cacheable("seasons-cache")
     public SeasonOutputDto findByShowAndNumber(long showId, int seasonNumber) throws NotFoundException {
         return seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
                 .orElseThrow(() -> new NotFoundException("Season not found"))
                 .getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
+    @CacheEvict(cacheNames = {"seasons-cache", "shows-cache"}, allEntries = true)
     public SeasonOutputDto save(long showId, @Valid SeasonInputDto seasonInputDto) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
@@ -47,7 +47,7 @@ public class SeasonsService {
         return seasonsRepository.save(season).getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
+    @CacheEvict(cacheNames = {"seasons-cache", "shows-cache"}, allEntries = true)
     public SeasonOutputDto createInShow(long showId) throws NotFoundException {
         Show show = showsRepository.findById(showId)
                 .orElseThrow(() -> new NotFoundException("Show not found"));
@@ -69,12 +69,12 @@ public class SeasonsService {
         return seasonsRepository.save(season).getInfoDto();
     }
 
-    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
+    @CacheEvict(cacheNames = {"seasons-cache", "shows-cache"}, allEntries = true)
     public void delete(long showId, int seasonNumber) {
         seasonsRepository.deleteByShowIdAndNumber(showId, seasonNumber);
     }
 
-    @CacheEvict(cacheNames = {"findShowSeasons", "findSeason"}, allEntries = true)
+    @CacheEvict(cacheNames = {"seasons-cache", "shows-cache"}, allEntries = true)
     public void deleteByShow(long showId) {
         seasonsRepository.deleteAllByShowId(showId);
     }
