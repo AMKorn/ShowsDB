@@ -81,6 +81,12 @@ spring:
     graphiql:
       enabled: true
 
+  data:
+    redis:
+      host: ${IP}
+      port: 6379
+      ttl: 10000
+
 logging:
   level:
     org:

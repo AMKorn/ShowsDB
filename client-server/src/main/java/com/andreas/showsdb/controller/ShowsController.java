@@ -62,9 +62,7 @@ public class ShowsController {
     @GetMapping("/{id}")
     public ShowOutputDto get(@Parameter(description = "Id of the show")
                              @PathVariable("id") long id) throws NotFoundException {
-        ShowOutputDto show = showsService.findById(id);
-        messenger.newShow(show);
-        return show;
+        return showsService.findById(id);
     }
 
     @Operation(summary = "Create a show passed through body. Does not check for duplicates")

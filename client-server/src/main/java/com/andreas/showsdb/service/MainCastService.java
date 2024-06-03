@@ -11,6 +11,8 @@ import com.andreas.showsdb.repository.MainCastRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,12 +26,15 @@ public class MainCastService {
     private final ActorsRepository actorsRepository;
     private final ShowsRepository showsRepository;
 
+    @Cacheable("findAllMainCasts")
     public List<MainCastDto> findAll() {
         return mainCastRepository.findAll().stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
+    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors", "findByActorAndShow"},
+            allEntries = true)
     public MainCastDto save(@Valid MainCastDto mainCastDto) throws ShowsDatabaseException {
         Actor actor = actorsRepository.findById(mainCastDto.getActorId())
                 .orElseThrow(() -> new NotFoundException("Actor not found"));
@@ -52,6 +57,8 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors", "findByActorAndShow"},
+            allEntries = true)
     public MainCastDto modify(@Valid MainCastDto mainCastDto) throws NotFoundException {
 
         MainCast mainCast = mainCastRepository.findDistinctByActorIdAndShowId(mainCastDto.getActorId(),
@@ -63,24 +70,29 @@ public class MainCastService {
         return mainCastRepository.save(mainCast).getInfoDto();
     }
 
+    @Cacheable("findActorShows")
     public List<MainCastDto> findByActor(long actorId) {
         return mainCastRepository.findByActorId(actorId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
+    @Cacheable("findShowActors")
     public List<MainCastDto> findByShow(long showId) {
         return mainCastRepository.findByShowId(showId).stream()
                 .map(MainCast::getInfoDto)
                 .toList();
     }
 
+    @Cacheable("findByActorAndShow")
     public MainCastDto findByActorAndShow(Long actorId, Long showId) throws NotFoundException {
         return mainCastRepository.findDistinctByActorIdAndShowId(actorId, showId)
                 .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findAllMainCasts", "findActorShows", "findShowActors", "findByActorAndShow"},
+            allEntries = true)
     public void delete(Long actorId, Long showId) {
         mainCastRepository.deleteDistinctByActorIdAndShowId(actorId, showId);
     }

@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,11 +26,13 @@ public class EpisodesService {
     private final EpisodesRepository episodesRepository;
     private final SeasonsRepository seasonsRepository;
 
+    @Cacheable("findEpisodesBySeason")
     public List<EpisodeOutputDto> findBySeason(long showId, int seasonNumber) {
         return episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber).stream()
                 .map(Episode::getInfoDto).toList();
     }
 
+    @Cacheable("findEpisode")
     public EpisodeOutputDto findByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber)
             throws NotFoundException {
         return episodesRepository.findBySeasonShowIdAndSeasonNumberAndNumber(showId, seasonNumber, episodeNumber)
@@ -36,6 +40,7 @@ public class EpisodesService {
                 .getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findEpisodesBySeason", "findEpisode"}, allEntries = true)
     public EpisodeOutputDto save(long showId, int seasonNumber, EpisodeInputDto episodeInputDto)
             throws NotFoundException {
         Season season = seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
@@ -51,6 +56,7 @@ public class EpisodesService {
         return episodesRepository.save(episode).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findEpisodesBySeason", "findEpisode"}, allEntries = true)
     public EpisodeOutputDto modify(long showId, int seasonNumber, @Valid EpisodeInputDto episodeInputDto)
             throws NotFoundException {
         Episode episode = episodesRepository.findBySeasonShowIdAndSeasonNumberAndNumber(showId, seasonNumber,
@@ -63,6 +69,7 @@ public class EpisodesService {
         return episodesRepository.save(episode).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findEpisodesBySeason", "findEpisode"}, allEntries = true)
     public EpisodeOutputDto createInSeason(long showId, int seasonNumber) throws NotFoundException {
         Season season = seasonsRepository.findByShowIdAndNumber(showId, seasonNumber)
                 .orElseThrow(NotFoundException::new);
@@ -83,10 +90,12 @@ public class EpisodesService {
         return episodesRepository.save(episode).getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findEpisodesBySeason", "findEpisode"}, allEntries = true)
     public void deleteByShowAndSeasonAndEpisodeNumbers(long showId, int seasonNumber, int episodeNumber) {
         episodesRepository.deleteBySeasonShowIdAndSeasonNumberAndNumber(showId, seasonNumber, episodeNumber);
     }
 
+    @CacheEvict(cacheNames = {"findEpisodesBySeason", "findEpisode"}, allEntries = true)
     public void deleteAllBySeason(long showId, int seasonNumber) {
         try {
             episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber)

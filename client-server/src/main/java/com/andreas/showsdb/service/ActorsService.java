@@ -7,6 +7,8 @@ import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.repository.ActorsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,24 +19,28 @@ import java.util.Optional;
 public class ActorsService {
     private final ActorsRepository actorsRepository;
 
+    @Cacheable("findAllActors")
     public List<ActorOutputDto> findAll() {
         return actorsRepository.findAll().stream()
                 .map(Actor::getInfoDto)
                 .toList();
     }
 
+    @Cacheable("findActorById")
     public ActorOutputDto findById(long id) throws NotFoundException {
         return actorsRepository.findById(id)
                 .orElseThrow(NotFoundException::new)
                 .getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
     public ActorOutputDto save(@Valid ActorInputDto actorInputDto) {
         Actor actor = Actor.translateFromDto(actorInputDto);
         Actor saved = actorsRepository.save(actor);
         return saved.getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
     public ActorOutputDto modify(@Valid ActorOutputDto actorOutputDto) throws NotFoundException {
         Optional<Actor> optionalActor = actorsRepository.findById(actorOutputDto.getId());
         if (optionalActor.isEmpty()) {
@@ -46,6 +52,7 @@ public class ActorsService {
         return saved.getInfoDto();
     }
 
+    @CacheEvict(cacheNames = {"findActorById", "findAllActors"}, allEntries = true)
     public void deleteById(long id) {
         actorsRepository.deleteById(id);
     }

@@ -3,14 +3,16 @@ package com.andreas.showsdb.model.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
 
 import java.time.LocalDate;
+import java.io.Serializable;
 
-@Value
+@Data
 @Builder
-public class EpisodeOutputDto {
+@NoArgsConstructor
+@AllArgsConstructor
+public class EpisodeOutputDto implements Serializable {
     @NotNull(message = "Show ID must not be null")
     Long showId;
     @NotNull(message = "Season number must not be null")
