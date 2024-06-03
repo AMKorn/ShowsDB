@@ -78,7 +78,7 @@ spring:
       enabled: false
 
   redis:
-    host: ${REDIS}
+    host: ${IP}
     port: 6379
     ttl: 10000
 

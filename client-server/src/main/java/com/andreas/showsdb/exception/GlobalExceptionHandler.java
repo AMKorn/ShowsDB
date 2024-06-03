@@ -20,14 +20,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = NoResourceFoundException.class)
-    public ResponseEntity<ExceptionMessage> handleResourceNotFound(NoResourceFoundException e) {
+    public ResponseEntity<ExceptionMessage> handleResourceNotFound(NoResourceFoundException e){
         String message = e.getMessage();
         logger.error(message);
         return new ResponseEntity<>(new ExceptionMessage(message), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(value = MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ExceptionMessage> handleTypeMismatchException(MethodArgumentTypeMismatchException e) {
+    public ResponseEntity<ExceptionMessage> handleTypeMismatchException(MethodArgumentTypeMismatchException e){
         String message = e.getMessage();
         logger.error(message);
         return ResponseEntity.badRequest().body(new ExceptionMessage(e.getMessage()));
@@ -37,7 +37,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionMessage> handleException(Exception e) {
         String message = e.getMessage();
         logger.error(message);
-        e.printStackTrace();
         return ResponseEntity.internalServerError().body(new ExceptionMessage(message));
     }
 }
