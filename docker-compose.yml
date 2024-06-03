@@ -4,6 +4,8 @@ services:
   database:
     image: mysql:latest
     container_name: database
+    networks:
+      - showsDB
     ports:
       - 8083:3306
     volumes:
@@ -15,6 +17,8 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
+    networks:
+      - showsDB
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -22,6 +26,8 @@ services:
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
+    networks:
+      - showsDB
     ports:
       - "9092:9092"
       - "9093:9093"
@@ -40,6 +46,8 @@ services:
   vault-server:
     image: hashicorp/vault:1.13.3
     container_name: vault
+    networks:
+      - showsDB
     ports:
       - "8200:8200"
     restart: always
@@ -55,12 +63,20 @@ services:
 
   redis:
     image: redis
+    container_name: redis-cache
+    networks:
+      - showsDB
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./volumes/config/redis.conf:/usr/local/etc/redis/redis.conf
     ports:
       - "6379:6379"
 
   auth-server:
     image: auth-server:latest
     container_name: auth-server
+    networks:
+      - showsDB
     ports:
       - "9000:9000"
     depends_on:
@@ -72,6 +88,8 @@ services:
   client-server:
     image: client-server:latest
     container_name: client-server
+    networks:
+      - showsDB
     ports:
       - "8080:8080"
     depends_on:
@@ -79,9 +97,13 @@ services:
       - vault-server
       - auth-server
       - kafka
+      - redis
     environment:
       - IP=${privateip}
       - ENV=prod
       - DB-PATH=database:3306
       - KAFKA_PORT=9092
       - FILES_PATH=/ShowsDB/
+
+networks:
+  showsDB:
