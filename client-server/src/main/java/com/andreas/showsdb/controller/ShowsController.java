@@ -2,9 +2,10 @@ package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.messaging.Messenger;
-import com.andreas.showsdb.model.dto.MainCastDto;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
+import com.andreas.showsdb.model.dto.hateoas.MainCastHypermedia;
+import com.andreas.showsdb.model.dto.hateoas.ShowHypermedia;
 import com.andreas.showsdb.service.MainCastService;
 import com.andreas.showsdb.service.ShowsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,15 +22,16 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/shows")
 @RequiredArgsConstructor
 public class ShowsController {
 
     private final ShowsService showsService;
-
     private final MainCastService mainCastService;
-
     private final Messenger messenger;
 
     @Operation(summary = "List all shows")
@@ -37,74 +39,55 @@ public class ShowsController {
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = ShowOutputDto.class)
-                            )
-                    )
-            )
-    })
+                                    schema = @Schema(implementation = ShowHypermedia.class))))})
     @GetMapping
-    public List<ShowOutputDto> searchAll() {
-        return showsService.findAll();
+    public List<ShowHypermedia> searchAll() {
+        return showsService.findAll().stream()
+                .map(ShowsController::createShowHypermedia)
+                .toList();
     }
 
     @Operation(summary = "Find a show given the specified id by parameter")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Show found",
+            @ApiResponse(responseCode = "200", description = "Show found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ShowOutputDto.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show not found"
-            )
-    })
+                            schema = @Schema(implementation = ShowHypermedia.class))),
+            @ApiResponse(responseCode = "404", description = "Show not found")})
     @GetMapping("/{id}")
-    public ShowOutputDto get(@Parameter(description = "Id of the show")
-                             @PathVariable("id") long id) throws NotFoundException {
-        return showsService.findById(id);
+    public ShowHypermedia get(@Parameter(description = "Id of the show")
+                              @PathVariable("id") long id) throws NotFoundException {
+        ShowOutputDto show = showsService.findById(id);
+        return createShowHypermedia(show);
     }
 
     @Operation(summary = "Create a show passed through body. Does not check for duplicates")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201",
-                    description = "Show created",
+            @ApiResponse(responseCode = "201", description = "Show created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ShowOutputDto.class)
-                    )
-            )
-    })
+                            schema = @Schema(implementation = ShowHypermedia.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ShowOutputDto create(@RequestBody @Valid ShowInputDto show) {
+    public ShowHypermedia create(@RequestBody @Valid ShowInputDto show) {
         ShowOutputDto savedShow = showsService.save(show);
         messenger.newShow(savedShow);
-        return savedShow;
+        return createShowHypermedia(savedShow);
     }
 
     @Operation(summary = "Modify a show passed through body")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Show found and modified",
+            @ApiResponse(responseCode = "200", description = "Show found and modified",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ShowOutputDto.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Show not found"
-            )
-    })
+                            schema = @Schema(implementation = ShowHypermedia.class))),
+            @ApiResponse(responseCode = "404", description = "Show not found")})
     @PutMapping
-    public ShowOutputDto modify(@RequestBody ShowOutputDto show) throws NotFoundException {
-        return showsService.modify(show);
+    public ShowHypermedia modify(@RequestBody ShowOutputDto show) throws NotFoundException {
+        ShowOutputDto modifiedShow = showsService.modify(show);
+        return createShowHypermedia(modifiedShow);
     }
 
     @Operation(summary = "Delete a show given the specified id by parameter")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Show deleted"
-            )
-    })
+            @ApiResponse(responseCode = "200", description = "Show deleted")})
     @DeleteMapping("/{id}")
     public void delete(@Parameter(description = "Id of the show")
                        @PathVariable("id") long id) {
@@ -117,14 +100,27 @@ public class ShowsController {
                     description = "Shows and characters found",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = MainCastDto.class)
-                            )
-                    )
-            )
-    })
+                                    schema = @Schema(implementation = MainCastHypermedia.class))))})
     @GetMapping("/{id}/main-cast")
-    public List<MainCastDto> getMainCast(@Parameter(description = "Id of the show")
-                                         @PathVariable("id") long id) {
-        return mainCastService.findByShow(id);
+    public List<MainCastHypermedia> getMainCast(@Parameter(description = "Id of the show")
+                                                @PathVariable("id") long id) {
+        return mainCastService.findByShow(id).stream()
+                .map(MainCastHypermedia::new)
+                .peek(mainCast -> mainCast.add(linkTo(methodOn(ActorsController.class)
+                        .getShows(mainCast.getContent().getActorId()))
+                        .withRel("Actors")))
+                .toList();
+    }
+
+    private static ShowHypermedia createShowHypermedia(ShowOutputDto show) {
+        ShowHypermedia sh = new ShowHypermedia(show);
+        Long id = show.getId();
+        try {
+            sh.add(linkTo(methodOn(ShowsController.class).get(id)).withSelfRel());
+            sh.add(linkTo(methodOn(SeasonsController.class).getAllByShow(id)).withRel("Seasons"));
+        } catch (NotFoundException e) {
+            // Unnecessary
+        }
+        return sh;
     }
 }
