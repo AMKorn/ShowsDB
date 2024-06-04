@@ -4,6 +4,8 @@ import com.andreas.showsdb.exception.NotFoundException;
 import com.andreas.showsdb.model.dto.ActorInputDto;
 import com.andreas.showsdb.model.dto.ActorOutputDto;
 import com.andreas.showsdb.model.dto.MainCastDto;
+import com.andreas.showsdb.model.dto.hateoas.ActorHypermedia;
+import com.andreas.showsdb.model.dto.hateoas.MainCastHypermedia;
 import com.andreas.showsdb.service.ActorsService;
 import com.andreas.showsdb.service.MainCastService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/api/actors")
 @RequiredArgsConstructor
@@ -32,72 +37,79 @@ public class ActorsController {
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = ActorOutputDto.class)
-                            )
-                    )
-            )
-    })
+                                    schema = @Schema(implementation = ActorHypermedia.class))))})
     @GetMapping
-    public List<ActorOutputDto> getAll() {
-        return actorsService.findAll();
+    public List<ActorHypermedia> getAll() {
+        return actorsService.findAll().stream()
+                .map(ActorHypermedia::new)
+                .peek(actor -> {
+                    try {
+                        Long actorId = actor.getContent().getId();
+                        actor.add(linkTo(methodOn(ActorsController.class).get(actorId)).withSelfRel());
+                        actor.add(linkTo(methodOn(ActorsController.class).getShows(actorId)).withRel("Shows"));
+                    } catch (NotFoundException ignored) {
+                        // Not possible to happen, here to shut up the compiler
+                    }
+                })
+                .toList();
     }
 
     @Operation(summary = "Find an actor given the specified id by parameter")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Actor found",
+            @ApiResponse(responseCode = "200", description = "Actor found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActorOutputDto.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Actor not found"
-            )
-    })
+                            schema = @Schema(implementation = ActorHypermedia.class))),
+            @ApiResponse(responseCode = "404", description = "Actor not found")})
     @GetMapping("/{actorId}")
-    public ActorOutputDto get(@Parameter(description = "Id of the actor to be found")
-                              @PathVariable("actorId") long id) throws NotFoundException {
-        return actorsService.findById(id);
+    public ActorHypermedia get(@Parameter(description = "Id of the actor to be found")
+                               @PathVariable("actorId") long id) throws NotFoundException {
+        ActorHypermedia actorHypermedia = new ActorHypermedia(actorsService.findById(id));
+        actorHypermedia.add(linkTo(methodOn(ActorsController.class).get(id)).withSelfRel());
+        actorHypermedia.add(linkTo(methodOn(ActorsController.class).getShows(id)).withRel("Shows"));
+        return actorHypermedia;
     }
 
     @Operation(summary = "Create an actor passed through body. Does not check for duplicates")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201",
-                    description = "Actor created",
+            @ApiResponse(responseCode = "201", description = "Actor created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActorOutputDto.class)
-                    )
-            )
-    })
+                            schema = @Schema(implementation = ActorHypermedia.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ActorOutputDto create(@RequestBody ActorInputDto actor) {
-        return actorsService.save(actor);
+    public ActorHypermedia create(@RequestBody ActorInputDto actor) {
+        ActorOutputDto savedActor = actorsService.save(actor);
+        ActorHypermedia actorHypermedia = new ActorHypermedia(savedActor);
+        try {
+            actorHypermedia.add(linkTo(methodOn(ActorsController.class).get(savedActor.getId())).withSelfRel());
+        } catch (NotFoundException ignored) {
+            // Not possible to happen
+        }
+        return actorHypermedia;
     }
 
     @Operation(summary = "Modify an actor passed through body")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Actor found and modified",
+            @ApiResponse(responseCode = "200", description = "Actor found and modified",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ActorOutputDto.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Actor not found"
-            )
-    })
+                            schema = @Schema(implementation = ActorOutputDto.class))),
+            @ApiResponse(responseCode = "404", description = "Actor not found")})
     @PutMapping
-    public ActorOutputDto modify(@RequestBody ActorOutputDto actor) throws NotFoundException {
-        return actorsService.modify(actor);
+    public ActorHypermedia modify(@RequestBody ActorOutputDto actor) throws NotFoundException {
+        ActorOutputDto modifiedActor = actorsService.modify(actor);
+        ActorHypermedia actorHypermedia = new ActorHypermedia(modifiedActor);
+        try {
+            Long id = modifiedActor.getId();
+            actorHypermedia.add(linkTo(methodOn(ActorsController.class).get(id)).withSelfRel());
+            actorHypermedia.add(linkTo(methodOn(ActorsController.class).getShows(id)).withSelfRel());
+        } catch (NotFoundException ignored) {
+            // Not possible to happen
+        }
+        return actorHypermedia;
     }
 
     @Operation(summary = "Delete an actor given the specified id by parameter")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Actor deleted"
-            )
-    })
+            @ApiResponse(responseCode = "200", description = "Actor deleted")})
     @DeleteMapping("/{actorId}")
     public void delete(@Parameter(description = "Id of the actor to be deleted")
                        @PathVariable("actorId") long id) {
@@ -106,20 +118,26 @@ public class ActorsController {
 
     @Operation(summary = "Find all the show ids in which an actor was main cast and the characters they played")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Shows and characters found",
-                    content = @Content(mediaType = "application/json",
+            @ApiResponse(responseCode = "200", description = "Shows and characters found",
+                    content = @Content(
+                            mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = MainCastDto.class)
-                            )
-                    )
-            ),
-            @ApiResponse(responseCode = "404",
-                    description = "Actor not found"
-            )
-    })
+                                    schema = @Schema(
+                                            implementation = MainCastDto.class)))),
+            @ApiResponse(responseCode = "404", description = "Actor not found")})
     @GetMapping("/{actorId}/shows")
-    public List<MainCastDto> getShows(@PathVariable("actorId") long id) {
-        return mainCastService.findByActor(id);
+    public List<MainCastHypermedia> getShows(@PathVariable("actorId") long id) {
+        return mainCastService.findByActor(id).stream()
+                .map(MainCastHypermedia::new)
+                .peek(mainCast -> {
+                    try {
+                        mainCast.add(linkTo(methodOn(ShowsController.class).get(mainCast.getContent().getShowId()))
+                                .withRel("Show"));
+                    } catch (NotFoundException e) {
+                        // Cannot happen
+                    }
+
+                })
+                .toList();
     }
 }
