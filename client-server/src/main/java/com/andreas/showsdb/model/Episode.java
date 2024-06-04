@@ -8,17 +8,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
 @Entity
-@Table(
-        name = "episode",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"season", "episode_number"})
-        }
-)
+@Table(name = "episode",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"season", "episode_number"})})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
