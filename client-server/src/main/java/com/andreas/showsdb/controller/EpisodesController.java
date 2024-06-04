@@ -45,11 +45,11 @@ public class EpisodesController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Episode created",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeOutputDto.class))),
+                            schema = @Schema(implementation = EpisodeHypermedia.class))),
             @ApiResponse(responseCode = "404", description = "Show or season not found"),
             @ApiResponse(responseCode = "409", description = "Episode already exists. Returns old episode",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeOutputDto.class)))})
+                            schema = @Schema(implementation = EpisodeHypermedia.class)))})
     @PostMapping
     public ResponseEntity<EpisodeHypermedia> create(@Parameter(description = "Id of the show")
                                                     @PathVariable("showId") long showId,
@@ -106,7 +106,7 @@ public class EpisodesController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Episode found",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeOutputDto.class))),
+                            schema = @Schema(implementation = EpisodeHypermedia.class))),
             @ApiResponse(responseCode = "404", description = "Show, season or episode not found")})
     @GetMapping("/{episodeNumber}")
     public EpisodeHypermedia get(@Parameter(description = "Id of the show")
@@ -125,7 +125,7 @@ public class EpisodesController {
             @ApiResponse(responseCode = "200", description = "Episodes found",
                     content = @Content(mediaType = "application/json",
                             array = @ArraySchema(
-                                    schema = @Schema(implementation = EpisodeOutputDto.class))))})
+                                    schema = @Schema(implementation = EpisodeHypermedia.class))))})
     @GetMapping
     public List<EpisodeHypermedia> getAllFromSeason(@Parameter(description = "Id of the show")
                                                     @PathVariable("showId") long showId,
@@ -140,7 +140,7 @@ public class EpisodesController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Episode modified",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = EpisodeOutputDto.class))),
+                            schema = @Schema(implementation = EpisodeHypermedia.class))),
             @ApiResponse(responseCode = "404", description = "Show, season or episode not found")})
     @PutMapping
     public EpisodeHypermedia modify(@Parameter(description = "Id of the show")
