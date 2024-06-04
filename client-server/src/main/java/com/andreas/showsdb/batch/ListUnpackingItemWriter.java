@@ -35,6 +35,7 @@ public class ListUnpackingItemWriter<T> implements ItemWriter<List<T>>, ItemStre
     }
 
     @Override
+    @SuppressWarnings("NullableProblems")
     public void open(ExecutionContext executionContext) throws ItemStreamException {
         if (delegate instanceof ItemStream itemStream) {
             itemStream.open(executionContext);
@@ -42,6 +43,7 @@ public class ListUnpackingItemWriter<T> implements ItemWriter<List<T>>, ItemStre
     }
 
     @Override
+    @SuppressWarnings("NullableProblems")
     public void update(ExecutionContext executionContext) throws ItemStreamException {
         if (delegate instanceof ItemStream itemStream) {
             itemStream.update(executionContext);

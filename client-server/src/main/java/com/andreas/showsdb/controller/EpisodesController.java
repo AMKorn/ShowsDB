@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,14 +35,31 @@ public class EpisodesController {
     private final EpisodesService episodesService;
     private final Messenger messenger;
 
-    @Operation(summary = "Create an episode",
-            description = """
-                    Creates an empty episode whose episode number is the one after the last episode
-                    (highest episode number in a season).
-                    \s
-                    Alternatively, can create an episode passed through body, in which case it checks for duplicates
-                    (same show, same season, same episode number). If a duplicate is found, the episode is not created
-                    but is sent as part of the response body.""")
+    @SneakyThrows // This method cannot and will not throw an exception, but the compiler doesn't know that.
+    private static EpisodeHypermedia addLinks(EpisodeOutputDto episode) {
+        Long showId = episode.getShowId();
+        Integer seasonNumber = episode.getSeasonNumber();
+
+        EpisodeHypermedia eh = new EpisodeHypermedia(episode);
+        eh.add(linkTo(methodOn(EpisodesController.class)
+                .get(showId, seasonNumber, episode.getEpisodeNumber()))
+                .withSelfRel());
+        eh.add(linkTo(methodOn(ShowsController.class)
+                .get(showId))
+                .withRel("Show"));
+        eh.add(linkTo(methodOn(SeasonsController.class)
+                .get(showId, seasonNumber))
+                .withRel("Season"));
+        return eh;
+    }
+
+    @Operation(summary = "Create an episode", description = """
+            Creates an empty episode whose episode number is the one after the last episode
+            (highest episode number in a season).
+            \s
+            Alternatively, can create an episode passed through body, in which case it checks for duplicates
+            (same show, same season, same episode number). If a duplicate is found, the episode is not created
+            but is sent as part of the response body.""")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Episode created",
                     content = @Content(mediaType = "application/json",
@@ -60,8 +78,7 @@ public class EpisodesController {
         if (episodeInputDto == null) {
             EpisodeOutputDto savedEpisode = episodesService.createInSeason(showId, seasonNumber);
             messenger.newEpisode(savedEpisode);
-            EpisodeHypermedia episodeHypermedia = createEpisodeHypermedia(savedEpisode);
-            return new ResponseEntity<>(episodeHypermedia, HttpStatus.CREATED);
+            return new ResponseEntity<>(addLinks(savedEpisode), HttpStatus.CREATED);
         }
 
         // In case no episode number was stated, we put it by default as the next episode in the season.
@@ -69,12 +86,12 @@ public class EpisodesController {
         if (episodeNumber == null) {
             try {
                 episodeNumber = episodesService.findBySeason(showId, seasonNumber).stream()
-                        .max(Comparator
-                                .comparingLong(EpisodeOutputDto::getShowId)
-                                .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
-                                .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
-                        .orElseThrow()
-                        .getEpisodeNumber() + 1;
+                                        .max(Comparator
+                                                .comparingLong(EpisodeOutputDto::getShowId)
+                                                .thenComparingInt(EpisodeOutputDto::getSeasonNumber)
+                                                .thenComparingInt(EpisodeOutputDto::getEpisodeNumber))
+                                        .orElseThrow()
+                                        .getEpisodeNumber() + 1;
             } catch (NoSuchElementException e) {
                 episodeNumber = 1;
             }
@@ -90,15 +107,13 @@ public class EpisodesController {
         try {
             EpisodeOutputDto savedEpisode = episodesService.save(showId, seasonNumber, episodeInputDto);
             messenger.newEpisode(savedEpisode);
-            EpisodeHypermedia episodeHypermedia = createEpisodeHypermedia(savedEpisode);
-            return new ResponseEntity<>(episodeHypermedia, HttpStatus.CREATED);
+            return new ResponseEntity<>(addLinks(savedEpisode), HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             EpisodeInputDto finalEpisodeInputDto = episodeInputDto;
-            Optional<EpisodeHypermedia> optionalEpisode = episodesService.findBySeason(showId, seasonNumber).stream()
+            EpisodeOutputDto episode = episodesService.findBySeason(showId, seasonNumber).stream()
                     .filter(ep -> ep.getEpisodeNumber().equals(finalEpisodeInputDto.getEpisodeNumber()))
-                    .map(EpisodesController::createEpisodeHypermedia)
-                    .findFirst();
-            return new ResponseEntity<>(optionalEpisode.orElseThrow(), HttpStatus.CONFLICT);
+                    .findFirst().orElseThrow();
+            return new ResponseEntity<>(addLinks(episode), HttpStatus.CONFLICT);
         }
     }
 
@@ -117,7 +132,7 @@ public class EpisodesController {
                                  @PathVariable("episodeNumber") int episodeNumber) throws NotFoundException {
         EpisodeOutputDto episode =
                 episodesService.findByShowAndSeasonAndEpisodeNumbers(showId, seasonNumber, episodeNumber);
-        return createEpisodeHypermedia(episode);
+        return addLinks(episode);
     }
 
     @Operation(summary = "Find all episodes from a season")
@@ -132,7 +147,7 @@ public class EpisodesController {
                                                     @Parameter(description = "Season number")
                                                     @PathVariable("seasonNumber") int seasonNumber) {
         return episodesService.findBySeason(showId, seasonNumber).stream()
-                .map(EpisodesController::createEpisodeHypermedia)
+                .map(EpisodesController::addLinks)
                 .toList();
     }
 
@@ -149,12 +164,11 @@ public class EpisodesController {
                                     @PathVariable("seasonNumber") int seasonNumber,
                                     @RequestBody EpisodeInputDto episodeInputDto) throws NotFoundException {
         EpisodeOutputDto modifiedEpisode = episodesService.modify(showId, seasonNumber, episodeInputDto);
-        return createEpisodeHypermedia(modifiedEpisode);
+        return addLinks(modifiedEpisode);
     }
 
     @Operation(summary = "Delete an episode")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Episode deleted")})
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Episode deleted")})
     @DeleteMapping("/{episodeNumber}")
     public void delete(@Parameter(description = "Id of the show")
                        @PathVariable("showId") long showId,
@@ -166,34 +180,12 @@ public class EpisodesController {
     }
 
     @Operation(summary = "Delete all episodes from a season")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Episodes deleted")})
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Episodes deleted")})
     @DeleteMapping
     public void deleteAll(@Parameter(description = "Id of the show")
                           @PathVariable("showId") long showId,
                           @Parameter(description = "Season number")
                           @PathVariable("seasonNumber") int seasonNumber) {
         episodesService.deleteAllBySeason(showId, seasonNumber);
-    }
-
-    private static EpisodeHypermedia createEpisodeHypermedia(EpisodeOutputDto episode) {
-        Long showId = episode.getShowId();
-        Integer seasonNumber = episode.getSeasonNumber();
-
-        EpisodeHypermedia episodeHypermedia = new EpisodeHypermedia(episode);
-        try {
-            episodeHypermedia.add(linkTo(methodOn(EpisodesController.class)
-                    .get(showId, seasonNumber, episode.getEpisodeNumber()))
-                    .withSelfRel());
-            episodeHypermedia.add(linkTo(methodOn(ShowsController.class)
-                    .get(showId))
-                    .withRel("Show"));
-            episodeHypermedia.add(linkTo(methodOn(SeasonsController.class)
-                    .get(showId, seasonNumber))
-                    .withRel("Season"));
-        } catch (NotFoundException e) {
-            throw new RuntimeException();
-        }
-        return episodeHypermedia;
     }
 }

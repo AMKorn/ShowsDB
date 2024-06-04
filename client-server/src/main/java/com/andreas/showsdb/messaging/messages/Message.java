@@ -16,15 +16,15 @@ import java.util.Map;
 public class Message {
     private String text;
 
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("text", text);
-        return map;
-    }
-
     public static Message fromJson(JsonNode json) {
         return builder()
                 .text(json.path("text").asText())
                 .build();
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("text", text);
+        return map;
     }
 }

@@ -22,8 +22,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Actor {
-    @OneToMany(mappedBy = "actor")
-    Set<MainCast> showsAsMainCast;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +29,8 @@ public class Actor {
     private String country;
     @Column(name = "birth_date")
     private Date birthDate;
+    @OneToMany(mappedBy = "actor")
+    private Set<MainCast> showsAsMainCast;
 
     public static Actor translateFromDto(@Valid ActorInputDto dto) {
         return Actor.builder()

@@ -32,7 +32,7 @@ public class Utils {
         try {
             return new SimpleDateFormat(DATE_FORMAT).parse(date);
         } catch (ParseException e) {
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -49,13 +49,13 @@ public class Utils {
 
     public static String saveFile(MultipartFile multipartFile, String path) throws ShowsDatabaseException {
         String originalName = multipartFile.getOriginalFilename();
-        if(originalName == null) {
+        if (originalName == null) {
             throw new ShowsDatabaseException("File name null", HttpStatus.BAD_REQUEST);
         }
         String finalName = "%s%s".formatted(randomAlphaNumeric(8), originalName.replace(" ", "-"));
         try {
             File file = new File(path + finalName);
-            if(file.mkdirs()) {
+            if (file.mkdirs()) {
                 multipartFile.transferTo(file);
                 logger.info("Created file: {}", finalName);
                 return path + finalName;
@@ -66,17 +66,12 @@ public class Utils {
     }
 
     public static String randomAlphaNumeric(int count) {
-        try {
-            String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-            StringBuilder sb = new StringBuilder();
-            while (count-- != 0) {
-                int character = (RANDOM.nextInt(chars.length()));
-                sb.append(chars.charAt(character));
-            }
-            return sb.toString();
-        } catch (Exception e){
-            logger.error(e.getMessage());
-            return null;
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder sb = new StringBuilder();
+        while (count-- != 0) {
+            int character = (RANDOM.nextInt(chars.length()));
+            sb.append(chars.charAt(character));
         }
+        return sb.toString();
     }
 }

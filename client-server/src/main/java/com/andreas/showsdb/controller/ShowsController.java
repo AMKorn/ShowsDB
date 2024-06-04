@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,16 +35,24 @@ public class ShowsController {
     private final MainCastService mainCastService;
     private final Messenger messenger;
 
+    @SneakyThrows // This method cannot and will not throw an exception, but the compiler doesn't know that.
+    private static ShowHypermedia addLinks(ShowOutputDto show) {
+        ShowHypermedia sh = new ShowHypermedia(show);
+        Long id = show.getId();
+        sh.add(linkTo(methodOn(ShowsController.class).get(id)).withSelfRel());
+        sh.add(linkTo(methodOn(SeasonsController.class).getAllByShow(id)).withRel("Seasons"));
+        return sh;
+    }
+
     @Operation(summary = "List all shows")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ShowHypermedia.class))))})
+                            array = @ArraySchema(schema = @Schema(implementation = ShowHypermedia.class))))})
     @GetMapping
     public List<ShowHypermedia> searchAll() {
         return showsService.findAll().stream()
-                .map(ShowsController::createShowHypermedia)
+                .map(ShowsController::addLinks)
                 .toList();
     }
 
@@ -57,7 +66,7 @@ public class ShowsController {
     public ShowHypermedia get(@Parameter(description = "Id of the show")
                               @PathVariable("id") long id) throws NotFoundException {
         ShowOutputDto show = showsService.findById(id);
-        return createShowHypermedia(show);
+        return addLinks(show);
     }
 
     @Operation(summary = "Create a show passed through body. Does not check for duplicates")
@@ -70,7 +79,7 @@ public class ShowsController {
     public ShowHypermedia create(@RequestBody @Valid ShowInputDto show) {
         ShowOutputDto savedShow = showsService.save(show);
         messenger.newShow(savedShow);
-        return createShowHypermedia(savedShow);
+        return addLinks(savedShow);
     }
 
     @Operation(summary = "Modify a show passed through body")
@@ -82,7 +91,7 @@ public class ShowsController {
     @PutMapping
     public ShowHypermedia modify(@RequestBody ShowOutputDto show) throws NotFoundException {
         ShowOutputDto modifiedShow = showsService.modify(show);
-        return createShowHypermedia(modifiedShow);
+        return addLinks(modifiedShow);
     }
 
     @Operation(summary = "Delete a show given the specified id by parameter")
@@ -96,11 +105,9 @@ public class ShowsController {
 
     @Operation(summary = "Find all the main cast of a show and the characters they play")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Shows and characters found",
+            @ApiResponse(responseCode = "200", description = "Shows and characters found",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = MainCastHypermedia.class))))})
+                            array = @ArraySchema(schema = @Schema(implementation = MainCastHypermedia.class))))})
     @GetMapping("/{id}/main-cast")
     public List<MainCastHypermedia> getMainCast(@Parameter(description = "Id of the show")
                                                 @PathVariable("id") long id) {
@@ -110,17 +117,5 @@ public class ShowsController {
                         .getShows(mainCast.getContent().getActorId()))
                         .withRel("Actors")))
                 .toList();
-    }
-
-    private static ShowHypermedia createShowHypermedia(ShowOutputDto show) {
-        ShowHypermedia sh = new ShowHypermedia(show);
-        Long id = show.getId();
-        try {
-            sh.add(linkTo(methodOn(ShowsController.class).get(id)).withSelfRel());
-            sh.add(linkTo(methodOn(SeasonsController.class).getAllByShow(id)).withRel("Seasons"));
-        } catch (NotFoundException e) {
-            // Unnecessary
-        }
-        return sh;
     }
 }

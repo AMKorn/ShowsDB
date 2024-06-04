@@ -23,6 +23,17 @@ public class EpisodeMessage extends Message {
     private String name;
     private Date releaseDate;
 
+    public static EpisodeMessage fromJson(JsonNode json) {
+        return builder()
+                .text(json.path("text").asText())
+                .show(json.path("show").asText())
+                .seasonNumber(json.path("seasonNumber").asInt())
+                .episodeNumber(json.path("episodeNumber").asInt())
+                .name(json.path("name").asText())
+                .releaseDate(Utils.parseDate(json.path("releaseDate").asText()))
+                .build();
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = super.toMap();
@@ -38,17 +49,6 @@ public class EpisodeMessage extends Message {
         }
         map.put("releaseDate", releaseDateStr);
         return map;
-    }
-
-    public static EpisodeMessage fromJson(JsonNode json) {
-        return builder()
-                .text(json.path("text").asText())
-                .show(json.path("show").asText())
-                .seasonNumber(json.path("seasonNumber").asInt())
-                .episodeNumber(json.path("episodeNumber").asInt())
-                .name(json.path("name").asText())
-                .releaseDate(Utils.parseDate(json.path("releaseDate").asText()))
-                .build();
     }
 }
 

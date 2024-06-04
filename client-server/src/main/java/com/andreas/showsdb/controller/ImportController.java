@@ -33,40 +33,27 @@ public class ImportController {
     @Value("${showsdb.files}")
     private String filePath;
 
-    @Operation(summary = "Upload a file of shows to be exported in batch",
-            description = """
-                    Upload a csv file, with headers Name, Country and Seasons. The file will be uploaded, used by the
-                    batch import system and later deleted. Shows with names already in the database will be ignored, and
-                    any seasons up to the number of seasons will be created.
-                    """)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "File uploaded"
-            )
-    })
+    @Operation(summary = "Upload a file of shows to be exported in batch", description = """
+            Upload a csv file, with headers Name, Country and Seasons. The file will be uploaded, used by the
+            batch import system and later deleted. Shows with names already in the database will be ignored, and
+            any seasons up to the number of seasons will be created.""")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "File uploaded")})
     @PostMapping("/imports/shows")
     public void importShows(@RequestPart("file") MultipartFile file) throws ShowsDatabaseException {
         String savedFile = Utils.saveFile(file, filePath);
         messenger.sendBatchOrder(BatchOrderListener.SHOWS, savedFile);
     }
 
-    @Operation(summary = "Download a file in the stated format",
-            description = """
-                    Download a file in the stated format, which includes the name, country and number of seasons of a
-                    show. The default value is csv, but it also accepts xls
-                    """)
+    @Operation(summary = "Download a file in the stated format", description = """
+            Download a file in the stated format, which includes the name, country and number of seasons of a
+            show. The default value is csv, but it also accepts xls.""")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "File downloaded as csv",
+            @ApiResponse(responseCode = "200", description = "File downloaded as csv",
                     content = @Content(mediaType = CSV_CONTENT_TYPE,
-                            schema = @Schema(implementation = String.class))
-            ),
-            @ApiResponse(responseCode = "400",
-                    description = "File format not supported",
+                            schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "400", description = "File format not supported",
                     content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ExceptionMessage.class))
-            )
-    })
+                            schema = @Schema(implementation = ExceptionMessage.class)))})
     @GetMapping("/imports/shows")
     public ResponseEntity<byte[]> exportShows(@Parameter(description = "File format")
                                               @RequestParam(value = "format", required = false) String mode)
@@ -90,13 +77,8 @@ public class ImportController {
                     Upload a csv file, with headers Show, Season, Episode and Name. The file will be uploaded, used by
                     the batch import system and then deleted. A batch episode operation CAN NOT create new shows nor
                     seasons, so any episodes of a show whose name was not found or of a season stated that does not
-                    exist will be ignored.
-                    """)
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "File uploaded"
-            )
-    })
+                    exist will be ignored.""")
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "File uploaded")})
     @PostMapping("/imports/episodes")
     public void importEpisodes(@RequestPart("file") MultipartFile file) throws ShowsDatabaseException {
         String savedFile = Utils.saveFile(file, filePath);

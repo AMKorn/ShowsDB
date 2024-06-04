@@ -7,8 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -31,18 +30,18 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 
+@Slf4j
 @Configuration
 public class EpisodesBatchConfig {
-
-    private static final Logger logger = LoggerFactory.getLogger(EpisodesBatchConfig.class);
 
     @Bean
     public JdbcBatchItemWriter<EpisodeBatchInsert> episodeWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<EpisodeBatchInsert>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO `episode`(`season`, `episode_number`, `name`) " +
-                     "VALUES (:season, :episodeNumber, :name) " +
-                     "ON DUPLICATE KEY UPDATE `name`= :name")
+                .sql("""
+                        INSERT INTO `episode`(`season`, `episode_number`, `name`) \
+                        VALUES (:season, :episodeNumber, :name) \
+                        ON DUPLICATE KEY UPDATE `name`= :name""")
                 .dataSource(dataSource)
                 .build();
     }
@@ -71,7 +70,7 @@ public class EpisodesBatchConfig {
                         .name(episode.name)
                         .build();
             } catch (NotFoundException e) {
-                logger.error("Could not find %s : S%02d".formatted(episode.show, episode.season));
+                log.error("Could not find %s : S%02d".formatted(episode.show, episode.season));
                 return null;
             }
         };
@@ -83,7 +82,7 @@ public class EpisodesBatchConfig {
                                    JdbcBatchItemWriter<EpisodeBatchInsert> writer,
                                    ItemProcessor<EpisodeBatchInput, EpisodeBatchInsert> episodeProcessor,
                                    @Value("#{jobParameters['filepath']}") String filepath) {
-        logger.info("Filepath: {}", filepath);
+        log.info("Filepath: {}", filepath);
         return new StepBuilder("importEpisodeStep1", jobRepository)
                 .<EpisodeBatchInput, EpisodeBatchInsert>chunk(10, transactionManager)
                 .reader(episodesReader(filepath))

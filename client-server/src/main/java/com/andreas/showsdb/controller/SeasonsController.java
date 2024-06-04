@@ -13,13 +13,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -30,17 +30,27 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class SeasonsController {
     private final SeasonsService seasonsService;
 
+    @SneakyThrows // This method cannot and will not throw an exception, but the compiler doesn't know that.
+    private static SeasonHypermedia addLinks(SeasonOutputDto season) {
+        SeasonHypermedia sh = new SeasonHypermedia(season);
+        Long showId = season.getShowId();
+        Integer seasonNumber = season.getSeasonNumber();
+        sh.add(linkTo(methodOn(SeasonsController.class).get(showId, seasonNumber)).withSelfRel());
+        sh.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("Show"));
+        sh.add(linkTo(methodOn(EpisodesController.class).getAllFromSeason(showId, seasonNumber)).withRel("Episodes"));
+        return sh;
+    }
+
     @Operation(summary = "Find all seasons from a show")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Seasons found",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = SeasonHypermedia.class))))})
+                            array = @ArraySchema(schema = @Schema(implementation = SeasonHypermedia.class))))})
     @GetMapping
     public List<SeasonHypermedia> getAllByShow(@Parameter(description = "Id of the show")
                                                @PathVariable("showId") long showId) {
         return seasonsService.findByShow(showId).stream()
-                .map(SeasonsController::createSeasonHypermedia)
+                .map(SeasonsController::addLinks)
                 .toList();
     }
 
@@ -67,20 +77,18 @@ public class SeasonsController {
             throws NotFoundException {
         if (seasonInputDto == null || seasonInputDto.getSeasonNumber() == null) {
             SeasonOutputDto savedSeason = seasonsService.createInShow(showId);
-            SeasonHypermedia seasonHypermedia = createSeasonHypermedia(savedSeason);
-            return new ResponseEntity<>(seasonHypermedia, HttpStatus.CREATED);
+            return new ResponseEntity<>(addLinks(savedSeason), HttpStatus.CREATED);
         }
 
         try {
             SeasonOutputDto savedSeason = seasonsService.save(showId, seasonInputDto);
-            SeasonHypermedia seasonHypermedia = createSeasonHypermedia(savedSeason);
+            SeasonHypermedia seasonHypermedia = addLinks(savedSeason);
             return new ResponseEntity<>(seasonHypermedia, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
-            Optional<SeasonHypermedia> optionalSeason = seasonsService.findByShow(showId).stream()
+            SeasonOutputDto season = seasonsService.findByShow(showId).stream()
                     .filter(s -> s.getSeasonNumber().equals(seasonInputDto.getSeasonNumber()))
-                    .map(SeasonsController::createSeasonHypermedia)
-                    .findFirst();
-            return new ResponseEntity<>(optionalSeason.orElseThrow(), HttpStatus.CONFLICT);
+                    .findFirst().orElseThrow();
+            return new ResponseEntity<>(addLinks(season), HttpStatus.CONFLICT);
         }
     }
 
@@ -95,12 +103,11 @@ public class SeasonsController {
                                 @PathVariable("showId") long showId,
                                 @PathVariable("seasonNumber") int seasonNumber) throws NotFoundException {
         SeasonOutputDto season = seasonsService.findByShowAndNumber(showId, seasonNumber);
-        return createSeasonHypermedia(season);
+        return addLinks(season);
     }
 
     @Operation(summary = "Delete a season")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Season deleted")})
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Season deleted")})
     @DeleteMapping("/{seasonNumber}")
     public void delete(@Parameter(description = "Id of the show")
                        @PathVariable("showId") long showId,
@@ -109,27 +116,10 @@ public class SeasonsController {
     }
 
     @Operation(summary = "Delete all seasons from a show")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Seasons deleted")})
+    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Seasons deleted")})
     @DeleteMapping
     public void deleteSeasons(@Parameter(description = "Id of the show")
                               @PathVariable("showId") long showId) {
         seasonsService.deleteByShow(showId);
-    }
-
-    private static SeasonHypermedia createSeasonHypermedia(SeasonOutputDto season) {
-        SeasonHypermedia seasonHypermedia = new SeasonHypermedia(season);
-        Long showId = season.getShowId();
-        Integer seasonNumber = season.getSeasonNumber();
-        try {
-            seasonHypermedia.add(linkTo(methodOn(SeasonsController.class).get(showId, seasonNumber)).withSelfRel());
-            seasonHypermedia.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("Show"));
-            seasonHypermedia.add(linkTo(methodOn(EpisodesController.class)
-                    .getAllFromSeason(showId, seasonNumber))
-                    .withRel("Episodes"));
-        } catch (NotFoundException e) {
-            // Can't happen
-        }
-        return seasonHypermedia;
     }
 }

@@ -9,8 +9,7 @@ import com.andreas.showsdb.repository.EpisodesRepository;
 import com.andreas.showsdb.repository.SeasonsRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -18,10 +17,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EpisodesService {
-    private static final Logger logger = LoggerFactory.getLogger(EpisodesService.class);
 
     private final EpisodesRepository episodesRepository;
     private final SeasonsRepository seasonsRepository;
@@ -77,9 +76,9 @@ public class EpisodesService {
         int episodeNumber;
         try {
             episodeNumber = episodesRepository.findBySeasonShowIdAndSeasonNumber(showId, seasonNumber).stream()
-                    .max(Episode::compareTo)
-                    .orElseThrow()
-                    .getNumber() + 1;
+                                    .max(Episode::compareTo)
+                                    .orElseThrow()
+                                    .getNumber() + 1;
         } catch (NoSuchElementException e) {
             episodeNumber = 1;
         }
@@ -102,7 +101,7 @@ public class EpisodesService {
                     .stream().map(Episode::getId)
                     .forEach(episodesRepository::deleteById);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }

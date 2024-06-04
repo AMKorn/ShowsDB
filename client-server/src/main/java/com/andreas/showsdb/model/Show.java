@@ -20,9 +20,6 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class Show {
-    @OneToMany(mappedBy = "show")
-    @JsonIgnoreProperties({"show"})
-    Set<MainCast> mainCast;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +28,9 @@ public class Show {
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL) //, orphanRemoval = true)
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
+    @OneToMany(mappedBy = "show")
+    @JsonIgnoreProperties({"show"})
+    private Set<MainCast> mainCast;
 
     public static Show translateFromDto(@Valid ShowInputDto dto) {
         return Show.builder()

@@ -1,22 +1,24 @@
 package com.andreas.showsdb.batch;
 
 import com.andreas.showsdb.messaging.messages.BatchOrder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobExecutionException;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.annotation.KafkaHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @KafkaListener(groupId = "showsDB", topics = "batch-order")
 public class BatchOrderListener {
     public static final String SHOWS = "shows";
     public static final String EPISODES = "episodes";
 
-    private static final Logger logger = LoggerFactory.getLogger(BatchOrderListener.class);
     private static final String RECEIVED_MESSAGE = "Received new batch order:";
 
     private final JobLauncher jobLauncher;
@@ -25,8 +27,8 @@ public class BatchOrderListener {
 
 
     public BatchOrderListener(JobLauncher jobLauncher,
-                            @Qualifier("importShowJob") Job showJob,
-                            @Qualifier("importEpisodeJob") Job episodeJob) {
+                              @Qualifier("importShowJob") Job showJob,
+                              @Qualifier("importEpisodeJob") Job episodeJob) {
         this.jobLauncher = jobLauncher;
         this.showJob = showJob;
         this.episodeJob = episodeJob;
@@ -35,7 +37,7 @@ public class BatchOrderListener {
 
     @KafkaHandler
     public void batchOrderListener(BatchOrder message) {
-        logger.info("{} {}", RECEIVED_MESSAGE, message);
+        log.info("{} {}", RECEIVED_MESSAGE, message);
         Job jobToDo = switch (message.getText()) {
             case SHOWS -> showJob;
             case EPISODES -> episodeJob;
@@ -47,13 +49,13 @@ public class BatchOrderListener {
         try {
             jobLauncher.run(jobToDo, jobParameters);
         } catch (JobExecutionException e) {
-            logger.error("Error while importing: {}", e.getMessage());
+            log.error("Error while importing: {}", e.getMessage());
         }
 
     }
 
     @KafkaHandler(isDefault = true)
     public void unknownListener(Object message) {
-        logger.info("{} {}", RECEIVED_MESSAGE, message);
+        log.info("{} {}", RECEIVED_MESSAGE, message);
     }
 }

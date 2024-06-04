@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,16 +30,27 @@ public class MainCastController {
 
     private final MainCastService mainCastService;
 
+    @SneakyThrows // This method cannot and will not throw an exception, but the compiler doesn't know that.
+    private static MainCastHypermedia addLinks(MainCastDto mainCast) {
+        Long showId = mainCast.getShowId();
+        Long actorId = mainCast.getActorId();
+
+        MainCastHypermedia mch = new MainCastHypermedia(mainCast);
+        mch.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("Show"));
+        mch.add(linkTo(methodOn(ActorsController.class).get(actorId)).withRel("Actor"));
+
+        return mch;
+    }
+
     @Operation(summary = "List all main casts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     content = @Content(mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = MainCastHypermedia.class))))})
+                            array = @ArraySchema(schema = @Schema(implementation = MainCastHypermedia.class))))})
     @GetMapping
     public List<MainCastHypermedia> getAll() {
         return mainCastService.findAll().stream()
-                .map(MainCastController::createMainCastHypermedia)
+                .map(MainCastController::addLinks)
                 .toList();
     }
 
@@ -52,8 +64,8 @@ public class MainCastController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public MainCastHypermedia create(@RequestBody MainCastDto mainCastDto) throws ShowsDatabaseException {
-        MainCastDto mc = mainCastService.save(mainCastDto);
-        return createMainCastHypermedia(mc);
+        MainCastDto mainCast = mainCastService.save(mainCastDto);
+        return addLinks(mainCast);
     }
 
     @Operation(summary = "Modify a main cast passed through body")
@@ -65,7 +77,7 @@ public class MainCastController {
     @PutMapping
     public MainCastHypermedia modify(@RequestBody MainCastDto mainCastDto) throws NotFoundException {
         MainCastDto modifiedMC = mainCastService.modify(mainCastDto);
-        return createMainCastHypermedia(modifiedMC);
+        return addLinks(modifiedMC);
     }
 
     @Operation(summary = "Delete a main cast")
@@ -76,19 +88,5 @@ public class MainCastController {
                        @Parameter(description = "Id of the show")
                        @RequestParam("show") Long showId) {
         mainCastService.delete(actorId, showId);
-    }
-
-    private static MainCastHypermedia createMainCastHypermedia(MainCastDto mainCast) {
-        Long showId = mainCast.getShowId();
-        Long actorId = mainCast.getActorId();
-
-        MainCastHypermedia mch = new MainCastHypermedia(mainCast);
-        try {
-            mch.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("Show"));
-            mch.add(linkTo(methodOn(ActorsController.class).get(actorId)).withRel("Actor"));
-        } catch (NotFoundException e) {
-            // Do nothing
-        }
-        return mch;
     }
 }

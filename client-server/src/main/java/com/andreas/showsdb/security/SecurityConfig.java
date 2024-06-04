@@ -1,7 +1,6 @@
 package com.andreas.showsdb.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Configuration
 public class SecurityConfig {
 
@@ -51,8 +51,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
-
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
         authoritiesConverter.setAuthorityPrefix("");
 
@@ -63,10 +61,10 @@ public class SecurityConfig {
             // Get the roles from the token
             List<String> roles = jwt.getClaimAsStringList("roles");
             if (roles == null)
-                logger.error("Authorization server did not specify roles");
+                log.error("Authorization server did not specify roles");
             else
                 authorities.addAll(roles);
-            logger.info("New authorities: %s".formatted(authorities));
+            log.info("New authorities: %s".formatted(authorities));
             return AuthorityUtils.createAuthorityList(authorities.toArray(String[]::new));
         });
 

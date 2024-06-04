@@ -9,8 +9,7 @@ import com.andreas.showsdb.model.dto.EpisodeOutputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.andreas.showsdb.service.ShowsService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
@@ -21,14 +20,13 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class Messenger {
 
     private final KafkaTemplate<String, Message> kafkaTemplate;
     private final ShowsService showsService;
-
-    private static final Logger logger = LoggerFactory.getLogger(Messenger.class);
 
     public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
         LocalDate releaseDate = episode.getReleaseDate();
@@ -65,10 +63,10 @@ public class Messenger {
         CompletableFuture<SendResult<String, Message>> future = kafkaTemplate.send(topic, message);
         future.whenComplete((result, ex) -> {
             if (ex == null) {
-                logger.info("Sent message=[%s] with offset=[%d]"
+                log.info("Sent message=[%s] with offset=[%d]"
                         .formatted(message, result.getRecordMetadata().offset()));
             } else {
-                logger.info("Unable to send message=[%s] due to : %s"
+                log.info("Unable to send message=[%s] due to : %s"
                         .formatted(message, ex.getMessage()));
             }
         });

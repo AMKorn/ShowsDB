@@ -17,17 +17,17 @@ import java.util.Map;
 public class BatchOrder extends Message {
     String filepath;
 
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = super.toMap();
-        map.put("filepath", filepath);
-        return map;
-    }
-
     public static BatchOrder fromJson(JsonNode json) {
         return builder()
                 .text(json.path("text").asText())
                 .filepath(json.path("filepath").asText())
                 .build();
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = super.toMap();
+        map.put("filepath", filepath);
+        return map;
     }
 }

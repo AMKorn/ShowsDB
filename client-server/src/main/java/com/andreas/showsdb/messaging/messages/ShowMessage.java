@@ -17,17 +17,17 @@ import java.util.Map;
 public class ShowMessage extends Message {
     private String name;
 
-    @Override
-    public Map<String, Object> toMap() {
-        Map<String, Object> map = super.toMap();
-        map.put("name", name);
-        return map;
-    }
-
     public static ShowMessage fromJson(JsonNode json) {
         return builder()
                 .text(json.path("text").asText())
                 .name(json.path("name").asText())
                 .build();
+    }
+
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = super.toMap();
+        map.put("name", name);
+        return map;
     }
 }

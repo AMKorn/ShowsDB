@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobScope;
@@ -29,9 +28,9 @@ import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Configuration
 public class ShowsBatchConfig {
-    private static final Logger logger = LoggerFactory.getLogger(ShowsBatchConfig.class);
 
     @Bean
     public JdbcBatchItemWriter<ShowBatchFormat> showWriter(DataSource dataSource) {
@@ -59,7 +58,7 @@ public class ShowsBatchConfig {
     public Step importShowStep1(JobRepository jobRepository, PlatformTransactionManager transactionManager,
                                 JdbcBatchItemWriter<ShowBatchFormat> writer,
                                 @Value("#{jobParameters['filepath']}") String filepath) {
-        logger.info("Filepath: {}", filepath);
+        log.info("Filepath: {}", filepath);
         return new StepBuilder("importShowStep1", jobRepository)
                 .<ShowBatchFormat, ShowBatchFormat>chunk(10, transactionManager)
                 .reader(showsReader(filepath))
