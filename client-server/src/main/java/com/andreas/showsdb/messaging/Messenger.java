@@ -30,8 +30,11 @@ public class Messenger {
 
     public void newEpisode(EpisodeOutputDto episode) throws NotFoundException {
         LocalDate releaseDate = episode.getReleaseDate();
-        Instant instant = releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Date date = Date.from(instant);
+        Date date = null;
+        if(releaseDate != null) {
+            Instant instant = releaseDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
+            date = Date.from(instant);
+        }
         EpisodeMessage message = EpisodeMessage.builder()
                 .text("New episode released")
                 .show(showsService.findById(episode.getShowId()).getName())
