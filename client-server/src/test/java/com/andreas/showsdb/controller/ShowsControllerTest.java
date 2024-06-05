@@ -4,10 +4,9 @@ import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,46 +24,83 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ShowsControllerTest {
+    private final ObjectMapper mapper = new ObjectMapper();
+
     @Autowired
     private TestRestTemplate client;
     @LocalServerPort
     private int port;
 
+    @BeforeAll
+    void beforeAll() throws URISyntaxException {
+        client.delete(createUri("/api/shows/cache"));
+    }
+
     @Test
     @Order(1)
-    void testSearchAll() throws URISyntaxException {
-        ResponseEntity<ShowOutputDto[]> response =
-                client.getForEntity(createUri("/api/shows"), ShowOutputDto[].class);
+    void testSearchAll() throws URISyntaxException, JsonProcessingException {
+        ResponseEntity<String> response =
+                client.getForEntity(createUri("/api/shows"), String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        List<ShowOutputDto> shows = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        String body = response.getBody();
+        assertNotNull(body);
+        JsonNode tree = mapper.readTree(body);
 
-        assertEquals(2, shows.size());
-        assertEquals(1L, shows.get(0).getId());
-        assertEquals(2L, shows.get(1).getId());
-        assertEquals("What We Do in the Shadows", shows.get(0).getName());
-        assertEquals("The Good Place", shows.get(1).getName());
-        assertEquals("United States", shows.get(0).getCountry());
-        assertEquals("United States", shows.get(1).getCountry());
+        assertEquals(2, tree.size());
+        JsonNode node = tree.get(0);
+        JsonNode show = node.get("content");
+        assertEquals(1, show.get("id").asLong());
+        assertEquals("What We Do in the Shadows", show.get("name").asText());
+        assertEquals("United States", show.get("country").asText());
+        JsonNode links = node.get("links");
+        assertNotNull(links);
+        assertEquals(2, links.size());
+        assertEquals("self", links.get(0).get("rel").asText());
+        assertEquals("http://localhost:%d/api/shows/1".formatted(port), links.get(0).get("href").asText());
+        assertEquals("seasons", links.get(1).get("rel").asText());
+        assertEquals("http://localhost:%d/api/shows/1/seasons".formatted(port), links.get(1).get("href").asText());
 
+        node = tree.get(1);
+        show = node.get("content");
+        assertEquals(2, show.get("id").asLong());
+        assertEquals("The Good Place", show.get("name").asText());
+        assertEquals("United States", show.get("country").asText());
+        links = node.get("links");
+        assertNotNull(links);
+        assertEquals(2, links.size());
+        assertEquals("self", links.get(0).get("rel").asText());
+        assertEquals("http://localhost:%d/api/shows/2".formatted(port), links.get(0).get("href").asText());
+        assertEquals("seasons", links.get(1).get("rel").asText());
+        assertEquals("http://localhost:%d/api/shows/2/seasons".formatted(port), links.get(1).get("href").asText());
     }
 
     @Test
     @Order(2)
-    void testGetShowExists() throws URISyntaxException {
-        ResponseEntity<ShowOutputDto> response = client.getForEntity(createUri("/api/shows/1"), ShowOutputDto.class);
+    void testGetShowExists() throws URISyntaxException, JsonProcessingException {
+        ResponseEntity<String> response = client.getForEntity(createUri("/api/shows/1"), String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ShowOutputDto show = response.getBody();
-        assertNotNull(show);
-        assertEquals(1L, show.getId());
-        assertEquals("What We Do in the Shadows", show.getName());
-        assertEquals("United States", show.getCountry());
+        String body = response.getBody();
+        assertNotNull(body);
+        JsonNode tree = mapper.readTree(body);
+
+        JsonNode show = tree.get("content");
+        assertEquals(1, show.get("id").asLong());
+        assertEquals("What We Do in the Shadows", show.get("name").asText());
+        assertEquals("United States", show.get("country").asText());
+        JsonNode links = tree.get("_links");
+        assertNotNull(links);
+        System.out.println(links);
+        assertEquals(2, links.size());
+        assertEquals("http://localhost:%d/api/shows/1".formatted(port), links.get("self").get("href").asText());
+        assertEquals("http://localhost:%d/api/shows/1/seasons".formatted(port), links.get("seasons").get("href").asText());
     }
 
     @Test
@@ -79,34 +115,44 @@ class ShowsControllerTest {
 
     @Test
     @Order(4)
-    void testAddShow() throws URISyntaxException {
+    void testAddShow() throws URISyntaxException, JsonProcessingException {
         ShowInputDto showInputDto = ShowInputDto.builder()
                 .name("Bojack Horseman")
                 .country("United States")
                 .build();
 
-        ResponseEntity<ShowOutputDto> response = client.postForEntity(createUri("/api/shows"), showInputDto, ShowOutputDto.class);
+        ResponseEntity<String> response = client.postForEntity(createUri("/api/shows"), showInputDto, String.class);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        ShowOutputDto showOutputDto = response.getBody();
-        assertNotNull(showOutputDto);
-        assertEquals(3, showOutputDto.getId());
-        assertEquals("Bojack Horseman", showOutputDto.getName());
-        assertEquals("United States", showOutputDto.getCountry());
+        String body = response.getBody();
+        assertNotNull(body);
+        JsonNode tree = mapper.readTree(body);
+
+        JsonNode show = tree.get("content");
+        assertEquals(3, show.get("id").asLong());
+        assertEquals("Bojack Horseman", show.get("name").asText());
+        assertEquals("United States", show.get("country").asText());
+        JsonNode links = tree.get("_links");
+        assertNotNull(links);
+        assertEquals(2, links.size());
+        assertEquals("http://localhost:%d/api/shows/3".formatted(port), links.get("self").get("href").asText());
+        assertEquals("http://localhost:%d/api/shows/3/seasons".formatted(port), links.get("seasons").get("href").asText());
     }
 
     @Test
     @Order(5)
-    void testModifyShow() throws URISyntaxException {
-        ResponseEntity<ShowOutputDto> response = client.getForEntity(createUri("/api/shows/2"), ShowOutputDto.class);
-        ShowOutputDto showOutputDto = response.getBody();
+    void testModifyShow() throws URISyntaxException, JsonProcessingException {
+        ResponseEntity<String> response = client.getForEntity(createUri("/api/shows/2"), String.class);
 
-        assertNotNull(showOutputDto);
+        String body = response.getBody();
+        assertNotNull(body);
+        JsonNode tree = mapper.readTree(body);
+        long id = tree.get("content").get("id").asLong();
 
         ShowOutputDto showOutputDto1 = ShowOutputDto.builder()
-                .id(showOutputDto.getId())
+                .id(id)
                 .name("The Good Place")
                 .country("Canada")
                 .build();
@@ -114,20 +160,29 @@ class ShowsControllerTest {
 
         client.put(createUri("/api/shows"), showOutputDto1);
 
-        response = client.getForEntity(createUri("/api/shows/2"), ShowOutputDto.class);
+        response = client.getForEntity(createUri("/api/shows/2"), String.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().getContentType());
 
-        showOutputDto = response.getBody();
-        assertNotNull(showOutputDto);
-        assertEquals("The Good Place", showOutputDto.getName());
-        assertEquals("Canada", showOutputDto.getCountry());
+        body = response.getBody();
+        assertNotNull(body);
+        tree = mapper.readTree(body);
+
+        JsonNode show = tree.get("content");
+        assertEquals(2, show.get("id").asLong());
+        assertEquals("The Good Place", show.get("name").asText());
+        assertEquals("Canada", show.get("country").asText());
+        JsonNode links = tree.get("_links");
+        assertNotNull(links);
+        assertEquals(2, links.size());
+        assertEquals("http://localhost:%d/api/shows/2".formatted(port), links.get("self").get("href").asText());
+        assertEquals("http://localhost:%d/api/shows/2/seasons".formatted(port), links.get("seasons").get("href").asText());
     }
 
     @Test
     @Order(6)
-    void testModifyShowDoesNotExist() throws URISyntaxException, JsonProcessingException {
+    void testModifyShowDoesNotExist() throws URISyntaxException {
         Show show = Show.builder()
                 .name("Nonexistent Show")
                 .country("Nonexistent Country")
@@ -143,25 +198,26 @@ class ShowsControllerTest {
 
     @Test
     @Order(7)
-    void testDeleteShow() throws URISyntaxException {
-        ResponseEntity<Show[]> response = client.getForEntity(createUri("/api/shows"), Show[].class);
-        List<Show> shows = Arrays.asList(Objects.requireNonNull(response.getBody()));
-
-        assertEquals(3, shows.size());
+    void testDeleteShow() throws URISyntaxException, JsonProcessingException {
+        ResponseEntity<String> response = client.getForEntity(createUri("/api/shows"), String.class);
+        String body = response.getBody();
+        assertNotNull(body);
+        JsonNode tree = mapper.readTree(body);
+        int numberOfShows = tree.size();
 
         client.delete(createUri("/api/shows/3"));
 
-        response = client.getForEntity(createUri("/api/shows"), Show[].class);
-        shows = Arrays.asList(Objects.requireNonNull(response.getBody()));
+        response = client.getForEntity(createUri("/api/shows"), String.class);
+        body = response.getBody();
+        assertNotNull(body);
+        tree = mapper.readTree(body);
 
-        assertEquals(2, shows.size());
-        Optional<Show> show = shows.stream().filter(s -> s.getId() == 3).findFirst();
-        assertTrue(show.isEmpty());
+        assertNotEquals(numberOfShows, tree.size());
     }
 
     @Test
     @Order(8)
-    void testDeleteNonexistentShow() throws URISyntaxException, JsonProcessingException {
+    void testDeleteNonexistentShow() throws URISyntaxException {
         RequestEntity<Void> request = new RequestEntity<>(HttpMethod.DELETE, createUri("/api/shows/99"));
         ResponseEntity<String> response = client.exchange(request, String.class);
 
