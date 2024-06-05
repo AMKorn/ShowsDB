@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -46,10 +45,10 @@ public class EpisodesController {
                 .withSelfRel());
         eh.add(linkTo(methodOn(ShowsController.class)
                 .get(showId))
-                .withRel("Show"));
+                .withRel("show"));
         eh.add(linkTo(methodOn(SeasonsController.class)
                 .get(showId, seasonNumber))
-                .withRel("Season"));
+                .withRel("season"));
         return eh;
     }
 

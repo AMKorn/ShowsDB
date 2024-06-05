@@ -4,7 +4,7 @@ import com.andreas.showsdb.batch.BatchOrderListener;
 import com.andreas.showsdb.exception.ExceptionMessage;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.messaging.Messenger;
-import com.andreas.showsdb.service.ShowsService;
+import com.andreas.showsdb.service.*;
 import com.andreas.showsdb.util.Utils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,12 +23,14 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-public class ImportController {
+public class ApiController {
     private static final String XLS_CONTENT_TYPE = "application/vnd.ms-excel";
     private static final String CSV_CONTENT_TYPE = "text/csv";
 
     private final Messenger messenger;
     private final ShowsService showsService;
+    private final SeasonsService seasonsService;
+    private final EpisodesService episodesService;
 
     @Value("${showsdb.files}")
     private String filePath;
@@ -83,5 +85,23 @@ public class ImportController {
     public void importEpisodes(@RequestPart("file") MultipartFile file) throws ShowsDatabaseException {
         String savedFile = Utils.saveFile(file, filePath);
         messenger.sendBatchOrder(BatchOrderListener.EPISODES, savedFile);
+    }
+
+    @Operation(summary = "Clear all the cache for episodes", description = """
+            Should not be necessary, as any modifications to the relevant tables in the database will also clear cache, 
+            but it's better to have it than not.""")
+    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Cache cleared"))
+    @DeleteMapping("/episodes/cache")
+    public void clearEpisodeCache() {
+        episodesService.clearCache();
+    }
+
+    @Operation(summary = "Clear all the cache for seasons", description = """
+            Should not be necessary, as any modifications to the relevant tables in the database will also clear cache, 
+            but it's better to have it than not.""")
+    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Cache cleared"))
+    @DeleteMapping("/seasons/cache")
+    public void clearSeasonCache() {
+        seasonsService.clearCache();
     }
 }

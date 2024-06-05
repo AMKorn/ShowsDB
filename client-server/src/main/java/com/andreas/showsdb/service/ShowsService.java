@@ -63,15 +63,21 @@ public class ShowsService {
         showsRepository.deleteById(id);
     }
 
+    @CacheEvict(cacheNames = {"shows-cache"}, allEntries = true)
+    public void clearCache(){
+    }
+
     public byte[] getAsCsvFile() {
         StringBuilder sb = new StringBuilder();
         sb.append("Name,Country,Show").append("\n");
-        findAll().forEach(show -> sb.append(show.getName())
-                .append(",")
-                .append(show.getCountry())
-                .append(",")
-                .append(show.getNumberOfSeasons())
-                .append("\n"));
+        showsRepository.findAll().stream()
+                .map(Show::getInfoDto)
+                .forEach(show -> sb.append(show.getName())
+                        .append(",")
+                        .append(show.getCountry())
+                        .append(",")
+                        .append(show.getNumberOfSeasons())
+                        .append("\n"));
         return sb.toString().getBytes(StandardCharsets.UTF_8);
     }
 
@@ -80,12 +86,14 @@ public class ShowsService {
             Sheet sheet = wb.createSheet("Shows");
 
             Row firstRow = sheet.createRow(0);
-            firstRow.createCell(0).setCellValue("Show");
+            firstRow.createCell(0).setCellValue("Name");
             firstRow.createCell(1).setCellValue("Country");
             firstRow.createCell(2).setCellValue("Seasons");
 
 
-            List<ShowOutputDto> shows = findAll();
+            List<ShowOutputDto> shows = showsRepository.findAll().stream()
+                    .map(Show::getInfoDto)
+                    .toList();
             for (int i = 0, showsSize = shows.size(); i < showsSize; i++) {
                 ShowOutputDto show = shows.get(i);
                 Row row = sheet.createRow(i + 1);

@@ -104,4 +104,8 @@ public class EpisodesService {
             log.error(e.getMessage());
         }
     }
+
+    @CacheEvict(cacheNames = {"shows-cache", "seasons-cache", "episodes-cache"}, allEntries = true)
+    public void clearCache() {
+    }
 }

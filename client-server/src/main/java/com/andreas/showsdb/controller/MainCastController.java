@@ -36,8 +36,8 @@ public class MainCastController {
         Long actorId = mainCast.getActorId();
 
         MainCastHypermedia mch = new MainCastHypermedia(mainCast);
-        mch.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("Show"));
-        mch.add(linkTo(methodOn(ActorsController.class).get(actorId)).withRel("Actor"));
+        mch.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("show"));
+        mch.add(linkTo(methodOn(ActorsController.class).get(actorId)).withRel("actor"));
 
         return mch;
     }
@@ -88,5 +88,14 @@ public class MainCastController {
                        @Parameter(description = "Id of the show")
                        @RequestParam("show") Long showId) {
         mainCastService.delete(actorId, showId);
+    }
+
+    @Operation(summary = "Clear all the cache for main casts", description = """
+            Should not be necessary, as any modifications to the relevant tables in the database will also clear cache, 
+            but it's better to have it than not.""")
+    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Cache cleared"))
+    @DeleteMapping("/cache")
+    public void clearCache() {
+        mainCastService.clearCache();
     }
 }

@@ -93,4 +93,8 @@ public class MainCastService {
     public void delete(Long actorId, Long showId) {
         mainCastRepository.deleteDistinctByActorIdAndShowId(actorId, showId);
     }
+
+    @CacheEvict(cacheNames = {"main-cast-cache", "main-cast-cache-actor", "main-cast-cache-show"}, allEntries = true)
+    public void clearCache() {
+    }
 }

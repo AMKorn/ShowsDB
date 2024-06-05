@@ -54,9 +54,9 @@ public class SeasonsService {
         int seasonNumber;
         try {
             seasonNumber = seasonsRepository.findByShowId(showId).stream()
-                    .max(Season::compareTo)
-                    .orElseThrow()
-                    .getNumber() + 1;
+                                   .max(Season::compareTo)
+                                   .orElseThrow()
+                                   .getNumber() + 1;
         } catch (NoSuchElementException e) {
             seasonNumber = 1;
         }
@@ -79,4 +79,7 @@ public class SeasonsService {
         seasonsRepository.deleteAllByShowId(showId);
     }
 
+    @CacheEvict(cacheNames = {"seasons-cache", "shows-cache"}, allEntries = true)
+    public void clearCache() {
+    }
 }

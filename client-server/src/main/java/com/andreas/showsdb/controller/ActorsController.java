@@ -38,7 +38,7 @@ public class ActorsController {
         ActorHypermedia ah = new ActorHypermedia(actor);
         Long actorId = actor.getId();
         ah.add(linkTo(methodOn(ActorsController.class).get(actorId)).withSelfRel());
-        ah.add(linkTo(methodOn(ActorsController.class).getShows(actorId)).withRel("Shows"));
+        ah.add(linkTo(methodOn(ActorsController.class).getShows(actorId)).withRel("shows"));
         return ah;
     }
 
@@ -111,11 +111,22 @@ public class ActorsController {
                 .peek(mainCast -> {
                     try {
                         mainCast.add(linkTo(methodOn(ShowsController.class).get(mainCast.getContent().getShowId()))
-                                .withRel("Show"));
+                                .withRel("show"));
+                        mainCast.add(linkTo(methodOn(ActorsController.class).get(mainCast.getContent().getActorId()))
+                                .withRel("actor"));
                     } catch (NotFoundException e) {
                         // This line cannot and will not throw an exception, but the compiler doesn't know that.
                     }
                 })
                 .toList();
+    }
+
+    @Operation(summary = "Clear all the cache for actors", description = """
+            Should not be necessary, as any modifications to the relevant tables in the database will also clear cache, 
+            but it's better to have it than not.""")
+    @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Cache cleared"))
+    @DeleteMapping("/cache")
+    public void clearCache() {
+        actorsService.clearCache();
     }
 }

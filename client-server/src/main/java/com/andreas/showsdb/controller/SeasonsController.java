@@ -36,8 +36,8 @@ public class SeasonsController {
         Long showId = season.getShowId();
         Integer seasonNumber = season.getSeasonNumber();
         sh.add(linkTo(methodOn(SeasonsController.class).get(showId, seasonNumber)).withSelfRel());
-        sh.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("Show"));
-        sh.add(linkTo(methodOn(EpisodesController.class).getAllFromSeason(showId, seasonNumber)).withRel("Episodes"));
+        sh.add(linkTo(methodOn(ShowsController.class).get(showId)).withRel("show"));
+        sh.add(linkTo(methodOn(EpisodesController.class).getAllFromSeason(showId, seasonNumber)).withRel("episodes"));
         return sh;
     }
 

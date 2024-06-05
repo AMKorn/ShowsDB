@@ -56,4 +56,8 @@ public class ActorsService {
     public void deleteById(long id) {
         actorsRepository.deleteById(id);
     }
+
+    @CacheEvict(cacheNames = {"actors-cache"}, allEntries = true)
+    public void clearCache() {
+    }
 }
