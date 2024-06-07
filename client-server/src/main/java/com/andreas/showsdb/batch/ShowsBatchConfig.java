@@ -36,8 +36,8 @@ public class ShowsBatchConfig {
     public JdbcBatchItemWriter<ShowBatchFormat> showWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<ShowBatchFormat>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO `show`(`name`, `country`) VALUES (:name, :country) " +
-                     "ON DUPLICATE KEY UPDATE `name`=:name, `country`=:country")
+                .sql("INSERT INTO `show`(`name`, `country`, `state`) VALUES (:name, :country, :state) " +
+                     "ON DUPLICATE KEY UPDATE `name`=:name, `country`=:country, `state`=:state")
                 .dataSource(dataSource)
                 .build();
     }
@@ -112,7 +112,7 @@ public class ShowsBatchConfig {
         return new FlatFileItemReaderBuilder<ShowBatchFormat>().name("showsReader")
                 .resource(new FileSystemResource(filepath))
                 .delimited()
-                .names("Name", "Country", "Seasons")
+                .names("Name", "Country", "Seasons", "State")
                 .fieldSetMapper(mapper)
                 .linesToSkip(1)
                 .build();
@@ -126,6 +126,7 @@ public class ShowsBatchConfig {
         private String name;
         private String country;
         private Integer seasons;
+        private String state;
     }
 
     @Data

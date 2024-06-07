@@ -5,15 +5,9 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.GenericMessage;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.statemachine.StateMachine;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,10 +17,10 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Set;
 
+@Slf4j
 public class Utils {
 
     private static final String DATE_FORMAT = "dd/MM/yyyy";
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
     private static final Random RANDOM = new Random();
 
     private Utils() {
@@ -62,18 +56,12 @@ public class Utils {
             File file = new File(path + finalName);
             if (file.mkdirs()) {
                 multipartFile.transferTo(file);
-                logger.info("Created file: {}", finalName);
+                log.info("Created file: {}", finalName);
                 return path + finalName;
             } else throw new ShowsDatabaseException("Error creating directory", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
             throw new ShowsDatabaseException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    public static <S, E> void sendMachineStateEvent(StateMachine<S, E> stateMachine, E event) {
-        Message<E> message = MessageBuilder.withPayload(event).build();
-        Mono<Message<E>> messageMono = Mono.just(message);
-        stateMachine.sendEvent(messageMono).subscribe();
     }
 
     public static String randomAlphaNumeric(int count) {

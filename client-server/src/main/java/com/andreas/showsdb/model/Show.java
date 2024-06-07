@@ -25,6 +25,8 @@ public class Show {
     private Long id;
     private String name;
     private String country;
+    @Enumerated(EnumType.STRING)
+    private State state;
     @OneToMany(mappedBy = "show", cascade = CascadeType.ALL) //, orphanRemoval = true)
     @JsonIgnoreProperties({"show"})
     private List<Season> seasons;
@@ -44,6 +46,7 @@ public class Show {
                 .id(dto.getId())
                 .name(dto.getName())
                 .country(dto.getCountry())
+                .state(dto.getState())
                 .build();
     }
 
@@ -51,7 +54,8 @@ public class Show {
         ShowOutputDto.ShowOutputDtoBuilder infoBuilder = ShowOutputDto.builder()
                 .id(id)
                 .name(name)
-                .country(country);
+                .country(country)
+                .state(state);
         int numberOfSeasons;
         int numberOfEpisodes;
         if (seasons != null) {
@@ -67,5 +71,13 @@ public class Show {
         return infoBuilder.numberOfSeasons(numberOfSeasons)
                 .numberOfEpisodes(numberOfEpisodes)
                 .build();
+    }
+
+    public enum State {
+        UNRELEASED, AIRING, CANCELLED, FINISHED
+    }
+
+    public enum Event {
+        AIRS, CANCELLATION, FINISH, RENEWED
     }
 }

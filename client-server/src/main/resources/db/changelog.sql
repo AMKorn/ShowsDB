@@ -64,7 +64,7 @@ create table `main_cast` (
     `character` varchar(255),
     primary key (`id_actor`, `id_show`)
 );
---rollback drop table `main_cast
+--rollback drop table `main_cast`
 
 --changeset andreas:10 labels:actors,shows
 insert into `main_cast` values (1, 1, 'Nandor The Relentless'), (2, 2, 'Eleanor Shellstrop');
@@ -72,3 +72,6 @@ insert into `main_cast` values (1, 1, 'Nandor The Relentless'), (2, 2, 'Eleanor 
 
 --changeset andreas:17 labels:shows
 alter table `show` add constraint `unique_name` unique (`name`);
+
+--changeset andreas:18 labels:shows
+alter table `show` add column `state` varchar(255);

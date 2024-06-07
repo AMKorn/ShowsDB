@@ -1,5 +1,6 @@
 package com.andreas.showsdb.model.dto;
 
+import com.andreas.showsdb.model.Show;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -28,4 +29,6 @@ public class ShowOutputDto implements Serializable {
     @NotNull(message = "Number of episodes must not be null")
     @PositiveOrZero(message = "Number of episodes must be higher than or equal to 0")
     Integer numberOfEpisodes;
+    @NotNull(message = "Show state must not be null")
+    Show.State state;
 }

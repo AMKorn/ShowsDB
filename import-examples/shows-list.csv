@@ -1,13 +1,13 @@
-Name,Country,Seasons
-What We Do in the Shadows,United States,5
-The Good Place,United States,5
-Invincible,United States,2
-WandaVision,United States,1
-The Handmaid's Tale,United States,5
-The Boys,United States,4
-How I Met Your Mother,United States,9
-Euphoria,United States,2
-Orphan Black,Canada,5
-Young Royals,Sweden,3
-Extraordinary,Ireland,2
-Spy x Family,Japan,2
+Name,Country,Seasons,State
+What We Do in the Shadows,United States,5,UNRELEASED
+The Good Place,United States,5,FINISHED
+Invincible,United States,2,AIRING
+WandaVision,United States,1,FINISHED
+The Handmaid's Tale,United States,5,AIRING
+The Boys,United States,4,AIRING
+How I Met Your Mother,United States,9,FINISHED
+Euphoria,United States,2,AIRING
+Orphan Black,Canada,5,FINISHED
+Young Royals,Sweden,3,FINISHED
+Extraordinary,Ireland,2,AIRING
+Spy x Family,Japan,2,AIRING
