@@ -8,6 +8,10 @@ import org.springframework.http.ResponseEntity;
 public class ShowsDatabaseException extends Exception {
     private final transient ResponseEntity<ExceptionMessage> response;
 
+    public ShowsDatabaseException() {
+        this.response = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     public ShowsDatabaseException(HttpStatus status) {
         this.response = new ResponseEntity<>(status);
     }

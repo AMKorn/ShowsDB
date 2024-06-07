@@ -210,7 +210,8 @@
                 <version>4.27.0</version>
                 <configuration>
                     <changeLogFile>db/changelog-master.xml</changeLogFile>
-                    <!--<outputChangeLogFile>db/changelog.xml</outputChangeLogFile>-->
+                    <outputChangeLogFile>db/changelog.xml</outputChangeLogFile>
+                    <runOnChangeTypes>true</runOnChangeTypes>
                     <!--<diffTypes>data</diffTypes>-->
                     <url>jdbc:mysql://localhost:8083/showsDB?allowPublicKeyRetrieval=true&amp;useSSL=false&amp;serverTimezone=CET</url>
                     <username>root</username>

@@ -1,11 +1,17 @@
 package com.andreas.showsdb.service;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.exception.ShowStateMachineException;
 import com.andreas.showsdb.exception.ShowsDatabaseException;
+import com.andreas.showsdb.model.Episode;
+import com.andreas.showsdb.model.Season;
 import com.andreas.showsdb.model.Show;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
+import com.andreas.showsdb.repository.EpisodesRepository;
+import com.andreas.showsdb.repository.SeasonsRepository;
 import com.andreas.showsdb.repository.ShowsRepository;
+import com.andreas.showsdb.statemachine.ShowStateMachine;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,19 +20,25 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+
+import static com.andreas.showsdb.model.Show.State.UNRELEASED;
 
 @Service
 @RequiredArgsConstructor
 public class ShowsService {
 
     private final ShowsRepository showsRepository;
+    private final SeasonsRepository seasonsRepository;
+    private final EpisodesRepository episodesRepository;
 
     @Cacheable("shows-cache")
     public List<ShowOutputDto> findAll() {
@@ -64,7 +76,7 @@ public class ShowsService {
     }
 
     @CacheEvict(cacheNames = {"shows-cache"}, allEntries = true)
-    public void clearCache(){
+    public void clearCache() {
     }
 
     public byte[] getAsCsvFile() {
@@ -110,5 +122,32 @@ public class ShowsService {
             throw new ShowsDatabaseException("Something went wrong when creating the xls file",
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public ShowOutputDto updateState(Long id) throws ShowsDatabaseException {
+        Show show = showsRepository.findById(id).orElseThrow(NotFoundException::new);
+        Show.State state = show.getState();
+        if (state == null) {
+            state = UNRELEASED;
+        }
+
+        StateMachine<Show.State, Show.Event> showStateMachine = ShowStateMachine.create(state);
+        showStateMachine.startReactively().subscribe();
+
+        Season firstSeason = seasonsRepository.findByShowId(id).getFirst();
+        if (firstSeason == null) {
+            return show.getInfoDto();
+        }
+
+        Episode firstEpisode =
+                episodesRepository.findBySeasonShowIdAndSeasonNumber(id, firstSeason.getNumber()).getFirst();
+        if (firstEpisode != null
+            && firstEpisode.getReleaseDate() != null
+            && firstEpisode.getReleaseDate().before(new Date())) {
+            ShowStateMachine.sendMachineStateEvent(showStateMachine, Show.Event.AIRS);
+        }
+        Show.State newState = showStateMachine.getState().getId();
+        show.setState(newState);
+        return showsRepository.save(show).getInfoDto();
     }
 }

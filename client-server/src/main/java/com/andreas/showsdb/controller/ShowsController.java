@@ -1,6 +1,7 @@
 package com.andreas.showsdb.controller;
 
 import com.andreas.showsdb.exception.NotFoundException;
+import com.andreas.showsdb.exception.ShowsDatabaseException;
 import com.andreas.showsdb.messaging.Messenger;
 import com.andreas.showsdb.model.dto.ShowInputDto;
 import com.andreas.showsdb.model.dto.ShowOutputDto;
@@ -40,6 +41,7 @@ public class ShowsController {
         ShowHypermedia sh = new ShowHypermedia(show);
         Long id = show.getId();
         sh.add(linkTo(methodOn(ShowsController.class).get(id)).withSelfRel());
+        sh.add(linkTo(methodOn(ShowsController.class).updateState(id)).withRel("update state"));
         sh.add(linkTo(methodOn(SeasonsController.class).getAllByShow(id)).withRel("seasons"));
         return sh;
     }
@@ -126,8 +128,20 @@ public class ShowsController {
                 .toList();
     }
 
+    @Operation(summary = "Update the state of a show with internal logic")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Shows state updated",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ShowHypermedia.class)))),
+            @ApiResponse(responseCode = "404", description = "Show not found")})
+    @PatchMapping("/{id}")
+    public ShowHypermedia updateState(@Parameter(description = "Id of the show")
+                                      @PathVariable Long id) throws ShowsDatabaseException {
+        return addLinks(showsService.updateState(id));
+    }
+
     @Operation(summary = "Clear all the cache for shows", description = """
-            Should not be necessary, as any modifications to the relevant tables in the database will also clear cache, 
+            Should not be necessary, as any modifications to the relevant tables in the database will also clear cache,
             but it's better to have it than not.""")
     @ApiResponses(value = @ApiResponse(responseCode = "200", description = "Cache cleared"))
     @DeleteMapping("/cache")
