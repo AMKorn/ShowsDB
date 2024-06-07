@@ -8,7 +8,12 @@ import jakarta.validation.ValidatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.statemachine.StateMachine;
 import org.springframework.web.multipart.MultipartFile;
+import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +68,12 @@ public class Utils {
         } catch (IOException e) {
             throw new ShowsDatabaseException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public static <S, E> void sendMachineStateEvent(StateMachine<S, E> stateMachine, E event) {
+        Message<E> message = MessageBuilder.withPayload(event).build();
+        Mono<Message<E>> messageMono = Mono.just(message);
+        stateMachine.sendEvent(messageMono).subscribe();
     }
 
     public static String randomAlphaNumeric(int count) {
