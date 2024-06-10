@@ -76,8 +76,4 @@ public class Show {
     public enum State {
         UNRELEASED, AIRING, CANCELLED, FINISHED
     }
-
-    public enum Event {
-        AIRS, CANCELLATION, FINISH, RENEWED
-    }
 }

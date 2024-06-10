@@ -16,20 +16,20 @@ import reactor.core.publisher.Mono;
 
 import java.util.EnumSet;
 
-import static com.andreas.showsdb.model.Show.Event.*;
 import static com.andreas.showsdb.model.Show.State.*;
+import static com.andreas.showsdb.statemachine.ShowStateMachine.Event.*;
+
 
 @Slf4j
 public class ShowStateMachine {
-    StateMachine<Show.State, Show.Event> stateMachine;
 
-    public static StateMachine<Show.State, Show.Event> create() throws ShowStateMachineException {
+    public static StateMachine<Show.State, Event> create() throws ShowStateMachineException {
         return create(UNRELEASED);
     }
 
-    public static StateMachine<Show.State, Show.Event> create(Show.State state) throws ShowStateMachineException {
+    public static StateMachine<Show.State, Event> create(Show.State state) throws ShowStateMachineException {
         try {
-            Builder<Show.State, Show.Event> builder = StateMachineBuilder.builder();
+            Builder<Show.State, Event> builder = StateMachineBuilder.builder();
             builder.configureStates()
                     .withStates()
                     .initial(state)
@@ -53,18 +53,22 @@ public class ShowStateMachine {
         }
     }
 
-    public static StateMachineListener<Show.State, Show.Event> listener() {
+    public static StateMachineListener<Show.State, Event> listener() {
         return new StateMachineListenerAdapter<>() {
             @Override
-            public void stateChanged(State<Show.State, Show.Event> from, State<Show.State, Show.Event> to) {
+            public void stateChanged(State<Show.State, Event> from, State<Show.State, Event> to) {
                 log.info("State change to {}", to.getId());
             }
         };
     }
 
-    public static void sendMachineStateEvent(StateMachine<Show.State, Show.Event> stateMachine, Show.Event event) {
-        Message<Show.Event> message = MessageBuilder.withPayload(event).build();
-        Mono<Message<Show.Event>> messageMono = Mono.just(message);
+    public static void sendMachineStateEvent(StateMachine<Show.State, Event> stateMachine, Event event) {
+        Message<Event> message = MessageBuilder.withPayload(event).build();
+        Mono<Message<Event>> messageMono = Mono.just(message);
         stateMachine.sendEvent(messageMono).subscribe();
+    }
+
+    public enum Event {
+        AIRS, CANCELLATION, FINISH, RENEWED
     }
 }

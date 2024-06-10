@@ -130,7 +130,7 @@ public class ShowsService {
             state = UNRELEASED;
         }
 
-        StateMachine<Show.State, Show.Event> showStateMachine = ShowStateMachine.create(state);
+        StateMachine<Show.State, ShowStateMachine.Event> showStateMachine = ShowStateMachine.create(state);
         showStateMachine.startReactively().subscribe();
 
         Season firstSeason = seasonsRepository.findByShowId(id).getFirst();
@@ -143,7 +143,7 @@ public class ShowsService {
         if (firstEpisode != null
             && firstEpisode.getReleaseDate() != null
             && firstEpisode.getReleaseDate().before(new Date())) {
-            ShowStateMachine.sendMachineStateEvent(showStateMachine, Show.Event.AIRS);
+            ShowStateMachine.sendMachineStateEvent(showStateMachine, ShowStateMachine.Event.AIRS);
         }
         Show.State newState = showStateMachine.getState().getId();
         show.setState(newState);
